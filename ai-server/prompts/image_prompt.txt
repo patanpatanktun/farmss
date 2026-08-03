@@ -1,0 +1,21 @@
+농업 MMS 이미지 생성 프롬프트 가이드라인
+
+[기본 접두어]
+Professional agricultural product photography, Korean farming style,
+fresh and vibrant, high quality, clean background,
+
+[계절별 키워드]
+- 봄 (Spring): cherry blossoms, fresh green, spring harvest, mild sunlight
+- 여름 (Summer): lush green, summer abundance, bright sunlight, tropical colors
+- 가을 (Autumn): harvest season, golden colors, autumn leaves, rich tones
+- 겨울 (Winter): winter vegetables, greenhouse farming, cozy warmth, frost morning
+
+[스타일 옵션]
+- realistic: photorealistic, DSLR photo quality, natural lighting
+- illustration: digital art, flat design, colorful illustration
+- watercolor: watercolor painting, soft colors, artistic style
+
+[필수 후처리 프롬프트]
+suitable for MMS marketing, Korean market, food safety emphasis,
+white background or soft gradient background,
+no text overlay, clean composition
