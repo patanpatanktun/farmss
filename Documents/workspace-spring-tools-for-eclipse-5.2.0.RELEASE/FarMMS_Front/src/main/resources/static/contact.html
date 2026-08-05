@@ -53,56 +53,100 @@
   <main class="max-w-[1360px] mx-auto px-10 py-10 w-full flex-1">
 
     <!-- 페이지 타이틀 영역 -->
-    <div class="flex justify-between items-end mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
       <div>
         <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">연락처 관리</h1>
         <p class="text-gray-500 font-medium text-base">홍보 문자를 발송할 농가 및 고객 연락처를 등록하고 관리하세요.</p>
       </div>
 
       <!-- 액션 버튼 영역 -->
-      <div class="flex gap-4">
-        <button class="flex items-center gap-2 px-5 py-3 bg-emerald-800 rounded-2xl text-base font-bold text-white hover:bg-emerald-900 shadow-sm transition">
+      <div class="flex flex-wrap gap-3">
+        <!-- 그룹 관리 버튼 -->
+        <button type="button" class="flex items-center gap-2 px-4 py-3 bg-white border-2 border-gray-200 rounded-2xl text-base font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition">
+          <i class="fa-solid fa-layer-group text-emerald-800"></i> 그룹 관리
+        </button>
+        <!-- 엑셀 파일로 연락처 추가 버튼 -->
+        <button type="button" onclick="document.getElementById('excelFileinput').click();" class="flex items-center gap-2 px-4 py-3 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-base font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm transition">
+          <i class="fa-solid fa-file-excel text-lg"></i> 엑셀로 추가
+        </button>
+        <input type="file" id="excelFileinput" accept=".xlsx, .xls, .csv" class="hidden">
+        
+        <!-- 새 고객 등록 버튼 -->
+        <button type="button" class="flex items-center gap-2 px-5 py-3 bg-emerald-800 rounded-2xl text-base font-bold text-white hover:bg-emerald-900 shadow-sm transition">
           <i class="fa-solid fa-plus text-base"></i> 새 고객 등록
         </button>
       </div>
     </div>
 
-    <!-- 검색 및 필터 툴바 카드 -->
+    <!-- 검색 및 전체 인원수 툴바 카드 -->
     <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="relative w-full md:w-[600px]">
+      <div class="relative w-full md:w-[900px]">
         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
-        <input type="text" placeholder="고객명, 전화번호, 작물, 지역 검색" 
+        <input type="text" id="searchInput" placeholder="고객명, 전화번호, 작물, 그룹 검색" 
                class="w-full pl-12 pr-4 py-3.5 bg-gray-50/60 border-2 border-gray-200 rounded-2xl text-sm font-medium focus:outline-none focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-100 transition-all text-gray-800">
       </div>
 
       <!-- 전체 등록 연락처 수 -->
-      <div class="text-sm font-bold text-gray-600">
-        전체 등록 연락처 <span class="text-emerald-800 font-black text-xl ml-1">5</span>명
+      <div class="text-lg font-bold text-gray-700 whitespace-nowrap ml-auto pr-2 flex items-center gap-1.5">
+        <span>전체</span>
+        <span id="totalCount" class="text-emerald-800 font-black text-3xl">5</span>
+        <span>명</span>
       </div>
     </div>
 
     <!-- 데이터 테이블 컨트롤 바 -->
     <div class="flex justify-between items-center mb-3 px-2">
       <div class="flex items-center gap-3">
-        <button class="px-4 py-2 bg-white border border-red-200 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 shadow-sm transition flex items-center gap-2">
-          <i class="fa-regular fa-trash-can"></i> 선택한 항목 삭제
+        <!-- 선택 항목 그룹 설정 버튼 -->
+        <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-users-gear text-emerald-800"></i> 선택 항목 그룹 설정
+        </button>
+        <!-- 선택 항목 삭제 버튼 -->
+        <button type="button" class="px-4 py-2 bg-white border border-red-200 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 shadow-sm transition flex items-center gap-2">
+          <i class="fa-regular fa-trash-can"></i> 선택 항목 삭제
         </button>
       </div>
     </div>
 
     <!-- 데이터 테이블 카드 -->
-    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-visible">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table id="contactTable" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-gray-50/80 border-b border-gray-200 text-sm font-bold text-gray-500">
               <th class="py-4 px-6 w-16 text-center">
-                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer">
+                <input type="checkbox" id="selectAll" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer">
               </th>
-              <th class="py-4 px-6">고객명</th>
+              
+              <!-- 고객명: 데이터 내용 중앙에 오도록 좌우 패딩을 넉넉히 줌 -->
+              <th class="py-4 px-8 relative">
+                <div class="flex items-center justify-between cursor-pointer select-none group pr-6" onclick="toggleDropdown('nameDropdown')">
+                  <span class="group-hover:text-emerald-800 transition">고객명</span>
+                  <i class="fa-solid fa-sort text-gray-400 text-sm bg-gray-50 p-1.5 rounded-lg border border-gray-200 group-hover:text-emerald-800 transition"></i>
+                </div>
+                <!-- 오름차순/내림차순 드롭다운 박스 -->
+                <div id="nameDropdown" class="hidden absolute left-8 top-14 w-40 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50">
+                  <a href="#" class="block px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition">고객명 오름차순 (↑)</a>
+                  <a href="#" class="block px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition">고객명 내림차순 (↓)</a>
+                </div>
+              </th>
+
               <th class="py-4 px-6">전화번호</th>
               <th class="py-4 px-6">재배 작물</th>
-              <th class="py-4 px-6">지역</th>
+              
+              <!-- 그룹명: 데이터 내용 중앙에 오도록 좌우 패딩을 넉넉히 줌 -->
+              <th class="py-4 px-8 relative">
+                <div class="flex items-center justify-between cursor-pointer select-none group pr-6" onclick="toggleDropdown('groupDropdown')">
+                  <span class="group-hover:text-emerald-800 transition">그룹명</span>
+                  <i class="fa-solid fa-sort text-gray-400 text-sm bg-gray-50 p-1.5 rounded-lg border border-gray-200 group-hover:text-emerald-800 transition"></i>
+                </div>
+                <!-- 오름차순/내림차순 드롭다운 박스 -->
+                <div id="groupDropdown" class="hidden absolute left-8 top-14 w-40 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50">
+                  <a href="#" class="block px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition">그룹명 오름차순 (↑)</a>
+                  <a href="#" class="block px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition">그룹명 내림차순 (↓)</a>
+                </div>
+              </th>
+
               <th class="py-4 px-6">메모</th>
               <th class="py-4 px-6 text-center">관리</th>
             </tr>
@@ -111,86 +155,86 @@
             
             <!-- Row 1 -->
             <tr class="hover:bg-emerald-50/30 transition">
-              <td class="py-4 px-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
-              <td class="py-4 px-6 font-bold text-gray-900 flex items-center gap-3">
+              <td class="py-4 px-6 text-center"><input type="checkbox" class="row-checkbox w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
+              <td class="py-4 px-8 font-bold text-gray-900 flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-xs">김</div>
-                김농부
+                <span class="name-text">김농부</span>
               </td>
               <td class="py-4 px-6 font-semibold text-gray-800">010-2345-6789</td>
               <td class="py-4 px-6"><span class="px-3 py-1 bg-emerald-100/70 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-200">벼</span></td>
-              <td class="py-4 px-6 text-gray-600">충청남도 당진</td>
+              <td class="py-4 px-8"><span class="group-text px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-bold border border-indigo-200">단골고객</span></td>
               <td class="py-4 px-6 text-gray-600 font-medium">우수 단골 고객 / 유기질비료 사용</td>
               <td class="py-4 px-6 text-center space-x-1.5">
-                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
-                <button class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
               </td>
             </tr>
 
             <!-- Row 2 -->
             <tr class="hover:bg-emerald-50/30 transition">
-              <td class="py-4 px-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
-              <td class="py-4 px-6 font-bold text-gray-900 flex items-center gap-3">
+              <td class="py-4 px-6 text-center"><input type="checkbox" class="row-checkbox w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
+              <td class="py-4 px-8 font-bold text-gray-900 flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-red-100 text-red-800 font-black flex items-center justify-center text-xs">이</div>
-                이과수
+                <span class="name-text">이과수</span>
               </td>
               <td class="py-4 px-6 font-semibold text-gray-800">010-3456-7890</td>
               <td class="py-4 px-6"><span class="px-3 py-1 bg-red-100/70 text-red-800 rounded-xl text-xs font-bold border border-red-200">사과</span></td>
-              <td class="py-4 px-6 text-gray-600">경북 안동</td>
+              <td class="py-4 px-8"><span class="group-text px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold border border-blue-200">일반농가</span></td>
               <td class="py-4 px-6 text-gray-600 font-medium">석회질비료 사용</td>
               <td class="py-4 px-6 text-center space-x-1.5">
-                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
-                <button class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-gray-50 transition">삭제</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
               </td>
             </tr>
 
             <!-- Row 3 -->
             <tr class="hover:bg-emerald-50/30 transition">
-              <td class="py-4 px-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
-              <td class="py-4 px-6 font-bold text-gray-900 flex items-center gap-3">
+              <td class="py-4 px-6 text-center"><input type="checkbox" class="row-checkbox w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
+              <td class="py-4 px-8 font-bold text-gray-900 flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-800 font-black flex items-center justify-center text-xs">박</div>
-                박고추
+                <span class="name-text">박고추</span>
               </td>
               <td class="py-4 px-6 font-semibold text-gray-800">010-4567-8901</td>
               <td class="py-4 px-6"><span class="px-3 py-1 bg-orange-100/70 text-orange-800 rounded-xl text-xs font-bold border border-orange-200">고추</span></td>
-              <td class="py-4 px-6 text-gray-600">충북 청양</td>
+              <td class="py-4 px-8"><span class="group-text px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-bold border border-indigo-200">단골고객</span></td>
               <td class="py-4 px-6 text-gray-600 font-medium">단골 고객 / 복합비료 선호</td>
               <td class="py-4 px-6 text-center space-x-1.5">
-                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
-                <button class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
               </td>
             </tr>
 
             <!-- Row 4 -->
             <tr class="hover:bg-emerald-50/30 transition">
-              <td class="py-4 px-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
-              <td class="py-4 px-6 font-bold text-gray-900 flex items-center gap-3">
+              <td class="py-4 px-6 text-center"><input type="checkbox" class="row-checkbox w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
+              <td class="py-4 px-8 font-bold text-gray-900 flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-black flex items-center justify-center text-xs">최</div>
-                최마늘
+                <span class="name-text">최마늘</span>
               </td>
               <td class="py-4 px-6 font-semibold text-gray-800">010-5678-9012</td>
               <td class="py-4 px-6"><span class="px-3 py-1 bg-amber-100/70 text-amber-800 rounded-xl text-xs font-bold border border-amber-200">마늘</span></td>
-              <td class="py-4 px-6 text-gray-600">경남 남해</td>
+              <td class="py-4 px-8"><span class="group-text px-3 py-1 bg-purple-50 text-purple-700 rounded-xl text-xs font-bold border border-purple-200">도매처</span></td>
               <td class="py-4 px-6 text-gray-600 font-medium">유기질비료 사용</td>
               <td class="py-4 px-6 text-center space-x-1.5">
-                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
-                <button class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
               </td>
             </tr>
 
             <!-- Row 5 -->
             <tr class="hover:bg-emerald-50/30 transition">
-              <td class="py-4 px-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
-              <td class="py-4 px-6 font-bold text-gray-900 flex items-center gap-3">
+              <td class="py-4 px-6 text-center"><input type="checkbox" class="row-checkbox w-4 h-4 rounded border-gray-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer"></td>
+              <td class="py-4 px-8 font-bold text-gray-900 flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-green-100 text-green-800 font-black flex items-center justify-center text-xs">정</div>
-                정배추
+                <span class="name-text">정배추</span>
               </td>
               <td class="py-4 px-6 font-semibold text-gray-800">010-6789-0123</td>
               <td class="py-4 px-6"><span class="px-3 py-1 bg-green-100/70 text-green-800 rounded-xl text-xs font-bold border border-green-200">배추</span></td>
-              <td class="py-4 px-6 text-gray-600">강원 강릉</td>
+              <td class="py-4 px-8"><span class="group-text px-3 py-1 bg-green-50 text-green-700 rounded-xl text-xs font-bold border border-green-200">신규고객</span></td>
               <td class="py-4 px-6 text-gray-600 font-medium">신규 고객 / 석회질비료 사용</td>
               <td class="py-4 px-6 text-center space-x-1.5">
-                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
-                <button class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition">수정</button>
+                <button type="button" class="px-3 py-1.5 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition">삭제</button>
               </td>
             </tr>
 
@@ -205,6 +249,29 @@
   <footer class="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs mt-12">
     <p>© 2026 FarMMS. All rights reserved.</p>
   </footer>
+
+  <!-- 드롭다운 토글용 스크립트 -->
+  <script>
+    function toggleDropdown(dropdownId) {
+      var dropdown = document.getElementById(dropdownId);
+      var allDropdowns = document.querySelectorAll('[id$="Dropdown"]');
+      allDropdowns.forEach(function(d) {
+        if (d.id !== dropdownId) {
+          d.classList.add('hidden');
+        }
+      });
+      dropdown.classList.toggle('hidden');
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('th')) {
+        var allDropdowns = document.querySelectorAll('[id$="Dropdown"]');
+        allDropdowns.forEach(function(d) {
+          d.classList.add('hidden');
+        });
+      }
+    }
+  </script>
 
 </body>
 </html>

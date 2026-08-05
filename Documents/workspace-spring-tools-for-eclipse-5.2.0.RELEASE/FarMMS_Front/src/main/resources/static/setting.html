@@ -62,7 +62,10 @@
     <div class="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-6">
       <div class="flex justify-between items-center border-b border-gray-100 pb-4">
         <h2 class="text-xl font-black text-gray-900">가입 정보</h2>
-        <span class="text-xs bg-emerald-50 text-emerald-800 font-bold px-3 py-1.5 rounded-full border border-emerald-100">일반 회원</span>
+        <!-- 일반 회원 뱃지 제거 후 회원수정 버튼 추가 -->
+        <button type="button" class="px-4 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-user-pen"></i> 회원수정
+        </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
         <div class="space-y-1">

@@ -58,70 +58,102 @@
       <p class="text-gray-500 font-medium text-base">생성된 홍보 이미지를 저장하고 관리하세요. 총 <span class="text-emerald-800 font-bold">6개</span></p>
     </div>
 
-    <!-- 이미지 카드 그리드 섹션 (4열 레이아웃) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- 이미지 카드 그리드 섹션 (3열 x 2줄 레이아웃으로 변경 및 카드 크기 확대) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
-        <!-- Card 1 (images/sample-mms1.png 경로 적용) -->
-        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
-            <div class="text-xs font-bold text-gray-400">2026.07.28 생성</div>
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.07.28 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
                 <div class="w-full aspect-[4/5] bg-white rounded-xl border border-emerald-200 overflow-hidden shadow-inner flex items-center justify-center">
                     <img src="images/sample-mms1.png" alt="여름 농자재 특별 할인 미리보기" class="w-full h-full object-cover">
                 </div>
             </div>
-            <div class="font-bold text-gray-900 text-center text-lg">여름 농자재 특별 할인</div>
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            <div class="font-extrabold text-gray-900 text-center text-xl">여름 농자재 특별 할인</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
             </div>
         </div>
 
-        <!-- Card 2 (4:5 비율 빈 이미지 박스) -->
-        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
-            <div class="text-xs font-bold text-gray-400">2026.07.20 생성</div>
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
-                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+        <!-- Card 2 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.07.20 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-base font-medium">
                     <span>이미지 준비중</span>
                 </div>
             </div>
-            <div class="font-bold text-gray-900 text-center text-lg">과수 농가 전용 비료</div>
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            <div class="font-extrabold text-gray-900 text-center text-xl">과수 농가 전용 비료</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
             </div>
         </div>
 
-        <!-- Card 3 (4:5 비율 빈 이미지 박스) -->
-        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
-            <div class="text-xs font-bold text-gray-400">2026.07.10 생성</div>
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
-                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+        <!-- Card 3 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.07.10 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-base font-medium">
                     <span>이미지 준비중</span>
                 </div>
             </div>
-            <div class="font-bold text-gray-900 text-center text-lg">토양개량제 무상지원 안내</div>
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            <div class="font-extrabold text-gray-900 text-center text-xl">토양개량제 무상지원 안내</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
             </div>
         </div>
 
-        <!-- Card 4 (4:5 비율 빈 이미지 박스) -->
-        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
-            <div class="text-xs font-bold text-gray-400">2026.07.01 생성</div>
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
-                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+        <!-- Card 4 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.07.01 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-base font-medium">
                     <span>이미지 준비중</span>
                 </div>
             </div>
-            <div class="font-bold text-gray-900 text-center text-lg">모내기 시즌 비료 특가</div>
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
-                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            <div class="font-extrabold text-gray-900 text-center text-xl">모내기 시즌 비료 특가</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.06.25 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-base font-medium">
+                    <span>이미지 준비중</span>
+                </div>
+            </div>
+            <div class="font-extrabold text-gray-900 text-center text-xl">친환경 유기농 영양제</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-8 space-y-5">
+            <div class="text-sm font-bold text-gray-400">2026.06.15 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-base font-medium">
+                    <span>이미지 준비중</span>
+                </div>
+            </div>
+            <div class="font-extrabold text-gray-900 text-center text-xl">고추 벼 병해충 방제 안내</div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button type="button" class="py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-2xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">수정하기</button>
+                <button type="button" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-2xl transition-colors">MMS 발송</button>
             </div>
         </div>
 
