@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarMMS - 발송 내역</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 아이콘 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Pretendard 폰트 적용 */
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100/70 text-gray-800 min-h-screen flex flex-col justify-between">
+
+  <!-- 상단 네비게이션 영역 -->
+  <div class="w-full bg-white shadow-sm sticky top-0 z-50">
+    <!-- 최상단 유틸리티 바 -->
+    <div class="max-w-[1360px] mx-auto px-10 py-3 flex justify-between items-center border-b border-gray-100 text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-800 font-extrabold text-lg tracking-tight">FarMMS</span>
+        <span class="text-gray-300">|</span>
+        <span class="text-gray-500 font-medium text-xs">농업의 가치를 더하다</span>
+      </div>
+      <div class="flex items-center gap-5 text-gray-600 font-semibold">
+        <span><strong class="text-gray-900 font-bold">홍길동</strong> 님 환영합니다</span>
+        <span class="text-gray-200">|</span>
+        <a href="setting.html" class="hover:text-emerald-800 transition">설정</a>
+        <a href="#" class="text-red-500 hover:text-red-600 transition">로그아웃</a>
+      </div>
+    </div>
+
+    <!-- 메인 네비게이션 메뉴 바 -->
+    <div class="max-w-[1360px] mx-auto px-10 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="maindashboard.html" class="text-2xl font-black text-emerald-800 tracking-tight">FarMMS</a>
+        <nav class="flex items-center gap-8 font-bold text-base text-gray-600">
+          <a href="main.html" class="hover:text-emerald-800 transition py-1">홈</a>
+          <a href="contact.html" class="hover:text-emerald-800 transition py-1">연락처 관리</a>
+          <a href="createimage.html" class="hover:text-emerald-800 transition py-1">이미지 만들기</a>
+          <a href="manageimage.html" class="hover:text-emerald-800 transition py-1">이미지 관리</a>
+          <a href="sendmms.html" class="hover:text-emerald-800 transition py-1">MMS 발송</a>
+          <a href="checkmms.html" class="text-emerald-800 border-b-2 border-emerald-800 py-1 transition">발송 내역</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- 본문 내용 (중앙 정렬 및 가로 폭 최적화) -->
+  <main class="max-w-[1100px] mx-auto px-6 py-10 w-full flex-1 space-y-8">
+
+    <!-- 페이지 타이틀 영역 -->
+    <div class="mb-2 px-2">
+      <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-2">발송 내역</h1>
+      <p class="text-gray-500 font-medium text-base">지금까지의 총 발송 MMS 문자 내역을 확인할 수 있습니다.</p>
+    </div>
+
+    <!-- 상단 요약 통계 카드 영역 (한 줄에 4개 배치) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- 카드 1 -->
+      <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-2">
+        <span class="text-xs text-gray-400 font-bold block">총 발송 건수</span>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-gray-900">56건</span>
+        </div>
+      </div>
+      <!-- 카드 2 -->
+      <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-2">
+        <span class="text-xs text-gray-400 font-bold block">총 수신자 수</span>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-gray-900">329명</span>
+        </div>
+      </div>
+      <!-- 카드 3 -->
+      <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-2">
+        <span class="text-xs text-gray-400 font-bold block">최다 수신 그룹</span>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-emerald-800">전체 농가</span>
+        </div>
+      </div>
+      <!-- 카드 4 -->
+      <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-2">
+        <span class="text-xs text-gray-400 font-bold block">총 발송 금액</span>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-emerald-800">65,800원</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 발송 내역 테이블 카드 영역 -->
+    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-200 text-gray-400 text-xs font-bold bg-gray-50/50">
+              <th class="py-4 px-6">발송 제목</th>
+              <th class="py-4 px-6">발송 일시</th>
+              <th class="py-4 px-6">수신 그룹</th>
+              <th class="py-4 px-6">수신자 수</th>
+              <th class="py-4 px-6 text-center">상세보기</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 text-sm font-medium text-gray-700">
+            <!-- 행 1 -->
+            <tr class="hover:bg-gray-50/60 transition">
+              <td class="py-5 px-6 font-bold text-gray-900">유기질 비료 20kg 특가 안내</td>
+              <td class="py-5 px-6 text-gray-500 font-normal">2026-07-28 09:00</td>
+              <td class="py-5 px-6 font-semibold text-emerald-800">전체</td>
+              <td class="py-5 px-6 text-gray-900 font-bold">24명</td>
+              <td class="py-5 px-6 text-center">
+                <button class="px-4 py-2 border border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl text-xs font-bold text-gray-600 transition shadow-sm">
+                  상세보기
+                </button>
+              </td>
+            </tr>
+            <!-- 행 2 -->
+            <tr class="hover:bg-gray-50/60 transition">
+              <td class="py-5 px-6 font-bold text-gray-900">친환경 농약 신제품 출시 안내</td>
+              <td class="py-5 px-6 text-gray-500 font-normal">2026-07-15 10:30</td>
+              <td class="py-5 px-6 font-semibold text-emerald-800">과수 농가, 채소 농가</td>
+              <td class="py-5 px-6 text-gray-900 font-bold">18명</td>
+              <td class="py-5 px-6 text-center">
+                <button class="px-4 py-2 border border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl text-xs font-bold text-gray-600 transition shadow-sm">
+                  상세보기
+                </button>
+              </td>
+            </tr>
+            <!-- 행 3 -->
+            <tr class="hover:bg-gray-50/60 transition">
+              <td class="py-5 px-6 font-bold text-gray-900">여름 농자재 특별 할인 이벤트</td>
+              <td class="py-5 px-6 text-gray-500 font-normal">2026-07-01 08:00</td>
+              <td class="py-5 px-6 font-semibold text-emerald-800">전체</td>
+              <td class="py-5 px-6 text-gray-900 font-bold">24명</td>
+              <td class="py-5 px-6 text-center">
+                <button class="px-4 py-2 border border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl text-xs font-bold text-gray-600 transition shadow-sm">
+                  상세보기
+                </button>
+              </td>
+            </tr>
+            <!-- 행 4 -->
+            <tr class="hover:bg-gray-50/60 transition">
+              <td class="py-5 px-6 font-bold text-gray-900">과수 농가 전용 비료 프로모션</td>
+              <td class="py-5 px-6 text-gray-500 font-normal">2026-06-20 09:30</td>
+              <td class="py-5 px-6 font-semibold text-emerald-800">과수 농가</td>
+              <td class="py-5 px-6 text-gray-900 font-bold">12명</td>
+              <td class="py-5 px-6 text-center">
+                <button class="px-4 py-2 border border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl text-xs font-bold text-gray-600 transition shadow-sm">
+                  상세보기
+                </button>
+              </td>
+            </tr>
+            <!-- 행 5 -->
+            <tr class="hover:bg-gray-50/60 transition">
+              <td class="py-5 px-6 font-bold text-gray-900">모내기 시즌 특가 비료 안내</td>
+              <td class="py-5 px-6 text-gray-500 font-normal">2026-05-10 07:00</td>
+              <td class="py-5 px-6 font-semibold text-emerald-800">전남 광주</td>
+              <td class="py-5 px-6 text-gray-900 font-bold">15명</td>
+              <td class="py-5 px-6 text-center">
+                <button class="px-4 py-2 border border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl text-xs font-bold text-gray-600 transition shadow-sm">
+                  상세보기
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs mt-12">
+    <p>© 2026 FarMMS. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarMMS - 이미지 관리</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 아이콘 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Pretendard 폰트 적용 */
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100/70 text-gray-800 min-h-screen flex flex-col justify-between">
+
+  <!-- 상단 네비게이션 영역 -->
+  <div class="w-full bg-white shadow-sm sticky top-0 z-50">
+    <!-- 최상단 유틸리티 바 -->
+    <div class="max-w-[1360px] mx-auto px-10 py-3 flex justify-between items-center border-b border-gray-100 text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-800 font-extrabold text-lg tracking-tight">FarMMS</span>
+        <span class="text-gray-300">|</span>
+        <span class="text-gray-500 font-medium text-xs">농업의 가치를 더하다</span>
+      </div>
+      <div class="flex items-center gap-5 text-gray-600 font-semibold">
+        <span><strong class="text-gray-900 font-bold">홍길동</strong> 님 환영합니다</span>
+        <span class="text-gray-200">|</span>
+        <a href="setting.html" class="hover:text-emerald-800 transition">설정</a>
+        <a href="#" class="text-red-500 hover:text-red-600 transition">로그아웃</a>
+      </div>
+    </div>
+
+    <!-- 메인 네비게이션 메뉴 바 -->
+    <div class="max-w-[1360px] mx-auto px-10 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="main.html" class="text-2xl font-black text-emerald-800 tracking-tight">FarMMS</a>
+        <nav class="flex items-center gap-8 font-bold text-base text-gray-600">
+          <a href="main.html" class="hover:text-emerald-800 transition py-1">홈</a>
+          <a href="contact.html" class="hover:text-emerald-800 transition py-1">연락처 관리</a>
+          <a href="createimage.html" class="hover:text-emerald-800 transition py-1">이미지 만들기</a>
+          <a href="manageimage.html" class="text-emerald-800 border-b-2 border-emerald-800 py-1 transition">이미지 관리</a>
+          <a href="sendmms.html" class="hover:text-emerald-800 transition py-1">MMS 발송</a>
+          <a href="checkmms.html" class="hover:text-emerald-800 transition py-1">발송 내역</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- 본문 내용 -->
+  <main class="max-w-[1360px] mx-auto px-10 py-10 w-full flex-1 space-y-8">
+
+    <!-- 페이지 타이틀 & 설명 영역 -->
+    <div class="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm space-y-2">
+      <h1 class="text-3xl font-black text-gray-900 tracking-tight">이미지 관리</h1>
+      <p class="text-gray-500 font-medium text-base">생성된 홍보 이미지를 저장하고 관리하세요. 총 <span class="text-emerald-800 font-bold">6개</span></p>
+    </div>
+
+    <!-- 이미지 카드 그리드 섹션 (4열 레이아웃) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Card 1 (images/sample-mms1.png 경로 적용) -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
+            <div class="text-xs font-bold text-gray-400">2026.07.28 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-white rounded-xl border border-emerald-200 overflow-hidden shadow-inner flex items-center justify-center">
+                    <img src="images/sample-mms1.png" alt="여름 농자재 특별 할인 미리보기" class="w-full h-full object-cover">
+                </div>
+            </div>
+            <div class="font-bold text-gray-900 text-center text-lg">여름 농자재 특별 할인</div>
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+        <!-- Card 2 (4:5 비율 빈 이미지 박스) -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
+            <div class="text-xs font-bold text-gray-400">2026.07.20 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+                    <span>이미지 준비중</span>
+                </div>
+            </div>
+            <div class="font-bold text-gray-900 text-center text-lg">과수 농가 전용 비료</div>
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+        <!-- Card 3 (4:5 비율 빈 이미지 박스) -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
+            <div class="text-xs font-bold text-gray-400">2026.07.10 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+                    <span>이미지 준비중</span>
+                </div>
+            </div>
+            <div class="font-bold text-gray-900 text-center text-lg">토양개량제 무상지원 안내</div>
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+        <!-- Card 4 (4:5 비율 빈 이미지 박스) -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between p-6 space-y-4">
+            <div class="text-xs font-bold text-gray-400">2026.07.01 생성</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 flex justify-center">
+                <div class="w-full aspect-[4/5] bg-gray-50 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 text-sm font-medium">
+                    <span>이미지 준비중</span>
+                </div>
+            </div>
+            <div class="font-bold text-gray-900 text-center text-lg">모내기 시즌 비료 특가</div>
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <button type="button" class="py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">저장하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">수정하기</button>
+                <button type="button" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">MMS 발송</button>
+            </div>
+        </div>
+
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs mt-12">
+    <p>© 2026 FarMMS. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
