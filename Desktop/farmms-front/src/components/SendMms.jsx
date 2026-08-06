@@ -6,10 +6,10 @@ export default function SendMms() {
     <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased [-webkit-font-smoothing:antialiased]">
 
       {/* 상단 네비게이션 영역 */}
-      <header className="w-full bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+      <header className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         {/* 최상단 유틸리티 바 */}
         <div className="max-w-[1360px] mx-auto px-10 py-3 flex justify-between items-center border-b border-gray-100 text-sm">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Link to="/main" className="text-emerald-800 font-black text-xl tracking-tight">FarMMS</Link>
             <span className="text-gray-300 font-light">|</span>
             <span className="text-gray-600 font-semibold text-xs tracking-wide">농업의 가치를 더하다</span>
@@ -17,7 +17,7 @@ export default function SendMms() {
           <div className="flex items-center gap-5 text-gray-700 font-bold text-sm">
             <span><strong className="text-gray-900 font-black">홍길동</strong> 님 환영합니다</span>
             <span className="text-gray-300">|</span>
-            <Link to="/setting" className="hover:text-emerald-800 transition">설정</Link>
+            <Link to="/setting" className="hover:text-emerald-700 transition">설정</Link>
             <Link to="/login" className="text-red-500 hover:text-red-600 transition">로그아웃</Link>
           </div>
         </div>
@@ -26,13 +26,13 @@ export default function SendMms() {
         <div className="max-w-[1360px] mx-auto px-10 py-4 flex items-center justify-between">
           <div className="flex items-center gap-10">
             <Link to="/main" className="text-2xl font-black text-emerald-800 tracking-tight">FarMMS</Link>
-            <nav className="flex items-center gap-8 font-bold text-base text-gray-700">
-              <Link to="/main" className="hover:text-emerald-800 transition py-1">홈</Link>
-              <Link to="/contact" className="hover:text-emerald-800 transition py-1">연락처 관리</Link>
-              <Link to="/createimage" className="hover:text-emerald-800 transition py-1">이미지 만들기</Link>
-              <Link to="/manageimage" className="hover:text-emerald-800 transition py-1">이미지 관리</Link>
-              <Link to="/sendmms" className="text-emerald-800 border-b-2 border-emerald-800 py-1 transition">MMS 발송</Link>
-              <Link to="/checkmms" className="hover:text-emerald-800 transition py-1">발송 내역</Link>
+            <nav className="flex items-center gap-8 font-bold text-base text-gray-800">
+              <Link to="/main" className="hover:text-emerald-700 transition py-1">홈</Link>
+              <Link to="/contact" className="hover:text-emerald-700 transition py-1">연락처 관리</Link>
+              <Link to="/createimage" className="hover:text-emerald-700 transition py-1">이미지 만들기</Link>
+              <Link to="/manageimage" className="hover:text-emerald-700 transition py-1">이미지 관리</Link>
+              <Link to="/sendmms" className="text-emerald-700 border-b-2 border-emerald-700 py-1 transition">MMS 발송</Link>
+              <Link to="/checkmms" className="hover:text-emerald-700 transition py-1">발송 내역</Link>
             </nav>
           </div>
         </div>
@@ -44,60 +44,60 @@ export default function SendMms() {
         {/* 페이지 타이틀 영역 */}
         <div className="mb-6 px-2">
           <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">MMS 발송</h1>
-          <p className="text-gray-600 font-medium text-base">메시지를 수신받을 그룹을 선택하시고 이미지와 문구를 통해 홍보 문자를 발송하세요.</p>
+          <p className="text-gray-700 font-bold text-base">메시지를 수신받을 그룹을 선택하시고 이미지와 문구를 통해 홍보 문자를 발송하세요.</p>
         </div>
 
         {/* 수신자 그룹 선택 카드 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-4">
           <h2 className="text-lg font-black text-gray-900 tracking-tight">수신자 그룹 선택</h2>
           <div className="flex flex-wrap gap-3">
-            <label className="flex items-center px-4 py-3 border-2 border-emerald-700 bg-emerald-50 rounded-2xl cursor-pointer font-bold text-emerald-900 text-sm">
-              <input type="checkbox" defaultChecked className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 전체
+            <label className="flex items-center px-4 py-3 border-2 border-emerald-700 bg-emerald-50/50 rounded-2xl cursor-pointer font-black text-emerald-900 text-sm">
+              <input type="checkbox" defaultChecked className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 전체
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 과수 농가
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 과수 농가
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 채소 농가
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 채소 농가
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 충청남도
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 충청남도
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 경상북도
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 경상북도
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 전라남도
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 전라남도
             </label>
-            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50/30 rounded-2xl cursor-pointer font-bold text-gray-700 text-sm transition">
-              <input type="checkbox" className="w-4 h-4 text-emerald-800 focus:ring-emerald-500 mr-2 rounded" /> 강원도
+            <label className="flex items-center px-4 py-3 border-2 border-gray-200 hover:border-emerald-700 hover:bg-slate-50 rounded-2xl cursor-pointer font-black text-gray-800 text-sm transition">
+              <input type="checkbox" className="w-4 h-4 text-emerald-700 focus:ring-emerald-600 mr-2 rounded" /> 강원도
             </label>
           </div>
         </div>
 
         {/* 요약 정보 카드 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm grid grid-cols-3 gap-4 text-center">
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-            <span className="block text-xs text-gray-400 font-bold mb-1">선택 그룹</span>
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-md grid grid-cols-3 gap-4 text-center">
+          <div className="bg-slate-50 border border-gray-200 rounded-2xl p-4">
+            <span className="block text-xs font-black text-gray-500 mb-1">선택 그룹</span>
             <span className="text-sm font-black text-gray-900">전체 (24명)</span>
           </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-            <span className="block text-xs text-gray-400 font-bold mb-1">수신자</span>
+          <div className="bg-slate-50 border border-gray-200 rounded-2xl p-4">
+            <span className="block text-xs font-black text-gray-500 mb-1">수신자</span>
             <span className="text-sm font-black text-gray-900">24명</span>
           </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-            <span className="block text-xs text-gray-400 font-bold mb-1">예상 비용</span>
-            <span className="text-sm font-black text-emerald-800">약 4,800원</span>
+          <div className="bg-slate-50 border border-gray-200 rounded-2xl p-4">
+            <span className="block text-xs font-black text-gray-500 mb-1">예상 비용</span>
+            <span className="text-sm font-black text-emerald-700">약 4,800원</span>
           </div>
         </div>
 
         {/* 발송할 생성 이미지 선택 카드 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-4">
           <h2 className="text-lg font-black text-gray-900 tracking-tight">발송할 생성 이미지 선택</h2>
           
           <div className="relative flex items-center gap-3">
             {/* 좌측 이동 버튼 */}
-            <button type="button" className="w-12 h-12 rounded-full bg-white border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 text-gray-600 flex items-center justify-center text-lg transition shadow-md flex-shrink-0 z-10 -ml-2">
+            <button type="button" className="w-12 h-12 rounded-full bg-white border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 text-gray-700 flex items-center justify-center text-lg transition shadow-md flex-shrink-0 z-10 -ml-2 font-black">
               <span>‹</span>
             </button>
 
@@ -105,86 +105,86 @@ export default function SendMms() {
             <div className="flex gap-4 overflow-x-auto no-scrollbar py-2 w-full justify-center">
               {/* 이미지 카드 1 (선택됨) */}
               <div className="w-[200px] flex-shrink-0 border-2 border-emerald-700 bg-emerald-50/40 rounded-2xl p-4 cursor-pointer relative space-y-3 shadow-sm">
-                <div className="w-full aspect-[4/5] bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
-                  <span className="text-sm text-gray-400 font-bold">이미지 1</span>
+                <div className="w-full aspect-[4/5] bg-white rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+                  <span className="text-sm text-gray-500 font-black">이미지 1</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-800">선택됨</span>
+                  <span className="text-xs font-black text-emerald-800">선택됨</span>
                   <span className="text-emerald-800 text-lg font-black">✓</span>
                 </div>
               </div>
 
               {/* 이미지 카드 2 */}
               <div className="w-[200px] flex-shrink-0 border-2 border-gray-200 hover:border-emerald-700 bg-white rounded-2xl p-4 cursor-pointer relative space-y-3 transition shadow-sm">
-                <div className="w-full aspect-[4/5] bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
-                  <span className="text-sm text-gray-300 font-bold">이미지 2</span>
+                <div className="w-full aspect-[4/5] bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+                  <span className="text-sm text-gray-400 font-bold">이미지 2</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-400">선택</span>
+                  <span className="text-xs font-black text-gray-500">선택</span>
                   <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
                 </div>
               </div>
 
               {/* 이미지 카드 3 */}
               <div className="w-[200px] flex-shrink-0 border-2 border-gray-200 hover:border-emerald-700 bg-white rounded-2xl p-4 cursor-pointer relative space-y-3 transition shadow-sm">
-                <div className="w-full aspect-[4/5] bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
-                  <span className="text-sm text-gray-300 font-bold">이미지 3</span>
+                <div className="w-full aspect-[4/5] bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+                  <span className="text-sm text-gray-400 font-bold">이미지 3</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-400">선택</span>
+                  <span className="text-xs font-black text-gray-500">선택</span>
                   <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
                 </div>
               </div>
             </div>
 
             {/* 우측 이동 버튼 */}
-            <button type="button" className="w-12 h-12 rounded-full bg-white border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 text-gray-600 flex items-center justify-center text-lg transition shadow-md flex-shrink-0 z-10 -mr-2">
+            <button type="button" className="w-12 h-12 rounded-full bg-white border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 text-gray-700 flex items-center justify-center text-lg transition shadow-md flex-shrink-0 z-10 -mr-2 font-black">
               <span>›</span>
             </button>
           </div>
         </div>
 
         {/* 발송 문구 입력 카드 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-4">
           <h2 className="text-lg font-black text-gray-900 tracking-tight">발송 문구 입력</h2>
           <div className="relative">
             <textarea 
               rows="5" 
               maxLength="2000" 
               defaultValue={`안녕하세요.\n유기질비료 지원사업 안내드립니다.\n\n- 포대당 최대 1,600원 보조`}
-              className="w-full p-4 border-2 border-gray-200 rounded-2xl text-sm font-medium focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 transition text-gray-800 resize-none"
+              className="w-full p-4 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700 transition text-gray-900 bg-slate-50/50 resize-none"
             ></textarea>
-            <div className="absolute right-4 bottom-4 text-xs font-bold text-gray-400">
+            <div className="absolute right-4 bottom-4 text-xs font-black text-gray-500">
               91 / 2,000자
             </div>
           </div>
         </div>
 
         {/* 발송 시간 설정 카드 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
           <h2 className="text-lg font-black text-gray-900 tracking-tight">발송 시간 설정</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 좌측: 즉시 발송하기 */}
-            <div className="p-6 bg-gray-50 rounded-2xl border-2 border-gray-200 flex flex-col justify-between space-y-4 hover:border-emerald-700 transition cursor-pointer">
-              <label className="flex items-center font-bold text-gray-800 text-base cursor-pointer">
-                <input type="radio" name="sendTime" className="w-5 h-5 text-emerald-800 focus:ring-emerald-500 mr-3" /> 즉시 발송하기
+            <div className="p-6 bg-slate-50 rounded-2xl border-2 border-gray-200 flex flex-col justify-between space-y-4 hover:border-emerald-700 transition cursor-pointer">
+              <label className="flex items-center font-black text-gray-900 text-base cursor-pointer">
+                <input type="radio" name="sendTime" className="w-5 h-5 text-emerald-700 focus:ring-emerald-600 mr-3" /> 즉시 발송하기
               </label>
               <div className="flex-1 flex items-center justify-center text-center py-4">
-                <p className="text-sm text-gray-500 font-medium">버튼을 누르는 즉시 지정된 수신자에게<br />문자가 발송됩니다.</p>
+                <p className="text-sm text-gray-600 font-bold">버튼을 누르는 즉시 지정된 수신자에게<br />문자가 발송됩니다.</p>
               </div>
             </div>
 
             {/* 우측: 예약 발송하기 */}
-            <div className="p-6 bg-gray-50 rounded-2xl border-2 border-emerald-700 flex flex-col justify-between space-y-4">
-              <label className="flex items-center font-bold text-emerald-900 text-base cursor-pointer">
-                <input type="radio" name="sendTime" defaultChecked className="w-5 h-5 text-emerald-800 focus:ring-emerald-500 mr-3" /> 예약 발송하기
+            <div className="p-6 bg-slate-50 rounded-2xl border-2 border-emerald-700 flex flex-col justify-between space-y-4">
+              <label className="flex items-center font-black text-emerald-900 text-base cursor-pointer">
+                <input type="radio" name="sendTime" defaultChecked className="w-5 h-5 text-emerald-700 focus:ring-emerald-600 mr-3" /> 예약 발송하기
               </label>
 
               <div className="space-y-3 pt-2 border-t border-gray-200">
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">예약일 선택</label>
-                  <select className="w-full p-3 bg-white border border-gray-300 rounded-xl text-sm font-medium focus:outline-none focus:border-emerald-700" defaultValue="2026-08-04 (오늘)">
+                  <label className="block text-xs font-black text-gray-700 mb-1">예약일 선택</label>
+                  <select className="w-full p-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-emerald-700 text-gray-900" defaultValue="2026-08-04 (오늘)">
                     <option>2026-08-04 (오늘)</option>
                     <option>2026-08-05 (수요일)</option>
                     <option>2026-08-06 (목요일)</option>
@@ -195,8 +195,8 @@ export default function SendMms() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">예약 시간 선택</label>
-                  <select className="w-full p-3 bg-white border border-gray-300 rounded-xl text-sm font-medium focus:outline-none focus:border-emerald-700" defaultValue="09:00 (오전 9시)">
+                  <label className="block text-xs font-black text-gray-700 mb-1">예약 시간 선택</label>
+                  <select className="w-full p-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-bold focus:outline-none focus:border-emerald-700 text-gray-900" defaultValue="09:00 (오전 9시)">
                     <option>00:00 (오전 12시 / 자정)</option>
                     <option>01:00 (오전 1시)</option>
                     <option>02:00 (오전 2시)</option>
@@ -230,16 +230,16 @@ export default function SendMms() {
 
         {/* 하단 통합 MMS 발송하기 버튼 */}
         <div className="pt-2">
-          <button type="button" className="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xl rounded-2xl shadow-md transition hover:shadow-lg active:scale-[0.99] flex items-center justify-center gap-3">
-            <span>✈️</span> MMS 발송하기
+          <button type="button" className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-lg rounded-2xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-3">
+            MMS 발송하기
           </button>
         </div>
 
       </main>
 
       {/* 푸터 */}
-      <footer className="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs mt-12">
-        <p>© 2026 FarMMS. All rights reserved.</p>
+      <footer className="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-600 text-xs mt-12 shadow-sm">
+        <p className="font-bold">© 2026 FarMMS. All rights reserved.</p>
       </footer>
 
     </div>
