@@ -80,3 +80,4 @@ nginx/ssl/*.key
 # ========================
 *.log
 logs/
+FarMMS_Front.zip
