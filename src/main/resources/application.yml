@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: agri-promo-mms
+
+  profiles:
+    active: mysql
+
+server:
+  port: 8082
+
+app:
+  mms:
+    # mock: 가짜 발송
+    # solapi: 실제 SOLAPI 발송
+    provider: ${MMS_PROVIDER:mock}
+
+  solapi:
+    # SOLAPI API Key
+    api-key: ${SOLAPI_API_KEY:}
+
+    # SOLAPI API Secret
+    api-secret: ${SOLAPI_API_SECRET:}
+
+    # SOLAPI에 등록하고 인증한 발신번호
+    sender: ${SOLAPI_SENDER:}
+
+  openai:
+    # OpenAI API 기본 주소
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+
+    # MMS 제목, 본문, 이미지 프롬프트 생성 모델
+    model: ${OPENAI_MODEL:gpt-4.1}
+
+    # 실제 이미지 생성 모델
+    image-model: ${OPENAI_IMAGE_MODEL:gpt-image-1}
+
+    # 이미지 품질
+    # low, medium, high, auto 사용 가능
+    image-quality: ${OPENAI_IMAGE_QUALITY:medium}
+
+    # OpenAI API Key
+    # GPT-4.1과 GPT Image API가 같은 Key를 사용합니다.
+    api-key: ${OPENAI_API_KEY:}
+
+    # 텍스트 출력 최대 토큰 수
+    max-output-tokens: ${OPENAI_MAX_OUTPUT_TOKENS:1200}
+
+    # 실제 PNG 이미지가 저장될 폴더
+    image-output-dir: ${OPENAI_IMAGE_OUTPUT_DIR:uploads/generated}
+
+    # imageUrl을 만들 때 사용할 서버 주소
+    public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8082}
