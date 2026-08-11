@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarMMS - 대시보드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: "Pretendard Variable", Pretendard, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100/70 text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Header & GNB Container -->
+    <header class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <!-- 최상단 유틸리티 바 -->
+        <div class="max-w-[1360px] mx-auto px-10 py-3 flex justify-between items-center border-b border-gray-100 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-emerald-800 font-extrabold text-lg tracking-tight">FarMMS</span>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500 font-medium text-xs">농업의 가치를 더하다</span>
+            </div>
+            <div class="flex items-center gap-5 text-gray-600 font-semibold text-sm">
+                <span><strong class="text-gray-900 font-bold">홍길동</strong> 님 환영합니다</span>
+                <span class="text-gray-200">|</span>
+                <a href="setting.html" class="hover:text-emerald-800 transition">설정</a>
+                <a href="#" class="text-red-500 hover:text-red-600 transition">로그아웃</a>
+            </div>
+        </div>
+
+        <!-- 메인 네비게이션 메뉴 바 -->
+        <div class="max-w-[1360px] mx-auto px-10 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-10">
+                <a href="main.html" class="text-2xl font-black text-emerald-800 tracking-tight">FarMMS</a>
+                <nav class="flex items-center gap-8 font-bold text-base text-gray-600">
+                    <a href="main.html" class="text-emerald-800 border-b-2 border-emerald-800 py-1 transition">홈</a>
+                    <a href="contact.html" class="hover:text-emerald-800 transition py-1">연락처 관리</a>
+                    <a href="createimage.html" class="hover:text-emerald-800 transition py-1">이미지 만들기</a>
+                    <a href="manageimage.html" class="hover:text-emerald-800 transition py-1">이미지 관리</a>
+                    <a href="sendmms.html" class="hover:text-emerald-800 transition py-1">MMS 발송</a>
+                    <a href="checkmms.html" class="hover:text-emerald-800 transition py-1">발송 내역</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-[1360px] mx-auto px-10 py-10 w-full flex-1 space-y-8">
+
+        <!-- Hero Section -->
+        <div class="bg-white rounded-3xl p-8 lg:p-12 border border-gray-200 shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            
+            <!-- Left Text Banner -->
+            <div class="lg:col-span-2 space-y-5">
+                <div class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-sm font-extrabold">
+                    쉬운 홍보 서비스
+                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
+                    내 농자재 홍보,<br>
+                    <span class="text-emerald-800">이제 쉽고 빠르게 하세요!</span>
+                </h1>
+                <p class="text-gray-500 text-lg font-medium pt-2">
+                    AI 홍보 이미지 생성부터 문자 발송까지 한 번에 해결해 드립니다.
+                </p>
+            </div>
+
+            <!-- Right Preview Box -->
+            <div class="bg-[#eaf2ec] p-6 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center relative shadow-inner">
+                <p class="text-xs font-bold text-gray-500 mb-3">📱 고객 수신 문자 예시</p>
+                <div class="w-56 bg-white rounded-2xl p-4 shadow-md border border-gray-200 text-xs space-y-3">
+                    <div class="bg-emerald-800 text-white p-3 rounded-xl text-center font-bold text-sm">
+                        🌾 유기질비료 특별할인!
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-lg text-gray-700 leading-relaxed text-[11px]">
+                        <strong>[FarMMS 홍보안내]</strong><br>
+                        농가 영농지원 유기질비료 신청 받습니다. 지금 바로 문의해 보세요!
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 3-Step Process Navigation Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Step 1 Card -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-8">
+                <div>
+                    <h3 class="text-2xl font-black text-gray-900">연락처 관리</h3>
+                    <p class="text-gray-500 text-base mt-3 font-medium leading-relaxed">
+                        홍보 문자를 보낼 고객 연락처를 등록하고 그룹으로 관리하세요.
+                    </p>
+                </div>
+                <a href="contact.html" class="text-emerald-800 font-bold text-lg hover:underline flex items-center space-x-2 pt-2">
+                    <span>바로가기</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <!-- Step 2 Card -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-8">
+                <div>
+                    <h3 class="text-2xl font-black text-gray-900">이미지 만들기</h3>
+                    <p class="text-gray-500 text-base mt-3 font-medium leading-relaxed">
+                        인공지능(AI)이 농산물과 농자재 홍보 이미지를 자동으로 제작합니다.
+                    </p>
+                </div>
+                <a href="createimage.html" class="text-emerald-800 font-bold text-lg hover:underline flex items-center space-x-2 pt-2">
+                    <span>바로가기</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <!-- Step 3 Card -->
+            <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-8">
+                <div>
+                    <h3 class="text-2xl font-black text-gray-900">MMS 발송</h3>
+                    <p class="text-gray-500 text-base mt-3 font-medium leading-relaxed">
+                        제작한 이미지와 홍보 글을 고객들에게 한 번에 전달하세요.
+                    </p>
+                </div>
+                <a href="sendmms.html" class="text-emerald-800 font-bold text-lg hover:underline flex items-center space-x-2 pt-2">
+                    <span>바로가기</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Bottom Summary Status Bar -->
+        <div class="bg-white rounded-3xl p-8 lg:p-10 border border-gray-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900">최근 발송 요약 현황</h2>
+                <p class="text-gray-500 font-medium text-sm mt-1">실시간 서비스 이용 데이터입니다.</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-8 text-center md:text-right w-full md:w-auto">
+                <div class="border-r border-gray-200 pr-8">
+                    <p class="text-sm font-bold text-gray-400">전체 연락처</p>
+                    <p class="text-3xl font-black text-gray-900 mt-1">24<span class="text-lg font-bold ml-0.5">명</span></p>
+                </div>
+                <div class="border-r border-gray-200 pr-8">
+                    <p class="text-sm font-bold text-gray-400">이번 달 발송</p>
+                    <p class="text-3xl font-black text-gray-900 mt-1">56<span class="text-lg font-bold ml-0.5">건</span></p>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-400">최다 수신 그룹</p>
+                    <p class="text-3xl font-black text-emerald-800 mt-1">전체<span class="text-lg font-bold ml-0.5"></span></p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs mt-12">
+        <div class="max-w-[1360px] mx-auto flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <p class="font-bold text-gray-500 text-sm">FarMMS - 농가 통합 MMS 발송 시스템</p>
+            <p>© 2026 FarMMS. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

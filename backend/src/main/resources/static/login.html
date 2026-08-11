@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarMMS - 로그인</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 아이콘 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Pretendard 폰트 적용 */
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { font-family: "Pretendard Variable", Pretendard, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100/70 text-gray-800 min-h-screen flex flex-col justify-between">
+
+  <!-- 상단 헤더: signup.html과 max-w, px, py 완벽 일치 (로고, 폰트 크기, 여백 전면 동기화) -->
+  <header class="w-full bg-white border-b border-gray-200">
+    <div class="max-w-[1360px] mx-auto px-10 py-5 flex items-center justify-between">
+      <a href="start.html" class="flex items-center gap-2">
+        <span class="text-emerald-800 font-extrabold text-lg tracking-tight">FarMMS</span>
+        <span class="text-gray-300">|</span>
+        <span class="text-gray-500 font-medium text-xs">농업의 가치를 더하다</span>
+      </a>
+      <div class="text-sm font-semibold text-gray-600">
+        <a href="start.html" class="inline-flex items-center gap-1.5 text-emerald-800 font-bold hover:underline">
+          <img src="images/sample-mms2.png" alt="홈 아이콘" class="w-4 h-4 object-contain">
+          홈으로 돌아가기
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 본문 로그인 폼 영역: signup.html과 컨테이너 크기(max-w-xl), 내부 패딩(p-10), 마진 완벽 일치 -->
+  <main class="max-w-xl mx-auto px-6 py-12 w-full flex-1 flex items-center justify-center">
+    <div class="bg-white rounded-3xl border border-gray-200 p-10 shadow-sm w-full space-y-8">
+      
+      <!-- 타이틀 -->
+      <div class="text-center space-y-2">
+        <h1 class="text-3xl font-black text-gray-900 tracking-tight">로그인</h1>
+        <p class="text-gray-500 font-medium text-sm">FarMMS 서비스 이용을 위해 로그인해 주세요.</p>
+      </div>
+
+      <!-- 입력 폼: signup.html의 input, label, 버튼 디자인과 폰트 크기 완벽 일치 -->
+      <form action="maindashboard.html" method="GET" class="space-y-5">
+        
+        <!-- 아이디 -->
+        <div class="space-y-2">
+          <label for="username" class="block text-sm font-bold text-gray-800">아이디</label>
+          <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required
+                 class="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 transition-all font-medium text-gray-800">
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-bold text-gray-800">비밀번호</label>
+          <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required
+                 class="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 transition-all font-medium text-gray-800">
+        </div>
+
+        <!-- 아이디 저장 및 비밀번호 찾기 -->
+        <div class="flex items-center justify-between text-sm font-bold text-gray-600 pt-1">
+          <label class="flex items-center space-x-2.5 cursor-pointer">
+            <input type="checkbox" class="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-800 border-gray-300">
+            <span>아이디 저장</span>
+          </label>
+          <a href="#" class="hover:text-emerald-800 transition">비밀번호 찾기</a>
+        </div>
+
+        <!-- 로그인하기 버튼 -->
+        <button type="submit" 
+                class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-lg rounded-2xl shadow-md transition-all hover:shadow-lg active:scale-[0.99] mt-2">
+          로그인하기
+        </button>
+
+      </form>
+
+      <!-- 하단 회원가입 유도 영역 -->
+      <div class="pt-6 border-t border-gray-200 text-center space-y-3">
+        <p class="text-sm text-gray-500 font-medium">아직 FarMMS 회원이 아니신가요?</p>
+        <a href="signup.html" 
+           class="inline-block w-full py-3.5 border-2 border-emerald-800 text-emerald-800 hover:bg-emerald-50 font-bold text-base rounded-2xl transition-colors text-center">
+          회원가입 하기
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 푸터: signup.html과 패딩 및 폰트 크기 일치 -->
+  <footer class="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-400 text-xs">
+    <p>© 2026 FarMMS. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

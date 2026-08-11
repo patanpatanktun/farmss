@@ -1,0 +1,26 @@
+# 개발자가 별도 MySQL 설치 없이 기능을 테스트하기 위한 local 프로필 설정입니다.
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    # MySQL과 비슷한 문법으로 동작하도록 MODE=MySQL을 사용합니다.
+    url: jdbc:h2:mem:agripromomms;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      # 서버가 시작될 때 테이블을 만들고 종료될 때 삭제합니다.
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

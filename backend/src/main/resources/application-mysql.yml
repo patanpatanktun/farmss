@@ -1,0 +1,20 @@
+# 실제 MySQL을 사용할 때 활성화하는 프로필 설정입니다.
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+  datasource:
+    url: jdbc:mysql://project-db-campus.smhrd.com:3307/cgi_25IS_GA3_p3_1?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: cgi_25IS_GA3_p3_1
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 기존 명세서 테이블을 임의로 생성하거나 변경하지 않습니다.
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

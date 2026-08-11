@@ -1,55 +1,68 @@
-spring:
-  application:
-    name: farmss-ai-mms
+# 공통 설정 파일입니다.
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/farmss_mms?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+server:
+  port: 8082
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  profiles:
+    # 기본 실행 시 MySQL을 사용하는 mysql 프로필을 활성화합니다.
+    active: mysql
 
   jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+    # Controller에서 Entity의 지연 로딩이 실행되는 것을 막습니다.
+    open-in-view: false
 
   servlet:
     multipart:
+      # 한 개의 업로드 파일 최대 크기입니다.
       max-file-size: 10MB
-      max-request-size: 10MB
 
-server:
-  port: 8080
-  servlet:
-    context-path: /api
+      # 파일과 요청 데이터를 포함한 전체 요청의 최대 크기입니다.
+      max-request-size: 12MB
 
-jwt:
-  secret: ${JWT_SECRET:your-secret-key-here-change-in-production}
-  expiration: 86400000       # 24시간 (ms)
-  refresh-expiration: 604800000  # 7일 (ms)
+app:
+  upload:
+    # 상품 참고 이미지 저장 폴더입니다.
+    product-directory: uploads/products
 
-# AI Server
-ai-server:
-  url: ${AI_SERVER_URL:http://localhost:8000}
-  timeout: 60
+    # OpenAI 생성 이미지 저장 폴더입니다.
+    generated-image-directory: uploads/generated
 
-# Solapi (MMS 발송)
+farmms:
+  image:
+    # mock 또는 openai를 사용할 수 있습니다.
+    provider: openai
+
+  mms:
+    # mock 또는 solapi를 사용할 수 있습니다.
+    provider: solapi
+
+openai:
+  # OpenAI API 키는 환경변수에서 가져옵니다.
+  api-key: ${OPENAI_API_KEY}
+
+  base-url: https://api.openai.com/v1
+  image-model: gpt-image-2
+  timeout-seconds: 180
+
 solapi:
-  api-key: ${SOLAPI_API_KEY:}
-  api-secret: ${SOLAPI_API_SECRET:}
-  sender: ${SOLAPI_SENDER:}
+  # 솔라피 API Key와 Secret은 환경변수에서 가져옵니다.
+  api-key: ${SOLAPI_API_KEY}
+  api-secret: ${SOLAPI_API_SECRET}
 
-# Object Storage
-storage:
-  base-path: ${STORAGE_PATH:./storage}
-  upload-path: ${STORAGE_PATH:./storage}/upload
-  generated-path: ${STORAGE_PATH:./storage}/generated
+  # 모든 FarMMS 회원이 공통으로 사용할
+  # 솔라피 등록·승인 완료 대표 발신번호입니다.
+  sender-number: ${SOLAPI_SENDER_NUMBER}
 
 logging:
   level:
-    com.agri.mms: DEBUG
-    org.springframework.security: INFO
+    com.farmms.backend: debug
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 28800000
