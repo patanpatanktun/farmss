@@ -59,6 +59,12 @@ export default function SendMms() {
   const [content, setContent] =
     useState('');
 
+  const [reserve, setReserve] =
+    useState(false);
+
+  const [reserveDate, setReserveDate] =
+    useState('');
+
   const [sendResult, setSendResult] =
     useState(EMPTY_RESULT);
 
@@ -417,6 +423,22 @@ export default function SendMms() {
       return '발송 대상 고객을 한 명 이상 선택해주세요.';
     }
 
+    if (reserve) {
+      if (!reserveDate) {
+        return '예약 발송 날짜와 시간을 선택해주세요.';
+      }
+
+      const selectedReserveDate = new Date(reserveDate);
+
+      if (Number.isNaN(selectedReserveDate.getTime())) {
+        return '예약 발송 날짜와 시간이 올바르지 않습니다.';
+      }
+
+      if (selectedReserveDate.getTime() <= Date.now()) {
+        return '예약 발송 시간은 현재 시간 이후여야 합니다.';
+      }
+    }
+
     return '';
   };
 
@@ -436,10 +458,14 @@ export default function SendMms() {
       return;
     }
 
+    const sendTypeMessage = reserve
+      ? `예약 시간: ${formatReserveDate(reserveDate)}\n\n예약 발송으로 접수됩니다.`
+      : '솔라피를 통해 실제 MMS가 즉시 발송됩니다.';
+
     const confirmed = window.confirm(
       `선택한 ${selectedContactNums.length}명에게 MMS를 발송하시겠습니까?\n\n` +
         `발신번호: ${formatPhone(senderNumber)}\n\n` +
-        '솔라피를 통해 실제 MMS가 즉시 발송됩니다.'
+        sendTypeMessage
     );
 
     if (!confirmed) {
@@ -463,6 +489,10 @@ export default function SendMms() {
           ),
           contactNums:
             selectedContactNums,
+          reserve,
+          reserveDate: reserve
+            ? new Date(reserveDate).toISOString()
+            : null,
         }
       );
 
@@ -935,6 +965,77 @@ export default function SendMms() {
                   </span>
                 </div>
               </div>
+
+              <div className="space-y-3 pt-2">
+                <p className="block text-sm font-black text-gray-800">
+                  발송 방식
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReserve(false);
+                      setReserveDate('');
+                    }}
+                    className={`p-4 rounded-2xl border-2 text-left transition ${
+                      !reserve
+                        ? 'border-emerald-700 bg-emerald-50'
+                        : 'border-gray-200 bg-white hover:border-emerald-300'
+                    }`}
+                  >
+                    <span className="block font-black text-gray-900">
+                      즉시 발송
+                    </span>
+                    <span className="block mt-1 text-xs font-bold text-gray-500">
+                      발송 요청 후 바로 전송합니다.
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReserve(true)}
+                    className={`p-4 rounded-2xl border-2 text-left transition ${
+                      reserve
+                        ? 'border-emerald-700 bg-emerald-50'
+                        : 'border-gray-200 bg-white hover:border-emerald-300'
+                    }`}
+                  >
+                    <span className="block font-black text-gray-900">
+                      예약 발송
+                    </span>
+                    <span className="block mt-1 text-xs font-bold text-gray-500">
+                      지정한 날짜와 시간에 전송합니다.
+                    </span>
+                  </button>
+                </div>
+
+                {reserve && (
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4">
+                    <label
+                      htmlFor="reserveDate"
+                      className="block text-sm font-black text-gray-800 mb-2"
+                    >
+                      예약 날짜 및 시간
+                    </label>
+
+                    <input
+                      type="datetime-local"
+                      id="reserveDate"
+                      value={reserveDate}
+                      min={getMinimumReserveDate()}
+                      onChange={(event) =>
+                        setReserveDate(event.target.value)
+                      }
+                      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                    />
+
+                    <p className="mt-2 text-xs font-bold text-gray-500">
+                      현재 시간 이후의 날짜와 시간을 선택해주세요.
+                    </p>
+                  </div>
+                )}
+              </div>
             </section>
 
             <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
@@ -944,12 +1045,13 @@ export default function SendMms() {
                 </h2>
 
                 <p className="text-sm text-gray-600 font-bold mt-1">
-                  솔라피를 통해 실제 MMS가
-                  즉시 발송됩니다.
+                  {reserve
+                    ? '선택한 시간에 맞춰 예약 발송됩니다.'
+                    : '솔라피를 통해 실제 MMS가 즉시 발송됩니다.'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
                 <SummaryItem
                   label="선택 수신자"
                   value={`${selectedContactNums.length}명`}
@@ -971,6 +1073,17 @@ export default function SendMms() {
                       : '설정 오류'
                   }
                 />
+
+                <SummaryItem
+                  label="발송 방식"
+                  value={
+                    reserve
+                      ? reserveDate
+                        ? `예약 · ${formatReserveDate(reserveDate)}`
+                        : '예약 시간 미선택'
+                      : '즉시 발송'
+                  }
+                />
               </div>
 
               <button
@@ -980,8 +1093,12 @@ export default function SendMms() {
                 className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black text-lg rounded-2xl shadow-md"
               >
                 {isSending
-                  ? 'MMS 발송 처리 중...'
-                  : `${selectedContactNums.length}명에게 MMS 발송하기`}
+                  ? reserve
+                    ? 'MMS 예약 접수 중...'
+                    : 'MMS 발송 처리 중...'
+                  : reserve
+                    ? `${selectedContactNums.length}명에게 예약 발송하기`
+                    : `${selectedContactNums.length}명에게 MMS 발송하기`}
               </button>
             </section>
 
@@ -1104,4 +1221,41 @@ function formatPhone(phone) {
   }
 
   return phone;
+}
+
+/**
+ * datetime-local 입력의 최소값으로 사용할
+ * 현재 시각 1분 뒤의 로컬 시간을 반환합니다.
+ */
+function getMinimumReserveDate() {
+  const date = new Date(Date.now() + 60_000);
+  const timezoneOffset = date.getTimezoneOffset() * 60_000;
+
+  return new Date(date.getTime() - timezoneOffset)
+    .toISOString()
+    .slice(0, 16);
+}
+
+/**
+ * 예약 시간을 한국어 화면 표시 형식으로 변환합니다.
+ */
+function formatReserveDate(value) {
+  if (!value) {
+    return '예약 시간 미선택';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
 }

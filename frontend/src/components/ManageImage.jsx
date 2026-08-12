@@ -41,6 +41,15 @@ export default function ManageImage() {
   const [successMessage, setSuccessMessage] =
     useState('');
 
+  const [regenerateTarget, setRegenerateTarget] =
+    useState(null);
+
+  const [editPrompt, setEditPrompt] =
+    useState('');
+
+  const [regeneratingImageId, setRegeneratingImageId] =
+    useState(null);
+
   /**
    * 생성된 이미지와 상품 목록을 조회합니다.
    */
@@ -286,6 +295,76 @@ export default function ManageImage() {
     setSelectedProductNum('');
   };
 
+  /**
+   * 기존 이미지를 사용자의 수정 요청에 맞춰 재생성합니다.
+   */
+  const handleRegenerate = async () => {
+    if (!regenerateTarget) {
+      return;
+    }
+
+    const normalizedPrompt = editPrompt.trim();
+
+    if (!normalizedPrompt) {
+      setErrorMessage('이미지 수정 요청을 입력해주세요.');
+      return;
+    }
+
+    if (normalizedPrompt.length > 1000) {
+      setErrorMessage('이미지 수정 요청은 1,000자 이하로 입력해주세요.');
+      return;
+    }
+
+    setRegeneratingImageId(regenerateTarget.imageId);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      const result = await api.post('/images/regenerate', {
+        imageId: Number(regenerateTarget.imageId),
+        editPrompt: normalizedPrompt,
+      });
+
+      const regeneratedImageId = result?.regeneratedImageId;
+
+      if (!regeneratedImageId) {
+        throw new Error('재생성된 이미지 번호를 전달받지 못했습니다.');
+      }
+
+      const regeneratedImage = await api.get(
+        `/images/${regeneratedImageId}`
+      );
+
+      setImages((previousImages) => [
+        regeneratedImage,
+        ...previousImages.filter(
+          (image) => image.imageId !== regeneratedImage.imageId
+        ),
+      ]);
+
+      setSelectedImage(regeneratedImage);
+      setRegenerateTarget(null);
+      setEditPrompt('');
+      setSuccessMessage(
+        result?.message || '이미지가 새롭게 재생성되었습니다.'
+      );
+    } catch (error) {
+      setErrorMessage(
+        error.message || '이미지 재생성 중 오류가 발생했습니다.'
+      );
+    } finally {
+      setRegeneratingImageId(null);
+    }
+  };
+
+  const openRegenerateModal = (image) => {
+    setSelectedImage(null);
+    setRegenerateTarget(image);
+    setEditPrompt('');
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
   return (
     <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
       <Header />
@@ -470,7 +549,7 @@ export default function ManageImage() {
                       </p>
                     )}
 
-                    <div className="grid grid-cols-3 gap-2 mt-auto pt-6">
+                    <div className="grid grid-cols-2 gap-2 mt-auto pt-6">
                       <button
                         type="button"
                         onClick={() =>
@@ -486,6 +565,19 @@ export default function ManageImage() {
                         image.imageId
                           ? '준비 중'
                           : '저장'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openRegenerateModal(image)}
+                        disabled={
+                          regeneratingImageId === image.imageId
+                        }
+                        className="py-3 border-2 border-emerald-700 bg-white hover:bg-emerald-50 disabled:bg-gray-100 text-emerald-700 font-black text-xs rounded-2xl transition"
+                      >
+                        {regeneratingImageId === image.imageId
+                          ? '재생성 중'
+                          : '재생성'}
                       </button>
 
                       <button
@@ -543,9 +635,31 @@ export default function ManageImage() {
           onDelete={() =>
             handleDelete(selectedImage)
           }
+          onRegenerate={() =>
+            openRegenerateModal(selectedImage)
+          }
           onClose={() =>
             setSelectedImage(null)
           }
+        />
+      )}
+
+      {regenerateTarget && (
+        <RegenerateImageModal
+          image={regenerateTarget}
+          product={productMap.get(Number(regenerateTarget.proNum))}
+          editPrompt={editPrompt}
+          isRegenerating={
+            regeneratingImageId === regenerateTarget.imageId
+          }
+          onPromptChange={setEditPrompt}
+          onSubmit={handleRegenerate}
+          onClose={() => {
+            if (!regeneratingImageId) {
+              setRegenerateTarget(null);
+              setEditPrompt('');
+            }
+          }}
         />
       )}
 
@@ -565,6 +679,7 @@ function ImageDetailModal({
   isDeleting,
   onDownload,
   onDelete,
+  onRegenerate,
   onClose,
 }) {
   return (
@@ -662,6 +777,14 @@ function ImageDetailModal({
 
             <button
               type="button"
+              onClick={onRegenerate}
+              className="w-full py-3.5 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black"
+            >
+              이 이미지 재생성하기
+            </button>
+
+            <button
+              type="button"
               onClick={onDelete}
               disabled={isDeleting}
               className="w-full py-3.5 border-2 border-red-200 text-red-600 hover:bg-red-50 disabled:bg-gray-100 rounded-2xl font-black"
@@ -675,6 +798,101 @@ function ImageDetailModal({
               MMS 발송 이력이 존재하는 이미지는
               발송 내역 보존을 위해 삭제할 수 없습니다.
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegenerateImageModal({
+  image,
+  product,
+  editPrompt,
+  isRegenerating,
+  onPromptChange,
+  onSubmit,
+  onClose,
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[110] bg-black/60 px-4 py-8 flex items-center justify-center"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !isRegenerating) {
+          onClose();
+        }
+      }}
+    >
+      <div className="w-full max-w-3xl max-h-full overflow-y-auto bg-white rounded-3xl shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+          <div>
+            <h2 className="text-xl font-black text-gray-900">
+              이미지 재생성
+            </h2>
+            <p className="text-xs text-gray-500 font-bold mt-1">
+              기존 이미지는 유지되고 새 이미지가 추가됩니다.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isRegenerating}
+            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 disabled:text-gray-300 text-gray-700 font-black"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 p-6">
+          <div>
+            <img
+              src={image.imageUrl}
+              alt="재생성할 기존 이미지"
+              className="w-full aspect-square object-cover rounded-2xl border border-gray-200 bg-slate-50"
+            />
+            <p className="mt-3 text-sm font-black text-gray-900">
+              {product?.proName || '상품 정보 없음'}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="editPrompt"
+                className="block text-sm font-black text-gray-800 mb-2"
+              >
+                수정 요청사항
+              </label>
+              <textarea
+                id="editPrompt"
+                value={editPrompt}
+                onChange={(event) => onPromptChange(event.target.value)}
+                rows={9}
+                maxLength={1000}
+                disabled={isRegenerating}
+                placeholder="예: 35,000원을 25,000원으로 변경하고 배경을 더 밝게 만들어주세요."
+                className="w-full p-4 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700 resize-none disabled:bg-gray-100"
+              />
+              <p className="mt-2 text-right text-xs font-black text-gray-500">
+                {editPrompt.length} / 1,000자
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs font-bold text-amber-800 leading-relaxed">
+              이미지 생성에는 시간이 걸릴 수 있습니다. 처리 중에는 창을 닫지 마세요.
+            </div>
+
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={isRegenerating || !editPrompt.trim()}
+              className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-2xl font-black"
+            >
+              {isRegenerating
+                ? 'AI 이미지 재생성 중...'
+                : 'AI 이미지 재생성하기'}
+            </button>
           </div>
         </div>
       </div>

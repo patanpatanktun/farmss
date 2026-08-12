@@ -2,6 +2,7 @@ package com.farmms.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,7 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider
+            jwtTokenProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -30,7 +32,8 @@ public class SecurityConfig {
             HttpSecurity http
     ) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter =
+        JwtAuthenticationFilter
+                jwtAuthenticationFilter =
                 new JwtAuthenticationFilter(
                         jwtTokenProvider
                 );
@@ -59,7 +62,8 @@ public class SecurityConfig {
                 )
 
                 /*
-                 * 서버 세션을 만들지 않고 JWT로 인증합니다.
+                 * 서버 세션을 생성하지 않고
+                 * JWT로 인증합니다.
                  */
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -88,9 +92,9 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 상품 참고 이미지와
-                                 * AI 생성 이미지는 브라우저와
-                                 * MMS에서 표시할 수 있도록 허용합니다.
+                                 * 상품 참고 이미지와 생성 이미지는
+                                 * 화면 및 MMS에서 표시할 수 있도록
+                                 * 로그인 없이 접근을 허용합니다.
                                  */
                                 .requestMatchers(
                                         "/uploads/products/**",
@@ -99,7 +103,7 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 회원가입과 로그인 API는
+                                 * 회원가입 및 로그인은
                                  * 토큰 없이 접근할 수 있습니다.
                                  */
                                 .requestMatchers(
@@ -109,7 +113,21 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * Spring 기본 오류 경로를 허용합니다.
+                                 * 정부 지원사업 공지사항의
+                                 * 조회 요청만 공개합니다.
+                                 *
+                                 * GET /api/notices
+                                 * GET /api/notices/{noticeId}
+                                 */
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/notices",
+                                        "/api/notices/**"
+                                )
+                                .permitAll()
+
+                                /*
+                                 * Spring 기본 오류 경로입니다.
                                  */
                                 .requestMatchers(
                                         "/error"
@@ -117,7 +135,9 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 그 외 요청은 유효한 JWT가 필요합니다.
+                                 * 연락처, 상품, 이미지,
+                                 * MMS 및 회원정보 API는
+                                 * 유효한 JWT가 있어야 합니다.
                                  */
                                 .anyRequest()
                                 .authenticated()
