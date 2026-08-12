@@ -1,7 +1,9 @@
 package com.farmms.backend.dto;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,9 +28,8 @@ public class MmsSendRequest {
      */
     @NotBlank(message = "발신번호는 필수입니다.")
     @Pattern(
-            regexp = "^0[0-9]{8,10}$",
-            message =
-                    "발신번호는 하이픈 없이 9~11자리 숫자로 입력하세요."
+        regexp = "^0[0-9]{8,10}$",
+        message = "발신번호는 하이픈 없이 9~11자리 숫자로 입력하세요."
     )
     private String fromNumber;
 
@@ -37,8 +38,8 @@ public class MmsSendRequest {
      */
     @NotBlank(message = "내용은 필수입니다.")
     @Size(
-            max = 2000,
-            message = "내용은 2000자 이하로 입력하세요."
+        max = 2000,
+        message = "내용은 2000자 이하로 입력하세요."
     )
     private String content;
 
@@ -47,7 +48,7 @@ public class MmsSendRequest {
      * AI 홍보 이미지 번호입니다.
      */
     @NotNull(
-            message = "홍보 이미지를 선택해야 합니다."
+        message = "홍보 이미지를 선택해야 합니다."
     )
     private Long imageId;
 
@@ -55,14 +56,35 @@ public class MmsSendRequest {
      * MMS를 보낼 고객 번호 목록입니다.
      */
     @NotEmpty(
-            message =
-                    "발송 대상 고객을 한 명 이상 선택해야 합니다."
+        message = "발송 대상 고객을 한 명 이상 선택해야 합니다."
     )
     private List<
-            @NotNull(
-                    message =
-                            "고객 번호에는 null을 사용할 수 없습니다."
-            )
-            Long
+        @NotNull(
+            message = "고객 번호에는 null을 사용할 수 없습니다."
+        )
+        Long
     > contactNums;
+
+    /**
+     * 예약발송 여부입니다.
+     *
+     * false = 즉시발송
+     * true  = 예약발송
+     *
+     * 기존 프런트에서 이 값을 보내지 않아도
+     * 기본값 false가 적용되어 즉시발송으로 처리됩니다.
+     */
+    private boolean reserve = false;
+
+    /**
+     * 예약발송 시간입니다.
+     *
+     * ISO-8601 형식으로 전달합니다.
+     * 예:
+     * 2026-08-12T09:00:00+09:00
+     *
+     * 즉시발송이면 null이어도 됩니다.
+     */
+    @Future(message = "예약발송 시간은 현재 시간 이후여야 합니다.")
+    private OffsetDateTime reserveDate;
 }

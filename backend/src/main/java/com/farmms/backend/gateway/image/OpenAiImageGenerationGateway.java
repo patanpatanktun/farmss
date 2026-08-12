@@ -528,11 +528,67 @@ public class OpenAiImageGenerationGateway
     }
 
     /**
-     * 참고 이미지 URL을 서버의 실제 파일 경로로 변환합니다.
+     * 참고 이미지 URL이
+     * 상품 참고 이미지인지,
+     * 기존 AI 생성 이미지인지 구분해서
+     * 실제 서버 파일 경로를 반환합니다.
      */
     private Path resolveReferenceImagePath(
             String referenceImageUrl
     ) {
+
+        if (
+                referenceImageUrl == null ||
+                referenceImageUrl.isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "참고 이미지 주소가 필요합니다."
+            );
+        }
+
+        String normalizedUrl =
+                referenceImageUrl
+                        .trim()
+                        .replace("\\", "/");
+
+        /*
+         * 기존 AI 생성 이미지를
+         * 다시 편집하는 경우입니다.
+         *
+         * 예:
+         * /uploads/generated/abc.png
+         */
+        if (
+                normalizedUrl.startsWith(
+                        "/uploads/generated/"
+                )
+        ) {
+            return generatedImageStorageService
+                    .resolveStoredImagePath(
+                            normalizedUrl
+                    );
+        }
+
+        /*
+         * 그 외에는 기존 상품 참고 이미지로 처리합니다.
+         *
+         * 예:
+         * /uploads/products/product.png
+         */
+        return resolveProductReferenceImagePath(
+                normalizedUrl
+        );
+    }
+
+
+    /**
+     * 상품에 등록된 참고 이미지를
+     * uploads/products 폴더에서 찾습니다.
+     */
+    private Path resolveProductReferenceImagePath(
+            String referenceImageUrl
+    ) {
+
         String fileName;
 
         try {
@@ -552,6 +608,9 @@ public class OpenAiImageGenerationGateway
                         .resolve(fileName)
                         .normalize();
 
+        /*
+         * uploads/products 외부 경로 접근 방지
+         */
         if (
                 !imagePath.startsWith(
                         productUploadDirectory
@@ -562,6 +621,9 @@ public class OpenAiImageGenerationGateway
             );
         }
 
+        /*
+         * 실제 파일 존재 여부 확인
+         */
         if (
                 !Files.exists(imagePath) ||
                 !Files.isRegularFile(imagePath)

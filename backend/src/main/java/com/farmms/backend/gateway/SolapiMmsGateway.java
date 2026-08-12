@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.solapi.sdk.SolapiClient;
+import com.solapi.sdk.message.dto.request.SendRequestConfig;
 import com.solapi.sdk.message.model.Message;
 import com.solapi.sdk.message.model.StorageType;
 import com.solapi.sdk.message.service.DefaultMessageService;
@@ -182,12 +185,34 @@ public class SolapiMmsGateway implements MmsGateway {
             message.setImageId(imageId);
 
             /*
+             * 즉시발송 / 예약발송에 맞는
+             * SOLAPI 발송 설정을 생성합니다.
+             *
+             * sendConfig == null
+             * -> 즉시발송
+             *
+             * sendConfig != null
+             * -> 예약발송
+             */
+            SendRequestConfig sendConfig =
+                    createSendRequestConfig(command);
+
+            /*
              * SOLAPI에 MMS 발송을 요청합니다.
              *
              * 여기에서 성공했다는 것은 SOLAPI가 발송 요청을
              * 정상적으로 접수했다는 뜻입니다.
              */
-            messageService.send(message, null);
+            messageService.send(
+                    message,
+                    sendConfig
+            );
+
+            if (command.scheduledDate() != null) {
+                return MmsSendResult.success(
+                        "SOLAPI-SCHEDULED"
+                );
+            }
 
             return MmsSendResult.success(
                     "SOLAPI-ACCEPTED"
@@ -201,6 +226,38 @@ public class SolapiMmsGateway implements MmsGateway {
                     "MMS 발송 실패: " + errorMessage
             );
         }
+    }
+
+    /**
+     * SOLAPI에 전달할 발송 설정을 생성합니다.
+     *
+     * scheduledDate가 null이면 즉시발송이므로 null을 반환하고,
+     * 예약시간이 있으면 SOLAPI 예약발송 설정을 생성합니다.
+     */
+    private SendRequestConfig createSendRequestConfig(
+            MmsSendCommand command
+    ) {
+        if (command.scheduledDate() == null) {
+            return null;
+        }
+
+        ZoneId seoulZone =
+                ZoneId.of("Asia/Seoul");
+
+        LocalDateTime scheduledLocalDateTime =
+                command.scheduledDate()
+                        .atZoneSameInstant(seoulZone)
+                        .toLocalDateTime();
+
+        SendRequestConfig config =
+                new SendRequestConfig();
+
+        config.setScheduledDateFromLocalDateTime(
+                scheduledLocalDateTime,
+                seoulZone
+        );
+
+        return config;
     }
 
     /**

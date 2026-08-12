@@ -36,15 +36,22 @@ public class MmsController {
      * 회원 번호는 요청에서 직접 입력받지 않고
      * 검증된 JWT에서 가져옵니다.
      *
-     * 발신번호 역시 요청값을 사용하지 않고
-     * 서버에 설정된 FarMMS 대표번호를 사용합니다.
+     * 예약 여부와 예약시간은
+     * MmsSendRequest에 담겨 MmsService로 전달됩니다.
      */
     @PostMapping("/send")
     public ResponseEntity<MmsSendResponse> send(
             @AuthenticationPrincipal Long userNum,
-            @Valid @RequestBody
-            MmsSendRequest request
+            @Valid @RequestBody MmsSendRequest request
     ) {
+
+        /*
+         * Controller에서는
+         * 즉시발송 / 예약발송을 직접 판단하지 않습니다.
+         *
+         * 요청 전체를 Service에 전달하고
+         * 실제 비즈니스 로직은 Service에서 처리합니다.
+         */
         MmsSendResponse response =
                 mmsService.send(
                         userNum,
@@ -56,12 +63,15 @@ public class MmsController {
 
     /**
      * MMS 발송 API 사용 방법을 안내합니다.
+     *
+     * 즉시발송과 예약발송 요청 예시를 함께 제공합니다.
      */
     @GetMapping("/send")
     public ResponseEntity<Map<String, Object>>
     sendGuide(
             @AuthenticationPrincipal Long userNum
     ) {
+
         Map<String, Object> response =
                 new LinkedHashMap<>();
 
@@ -97,8 +107,79 @@ public class MmsController {
 
         response.put(
                 "senderNumber",
-                mmsService
-                        .getConfiguredSenderNumber()
+                mmsService.getConfiguredSenderNumber()
+        );
+
+        /*
+         * 즉시발송 요청 예시
+         */
+        Map<String, Object> immediateExample =
+                new LinkedHashMap<>();
+
+        immediateExample.put(
+                "content",
+                "신상품 비료가 입고되었습니다."
+        );
+
+        immediateExample.put(
+                "imageId",
+                1L
+        );
+
+        immediateExample.put(
+                "contactNums",
+                List.of(1L)
+        );
+
+        immediateExample.put(
+                "reserve",
+                false
+        );
+
+        immediateExample.put(
+                "reserveDate",
+                null
+        );
+
+        response.put(
+                "immediateSendExample",
+                immediateExample
+        );
+
+        /*
+         * 예약발송 요청 예시
+         */
+        Map<String, Object> reservationExample =
+                new LinkedHashMap<>();
+
+        reservationExample.put(
+                "content",
+                "예약 MMS 발송 테스트입니다."
+        );
+
+        reservationExample.put(
+                "imageId",
+                1L
+        );
+
+        reservationExample.put(
+                "contactNums",
+                List.of(1L)
+        );
+
+        reservationExample.put(
+                "reserve",
+                true
+        );
+
+        reservationExample.put(
+                "reserveDate",
+                "2026-08-12T09:00:00+09:00"
+        );
+
+        response.put(
+                "reservationSendExample",
+                reservationExample
         );
 
         return ResponseEntity.ok(response);
@@ -115,6 +196,7 @@ public class MmsController {
     getSenderNumber(
             @AuthenticationPrincipal Long userNum
     ) {
+
         String senderNumber =
                 mmsService
                         .getConfiguredSenderNumber();
@@ -138,6 +220,7 @@ public class MmsController {
     getHistory(
             @AuthenticationPrincipal Long userNum
     ) {
+
         List<MmsHistoryResponse> response =
                 mmsService.getHistory(
                         userNum

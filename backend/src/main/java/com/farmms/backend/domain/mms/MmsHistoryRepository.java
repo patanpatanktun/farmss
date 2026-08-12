@@ -31,8 +31,6 @@ public interface MmsHistoryRepository
     /**
      * 특정 생성 이미지가 MMS 발송 내역에
      * 사용됐는지 확인합니다.
-     *
-     * 개별 이미지 삭제 여부를 판단할 때 사용할 수 있습니다.
      */
     boolean existsByImageId(Long imageId);
 
@@ -45,16 +43,11 @@ public interface MmsHistoryRepository
 
     /**
      * 특정 생성 이미지에 연결된 MMS 발송 내역을 삭제합니다.
-     *
-     * 회원 탈퇴처럼 발송 내역까지 모두 제거해야 하는 경우에만
-     * 사용할 수 있습니다.
      */
     void deleteAllByImageId(Long imageId);
 
     /**
      * 특정 회원의 MMS 발송 내역을 모두 삭제합니다.
-     *
-     * 회원 탈퇴 시 사용합니다.
      */
     void deleteAllByUserNum(Long userNum);
 }

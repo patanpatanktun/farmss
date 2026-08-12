@@ -40,9 +40,6 @@ public class MmsHistory {
 
     /**
      * MMS에 첨부한 생성 이미지 번호입니다.
-     *
-     * 생성 이미지가 삭제되면 DB의 ON DELETE SET NULL 설정에 의해
-     * 이 값만 NULL로 변경되고 발송 내역은 유지됩니다.
      */
     @Column(
             name = "image_id",
@@ -61,9 +58,6 @@ public class MmsHistory {
 
     /**
      * 발송 당시 상품명입니다.
-     *
-     * 원본 상품이 삭제되더라도 발송 내역 화면에서
-     * 당시 상품명을 표시하기 위해 별도로 저장합니다.
      */
     @Column(
             name = "product_name",
@@ -74,9 +68,6 @@ public class MmsHistory {
 
     /**
      * 발송 당시 생성 이미지 주소입니다.
-     *
-     * 생성 이미지 정보가 삭제된 이후에도
-     * 발송 당시 사용한 이미지 주소를 기록으로 보관합니다.
      */
     @Column(
             name = "image_url",
@@ -97,7 +88,10 @@ public class MmsHistory {
     /**
      * MMS 발송 처리 상태입니다.
      *
-     * REQUESTED, SUCCESS, FAILED 등의 값을 저장합니다.
+     * REQUESTED
+     * RESERVED
+     * SUCCESS
+     * FAILED
      */
     @Column(
             name = "send_status",
@@ -109,7 +103,8 @@ public class MmsHistory {
     /**
      * 예약 발송 여부입니다.
      *
-     * Y는 예약 발송, N은 즉시 발송입니다.
+     * Y = 예약발송
+     * N = 즉시발송
      */
     @Column(
             name = "reserve_flag",
@@ -119,7 +114,17 @@ public class MmsHistory {
     private String reserveFlag;
 
     /**
-     * MMS 발송 처리 시각입니다.
+     * 실제 예약발송 시간입니다.
+     *
+     * 즉시발송이면 NULL입니다.
+     */
+    @Column(
+            name = "reserve_date"
+    )
+    private LocalDateTime reserveDate;
+
+    /**
+     * MMS 발송 요청 처리 시각입니다.
      */
     @Column(
             name = "send_date",
@@ -127,6 +132,9 @@ public class MmsHistory {
     )
     private LocalDateTime sendDate;
 
+    /**
+     * Entity 생성자입니다.
+     */
     private MmsHistory(
             Long userNum,
             Long imageId,
@@ -134,18 +142,42 @@ public class MmsHistory {
             String productName,
             String imageUrl,
             String mmsText,
-            String reserveFlag
+            String reserveFlag,
+            LocalDateTime reserveDate
     ) {
+
         this.userNum = userNum;
         this.imageId = imageId;
         this.conNum = conNum;
         this.productName = productName;
         this.imageUrl = imageUrl;
         this.mmsText = mmsText;
+
+        /*
+         * SOLAPI 요청 전의 최초 상태입니다.
+         */
         this.sendStatus = "REQUESTED";
+
+        /*
+         * Y / N 형식으로 정리합니다.
+         */
         this.reserveFlag =
-                normalizeReserveFlag(reserveFlag);
-        this.sendDate = LocalDateTime.now();
+                normalizeReserveFlag(
+                        reserveFlag
+                );
+
+        /*
+         * 예약발송이면 예약시간,
+         * 즉시발송이면 null이 저장됩니다.
+         */
+        this.reserveDate =
+                reserveDate;
+
+        /*
+         * MMS 요청을 생성한 시간입니다.
+         */
+        this.sendDate =
+                LocalDateTime.now();
     }
 
     /**
@@ -158,8 +190,10 @@ public class MmsHistory {
             String productName,
             String imageUrl,
             String mmsText,
-            String reserveFlag
+            String reserveFlag,
+            LocalDateTime reserveDate
     ) {
+
         if (userNum == null) {
             throw new IllegalArgumentException(
                     "발송 회원 번호가 필요합니다."
@@ -196,6 +230,33 @@ public class MmsHistory {
             );
         }
 
+        /*
+         * 예약 여부를 Y / N으로 정리합니다.
+         */
+        String normalizedReserveFlag =
+                normalizeReserveFlag(
+                        reserveFlag
+                );
+
+        /*
+         * 예약발송이면 반드시 예약시간이 있어야 합니다.
+         */
+        if (
+                "Y".equals(normalizedReserveFlag) &&
+                reserveDate == null
+        ) {
+            throw new IllegalArgumentException(
+                    "예약발송인 경우 예약시간이 필요합니다."
+            );
+        }
+
+        /*
+         * 즉시발송이면 예약시간을 저장하지 않습니다.
+         */
+        if ("N".equals(normalizedReserveFlag)) {
+            reserveDate = null;
+        }
+
         return new MmsHistory(
                 userNum,
                 imageId,
@@ -203,24 +264,45 @@ public class MmsHistory {
                 productName.trim(),
                 normalizeImageUrl(imageUrl),
                 mmsText.trim(),
-                reserveFlag
+                normalizedReserveFlag,
+                reserveDate
         );
     }
 
     /**
-     * MMS 발송 성공 상태로 변경합니다.
+     * 즉시 MMS 발송 성공 상태로 변경합니다.
      */
     public void markSuccess() {
-        this.sendStatus = "SUCCESS";
-        this.sendDate = LocalDateTime.now();
+
+        this.sendStatus =
+                "SUCCESS";
+
+        this.sendDate =
+                LocalDateTime.now();
+    }
+
+    /**
+     * MMS 예약발송 등록 성공 상태로 변경합니다.
+     */
+    public void markReserved() {
+
+        this.sendStatus =
+                "RESERVED";
+
+        this.sendDate =
+                LocalDateTime.now();
     }
 
     /**
      * MMS 발송 실패 상태로 변경합니다.
      */
     public void markFailed() {
-        this.sendStatus = "FAILED";
-        this.sendDate = LocalDateTime.now();
+
+        this.sendStatus =
+                "FAILED";
+
+        this.sendDate =
+                LocalDateTime.now();
     }
 
     /**
@@ -229,6 +311,7 @@ public class MmsHistory {
     private static String normalizeImageUrl(
             String imageUrl
     ) {
+
         if (
                 imageUrl == null ||
                 imageUrl.isBlank()
@@ -245,6 +328,7 @@ public class MmsHistory {
     private static String normalizeReserveFlag(
             String reserveFlag
     ) {
+
         if (
                 reserveFlag == null ||
                 reserveFlag.isBlank()
