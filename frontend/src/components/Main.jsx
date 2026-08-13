@@ -344,7 +344,7 @@ export default function Main() {
             title="고객 정보를 먼저 등록하세요"
             description="고객의 지역과 재배작물을 등록하면 MMS 발송 대상을 정확하게 검색할 수 있습니다."
             path="/contact"
-            linkText="고객 관리"
+            linkText="연락처 관리"
           />
 
           <GuideCard

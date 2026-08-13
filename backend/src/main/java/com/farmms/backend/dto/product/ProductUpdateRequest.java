@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -11,21 +12,27 @@ import jakarta.validation.constraints.Size;
  */
 public record ProductUpdateRequest(
 
-        @NotBlank(message = "상품명을 입력해주세요.")
+        @NotBlank(
+                message = "상품명을 입력해주세요."
+        )
         @Size(
                 max = 100,
                 message = "상품명은 100자 이하여야 합니다."
         )
         String proName,
 
-        @NotBlank(message = "상품 분류를 입력해주세요.")
+        @NotBlank(
+                message = "상품 분류를 입력해주세요."
+        )
         @Size(
                 max = 50,
                 message = "상품 분류는 50자 이하여야 합니다."
         )
         String category,
 
-        @NotNull(message = "상품 가격을 입력해주세요.")
+        @NotNull(
+                message = "상품 가격을 입력해주세요."
+        )
         @Min(
                 value = 0,
                 message = "상품 가격은 0원 이상이어야 합니다."
@@ -36,12 +43,23 @@ public record ProductUpdateRequest(
         )
         Integer price,
 
-        @NotBlank(message = "제조사를 입력해주세요.")
+        @NotBlank(
+                message = "판매 업체명을 입력해주세요."
+        )
         @Size(
                 max = 100,
-                message = "제조사는 100자 이하여야 합니다."
+                message = "판매 업체명은 100자 이하여야 합니다."
         )
         String company,
+
+        @NotBlank(
+                message = "판매 업체 전화번호를 입력해주세요."
+        )
+        @Pattern(
+                regexp = "^[0-9-]{9,13}$",
+                message = "판매 업체 전화번호 형식이 올바르지 않습니다."
+        )
+        String companyPhone,
 
         @Size(
                 max = 3000,

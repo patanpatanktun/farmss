@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.farmms.backend.common.util.PhoneNumberUtils;
 import com.farmms.backend.domain.image.GeneratedImage;
 import com.farmms.backend.domain.image.GeneratedImageRepository;
 import com.farmms.backend.domain.product.Product;
@@ -45,6 +46,9 @@ public class ProductService {
                 request.category().trim(),
                 request.price(),
                 request.company().trim(),
+                PhoneNumberUtils.normalize(
+                        request.companyPhone()
+                ),
                 normalizeDescription(
                         request.proDescription()
                 ),
@@ -125,6 +129,9 @@ public class ProductService {
                 request.category().trim(),
                 request.price(),
                 request.company().trim(),
+                PhoneNumberUtils.normalize(
+                        request.companyPhone()
+                ),
                 normalizeDescription(
                         request.proDescription()
                 ),
@@ -258,26 +265,30 @@ public class ProductService {
         }
 
         /*
-         * 이미지 생성에 사용한 프롬프트를 삭제합니다.
+         * 생성 이미지가 참조하던 프롬프트 기록을 삭제합니다.
          */
-        if (!promptIds.isEmpty()) {
-            promptHistoryRepository.deleteAllById(
-                    promptIds
-            );
+        for (Long promptId : promptIds) {
+            if (
+                    promptHistoryRepository.existsById(
+                            promptId
+                    )
+            ) {
+                promptHistoryRepository.deleteById(
+                        promptId
+                );
+            }
+        }
 
+        if (!promptIds.isEmpty()) {
             promptHistoryRepository.flush();
         }
 
         /*
-         * 마지막으로 상품 정보를 삭제합니다.
+         * 생성 이미지를 모두 정리한 후 상품을 삭제합니다.
          */
         productRepository.delete(product);
         productRepository.flush();
 
-        /*
-         * Controller에서 실제 파일들을 삭제할 수 있도록
-         * 파일 주소를 반환합니다.
-         */
         return new ProductDeleteResult(
                 referenceImageUrl,
                 generatedImageUrls
@@ -285,7 +296,7 @@ public class ProductService {
     }
 
     /**
-     * 로그인한 회원의 특정 상품을 조회합니다.
+     * 로그인한 회원이 소유한 상품을 조회합니다.
      */
     private Product findOwnedProduct(
             Long userNum,
@@ -304,9 +315,13 @@ public class ProductService {
     }
 
     /**
-     * null 또는 빈 문자열을 검색 조건이 없는 상태로 변환합니다.
+     * 검색 조건을 정리합니다.
+     *
+     * null 또는 빈 문자열이면 검색 조건에서 제외합니다.
      */
-    private String normalize(String value) {
+    private String normalize(
+            String value
+    ) {
         if (
                 value == null ||
                 value.isBlank()

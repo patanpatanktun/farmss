@@ -27,9 +27,15 @@ public class Product {
     /**
      * 상품을 등록한 회원 번호입니다.
      */
-    @Column(name = "user_num", nullable = false)
+    @Column(
+            name = "user_num",
+            nullable = false
+    )
     private Long userNum;
 
+    /**
+     * 상품명입니다.
+     */
     @Column(
             name = "pro_name",
             nullable = false,
@@ -37,6 +43,9 @@ public class Product {
     )
     private String proName;
 
+    /**
+     * 상품 분류입니다.
+     */
     @Column(
             name = "category",
             nullable = false,
@@ -44,9 +53,18 @@ public class Product {
     )
     private String category;
 
-    @Column(name = "price", nullable = false)
+    /**
+     * 상품 가격입니다.
+     */
+    @Column(
+            name = "price",
+            nullable = false
+    )
     private Integer price;
 
+    /**
+     * 제조사 또는 판매 업체명입니다.
+     */
     @Column(
             name = "company",
             nullable = false,
@@ -54,6 +72,20 @@ public class Product {
     )
     private String company;
 
+    /**
+     * 상품 구매 문의를 받을 판매 업체 전화번호입니다.
+     *
+     * 하이픈을 제거한 숫자 형태로 저장합니다.
+     */
+    @Column(
+            name = "company_phone",
+            length = 20
+    )
+    private String companyPhone;
+
+    /**
+     * 상품 설명입니다.
+     */
     @Column(
             name = "pro_description",
             columnDefinition = "TEXT"
@@ -73,7 +105,7 @@ public class Product {
     /**
      * 상품 등록 시 업로드한 참고 이미지의 접근 주소입니다.
      *
-     * 이미지 파일 자체는 서버의 uploads/products 폴더에 저장하고,
+     * 이미지 파일은 서버의 uploads/products 폴더에 저장하고,
      * DB에는 해당 이미지에 접근할 수 있는 주소만 저장합니다.
      */
     @Column(
@@ -88,6 +120,7 @@ public class Product {
             String category,
             Integer price,
             String company,
+            String companyPhone,
             String proDescription,
             String promptText
     ) {
@@ -96,6 +129,7 @@ public class Product {
         this.category = category;
         this.price = price;
         this.company = company;
+        this.companyPhone = companyPhone;
         this.proDescription = proDescription;
         this.promptText = promptText;
         this.referenceImageUrl = null;
@@ -110,6 +144,7 @@ public class Product {
             String category,
             Integer price,
             String company,
+            String companyPhone,
             String proDescription,
             String promptText
     ) {
@@ -121,6 +156,7 @@ public class Product {
                 category,
                 price,
                 company,
+                companyPhone,
                 proDescription,
                 promptText
         );
@@ -134,6 +170,7 @@ public class Product {
             String category,
             Integer price,
             String company,
+            String companyPhone,
             String proDescription,
             String promptText
     ) {
@@ -143,6 +180,7 @@ public class Product {
         this.category = category;
         this.price = price;
         this.company = company;
+        this.companyPhone = companyPhone;
         this.proDescription = proDescription;
         this.promptText = promptText;
     }
@@ -176,7 +214,9 @@ public class Product {
     /**
      * AI 이미지 생성에 사용한 최신 프롬프트를 저장합니다.
      */
-    public void updatePromptText(String promptText) {
+    public void updatePromptText(
+            String promptText
+    ) {
         if (
                 promptText == null ||
                 promptText.isBlank()
@@ -192,8 +232,13 @@ public class Product {
     /**
      * 가격이 음수로 저장되지 않도록 검사합니다.
      */
-    private static void validatePrice(Integer price) {
-        if (price == null || price < 0) {
+    private static void validatePrice(
+            Integer price
+    ) {
+        if (
+                price == null ||
+                price < 0
+        ) {
             throw new IllegalArgumentException(
                     "상품 가격은 0원 이상이어야 합니다."
             );

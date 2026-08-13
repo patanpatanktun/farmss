@@ -13,6 +13,7 @@ public record ProductResponse(
         String category,
         Integer price,
         String company,
+        String companyPhone,
         String proDescription,
         String promptText,
         String referenceImageUrl
@@ -22,7 +23,9 @@ public record ProductResponse(
     /**
      * Product Entity를 응답 DTO로 변환합니다.
      */
-    public static ProductResponse from(Product product) {
+    public static ProductResponse from(
+            Product product
+    ) {
         return new ProductResponse(
                 product.getProNum(),
                 product.getUserNum(),
@@ -30,6 +33,7 @@ public record ProductResponse(
                 product.getCategory(),
                 product.getPrice(),
                 product.getCompany(),
+                product.getCompanyPhone(),
                 product.getProDescription(),
                 product.getPromptText(),
                 product.getReferenceImageUrl()

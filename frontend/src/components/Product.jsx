@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import Header from './Header';
@@ -12,8 +11,25 @@ const EMPTY_FORM = {
   category: '',
   price: '',
   company: '',
+  companyPhone: '',
   proDescription: '',
 };
+
+const RECOMMENDED_PRODUCT_NAMES = [
+  '유기질 비료',
+  '복합 비료',
+  '종자',
+  '살충제',
+  '살균제',
+  '제초제'
+];
+
+const RECOMMENDED_CATEGORIES = [
+  '비료',
+  '종자',
+  '농약',
+  '영양제'
+];
 
 const MAX_IMAGE_SIZE =
   10 * 1024 * 1024;
@@ -28,8 +44,20 @@ export default function Product() {
   const [products, setProducts] =
     useState([]);
 
+  const [allProducts, setAllProducts] =
+    useState([]);
+
+  const [categoryOptions, setCategoryOptions] =
+    useState([]);
+
   const [form, setForm] =
     useState(EMPTY_FORM);
+
+  const [isCustomProductName, setIsCustomProductName] =
+    useState(false);
+
+  const [isCustomCategory, setIsCustomCategory] =
+    useState(false);
 
   const [
     editingProNum,
@@ -108,84 +136,92 @@ export default function Product() {
   }, [referenceImageFile]);
 
   /**
-   * 상품 목록을 조회합니다.
+   * 필터가 적용되지 않은 전체 상품 목록을 조회합니다.
    */
-  const loadProducts = useCallback(
-    async () => {
-      setIsLoading(true);
-      setErrorMessage('');
+  const loadProducts = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage('');
 
-      try {
-        const query =
-          new URLSearchParams();
+    try {
+      const data = await api.get('/products');
 
-        if (keyword.trim()) {
-          query.set(
-            'keyword',
-            keyword.trim()
-          );
-        }
+      const loadedProducts = Array.isArray(data)
+        ? data
+        : [];
 
-        if (categoryFilter) {
-          query.set(
-            'category',
-            categoryFilter
-          );
-        }
-
-        const queryString =
-          query.toString();
-
-        const endpoint = queryString
-          ? `/products?${queryString}`
-          : '/products';
-
-        const data =
-          await api.get(endpoint);
-
-        setProducts(
-          Array.isArray(data) ? data : []
-        );
-      } catch (error) {
-        setErrorMessage(
-          error.message ||
-            '상품 목록을 불러오지 못했습니다.'
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [keyword, categoryFilter]
-  );
+      setAllProducts(loadedProducts);
+    } catch (error) {
+      setErrorMessage(
+        error.message ||
+          '상품 목록을 불러오지 못했습니다.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(
-      () => {
-        loadProducts();
-      },
-      250
-    );
-
-    return () => {
-      window.clearTimeout(timer);
-    };
+    loadProducts();
   }, [loadProducts]);
 
-  const categories = useMemo(() => {
-    const values = products
+  /**
+   * DB에 실제로 등록된 상품의 분류만 선택지로 만듭니다.
+   * 현재 선택한 필터와 관계없이 전체 분류를 계속 유지합니다.
+   */
+  useEffect(() => {
+    const registeredCategories = allProducts
       .map((product) =>
         product.category?.trim()
       )
       .filter(Boolean);
 
-    return [...new Set(values)].sort(
-      (first, second) =>
-        first.localeCompare(
-          second,
-          'ko'
-        )
+    const uniqueCategories = [
+      ...new Set(registeredCategories),
+    ].sort((first, second) =>
+      first.localeCompare(second, 'ko')
     );
-  }, [products]);
+
+    setCategoryOptions(uniqueCategories);
+
+    if (
+      categoryFilter &&
+      !uniqueCategories.includes(categoryFilter)
+    ) {
+      setCategoryFilter('');
+    }
+  }, [allProducts, categoryFilter]);
+
+  /**
+   * 전체 상품에서 상품명과 분류 조건을 동시에 적용합니다.
+   */
+  useEffect(() => {
+    const normalizedKeyword =
+      keyword.trim().toLowerCase();
+
+    const filteredProducts = allProducts.filter(
+      (product) => {
+        const productName = String(
+          product.proName || ''
+        ).toLowerCase();
+
+        const productCategory = String(
+          product.category || ''
+        ).trim();
+
+        const matchesKeyword =
+          !normalizedKeyword ||
+          productName.includes(normalizedKeyword);
+
+        const matchesCategory =
+          !categoryFilter ||
+          productCategory === categoryFilter;
+
+        return matchesKeyword && matchesCategory;
+      }
+    );
+
+    setProducts(filteredProducts);
+  }, [allProducts, keyword, categoryFilter]);
 
   const displayReferenceImageUrl =
     localPreviewUrl ||
@@ -195,10 +231,63 @@ export default function Product() {
     const { name, value } =
       event.target;
 
+    const nextValue =
+      name === 'companyPhone'
+        ? formatPhoneInput(value)
+        : value;
+
     setForm((previous) => ({
       ...previous,
-      [name]: value,
+      [name]: nextValue,
     }));
+  };
+
+  const handleProductNameSelect = (productName) => {
+    setIsCustomProductName(false);
+
+    setForm((previous) => ({
+      ...previous,
+      proName: productName,
+    }));
+  };
+
+  const handleCategorySelect = (category) => {
+    setIsCustomCategory(false);
+
+    setForm((previous) => ({
+      ...previous,
+      category,
+    }));
+  };
+
+  const handleCustomProductNameSelect = () => {
+    setIsCustomProductName(true);
+
+    if (
+      RECOMMENDED_PRODUCT_NAMES.includes(
+        form.proName
+      )
+    ) {
+      setForm((previous) => ({
+        ...previous,
+        proName: '',
+      }));
+    }
+  };
+
+  const handleCustomCategorySelect = () => {
+    setIsCustomCategory(true);
+
+    if (
+      RECOMMENDED_CATEGORIES.includes(
+        form.category
+      )
+    ) {
+      setForm((previous) => ({
+        ...previous,
+        category: '',
+      }));
+    }
   };
 
   const handleImageChange = (event) => {
@@ -253,6 +342,8 @@ export default function Product() {
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
+    setIsCustomProductName(false);
+    setIsCustomCategory(false);
     setEditingProNum(null);
     setReferenceImageFile(null);
     setCurrentReferenceImageUrl('');
@@ -290,6 +381,20 @@ export default function Product() {
       return '제조사 또는 판매사를 입력해주세요.';
     }
 
+    const companyPhoneNumbers =
+      form.companyPhone.replace(/[^0-9]/g, '');
+
+    if (!companyPhoneNumbers) {
+      return '판매 업체 전화번호를 입력해주세요.';
+    }
+
+    if (
+      companyPhoneNumbers.length < 9 ||
+      companyPhoneNumbers.length > 11
+    ) {
+      return '판매 업체 전화번호를 정확하게 입력해주세요.';
+    }
+
     return '';
   };
 
@@ -315,6 +420,8 @@ export default function Product() {
       category: form.category.trim(),
       price: Number(form.price),
       company: form.company.trim(),
+      companyPhone:
+        form.companyPhone.replace(/[^0-9]/g, ''),
       proDescription:
         form.proDescription.trim(),
     };
@@ -363,6 +470,8 @@ export default function Product() {
       );
 
       setForm(EMPTY_FORM);
+      setIsCustomProductName(false);
+      setIsCustomCategory(false);
       setEditingProNum(null);
       setReferenceImageFile(null);
       setCurrentReferenceImageUrl('');
@@ -415,9 +524,27 @@ export default function Product() {
           : '',
       company:
         product.company || '',
+      companyPhone:
+        formatPhoneInput(
+          product.companyPhone || ''
+        ),
       proDescription:
         product.proDescription || '',
     });
+
+    setIsCustomProductName(
+      Boolean(product.proName) &&
+        !RECOMMENDED_PRODUCT_NAMES.includes(
+          product.proName
+        )
+    );
+
+    setIsCustomCategory(
+      Boolean(product.category) &&
+        !RECOMMENDED_CATEGORIES.includes(
+          product.category
+        )
+    );
 
     setCurrentReferenceImageUrl(
       product.referenceImageUrl || ''
@@ -609,37 +736,21 @@ export default function Product() {
                 maxLength={100}
               />
 
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="category"
-                  className="block text-sm font-black"
-                >
-                  상품 분류
-                </label>
-
-                <input
-                  type="text"
-                  id="category"
-                  name="category"
-                  value={form.category}
-                  onChange={handleFormChange}
-                  placeholder="예) 비료, 농약, 농기구"
-                  maxLength={50}
-                  list="productCategoryList"
-                  className="w-full px-4 py-3.5 text-sm font-bold border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700"
-                />
-
-                <datalist id="productCategoryList">
-                  {categories.map(
-                    (category) => (
-                      <option
-                        key={category}
-                        value={category}
-                      />
-                    )
-                  )}
-                </datalist>
-              </div>
+              <RecommendedChoiceField
+                label="상품 분류"
+                options={RECOMMENDED_CATEGORIES}
+                value={form.category}
+                isCustom={isCustomCategory}
+                onSelect={handleCategorySelect}
+                onCustomSelect={
+                  handleCustomCategorySelect
+                }
+                inputId="category"
+                inputName="category"
+                onInputChange={handleFormChange}
+                inputPlaceholder="상품 분류를 직접 입력해주세요."
+                maxLength={50}
+              />
 
               <FormInput
                 label="상품 가격"
@@ -653,13 +764,26 @@ export default function Product() {
               />
 
               <FormInput
-                label="제조사 또는 판매사"
+                label="제조사"
                 id="company"
                 name="company"
                 value={form.company}
                 onChange={handleFormChange}
                 placeholder="예) FarMMS 농자재"
                 maxLength={100}
+              />
+
+              <FormInput
+                label="판매 업체 전화번호"
+                id="companyPhone"
+                name="companyPhone"
+                type="tel"
+                value={form.companyPhone}
+                onChange={handleFormChange}
+                placeholder="예) 010-1234-5678"
+                maxLength={13}
+                inputMode="numeric"
+                helperText="상품 구매 문의를 받을 업체 전화번호를 입력해주세요."
               />
 
               <div className="space-y-1.5">
@@ -680,7 +804,6 @@ export default function Product() {
                   className="w-full px-4 py-3.5 text-sm font-bold border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700 resize-none"
                 />
               </div>
-
               <div className="space-y-2">
                 <label
                   htmlFor="referenceImage"
@@ -828,7 +951,7 @@ export default function Product() {
                     전체 분류
                   </option>
 
-                  {categories.map(
+                  {categoryOptions.map(
                     (category) => (
                       <option
                         key={category}
@@ -994,6 +1117,78 @@ export default function Product() {
   );
 }
 
+function RecommendedChoiceField({
+  label,
+  options,
+  value,
+  isCustom,
+  onSelect,
+  onCustomSelect,
+  inputId,
+  inputName,
+  onInputChange,
+  inputPlaceholder,
+  maxLength,
+}) {
+  return (
+    <fieldset className="space-y-2.5">
+      <legend className="text-sm font-black">
+        {label}
+      </legend>
+
+      <div className="grid grid-cols-2 gap-2">
+        {options.map((option) => {
+          const isSelected =
+            !isCustom && value === option;
+
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => onSelect(option)}
+              aria-pressed={isSelected}
+              className={`min-h-11 px-3 py-2.5 rounded-xl border-2 text-xs font-black transition ${
+                isSelected
+                  ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-800'
+              }`}
+            >
+              {option}
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={onCustomSelect}
+        aria-pressed={isCustom}
+        className={`w-full min-h-11 px-4 py-2.5 rounded-xl border-2 text-sm font-black transition ${
+          isCustom
+            ? 'border-emerald-700 bg-emerald-50 text-emerald-800'
+            : 'border-gray-200 bg-slate-50 text-gray-700 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-800'
+        }`}
+      >
+        직접 입력
+      </button>
+
+      {isCustom && (
+        <input
+          type="text"
+          id={inputId}
+          name={inputName}
+          value={value}
+          onChange={onInputChange}
+          placeholder={inputPlaceholder}
+          maxLength={maxLength}
+          autoFocus
+          className="w-full px-4 py-3.5 text-sm font-bold border-2 border-emerald-300 bg-emerald-50/40 rounded-2xl focus:outline-none focus:border-emerald-700"
+        />
+      )}
+    </fieldset>
+  );
+}
+
 function FormInput({
   label,
   id,
@@ -1004,6 +1199,8 @@ function FormInput({
   placeholder,
   maxLength,
   min,
+  inputMode,
+  helperText,
 }) {
   return (
     <div className="space-y-1.5">
@@ -1023,8 +1220,51 @@ function FormInput({
         placeholder={placeholder}
         maxLength={maxLength}
         min={min}
+        inputMode={inputMode}
         className="w-full px-4 py-3.5 text-sm font-bold border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700"
       />
+
+      {helperText && (
+        <p className="px-1 text-xs font-bold text-gray-500">
+          {helperText}
+        </p>
+      )}
     </div>
   );
+}
+
+function formatPhoneInput(value) {
+  const numbers = String(value || '')
+    .replace(/[^0-9]/g, '')
+    .slice(0, 11);
+
+  if (numbers.startsWith('02')) {
+    if (numbers.length <= 2) {
+      return numbers;
+    }
+
+    if (numbers.length <= 5) {
+      return `${numbers.slice(0, 2)}-${numbers.slice(2)}`;
+    }
+
+    if (numbers.length <= 9) {
+      return `${numbers.slice(0, 2)}-${numbers.slice(2, 5)}-${numbers.slice(5)}`;
+    }
+
+    return `${numbers.slice(0, 2)}-${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+  }
+
+  if (numbers.length <= 3) {
+    return numbers;
+  }
+
+  if (numbers.length <= 7) {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+  }
+
+  if (numbers.length <= 10) {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+  }
+
+  return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
 }

@@ -35,10 +35,8 @@ export default function Contact() {
     EMPTY_GROUP_FORM
   );
 
-  const [filters, setFilters] = useState({
-    region: '',
-    crop: '',
-  });
+  const [searchKeyword, setSearchKeyword] =
+    useState('');
 
   const [showContactForm, setShowContactForm] =
     useState(false);
@@ -398,183 +396,48 @@ export default function Contact() {
     }
   };
 
-  const handleFilterChange = (event) => {
-    const { name, value } = event.target;
-
-    setFilters((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
   /**
- * 쉼표로 구분된 여러 지역과 여러 작물을 검색합니다.
- *
- * 예:
- * 지역: "광주, 나주"
- * 작물: "배, 벼"
- *
- * 같은 검색 항목 안에서는 OR 조건으로 처리합니다.
- * 지역 조건과 작물 조건 사이는 AND 조건으로 처리합니다.
- */
-const handleSearch = async (event) => {
-  event.preventDefault();
-
-  setErrorMessage('');
-  setSuccessMessage('');
-  setIsLoading(true);
-
-  /**
-   * 쉼표, 슬래시, 세로줄로 구분된 검색어를
-   * 중복 없이 배열로 변환합니다.
+   * 하나의 검색어로 고객의 재배 지역과 작물을 함께 검색합니다.
    */
-  const splitKeywords = (value) => {
-    if (!value || !value.trim()) {
-      return [];
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    const normalizedKeyword =
+      searchKeyword.trim().toLowerCase();
+
+    if (!normalizedKeyword) {
+      setContacts(allContacts);
+      return;
     }
 
-    const keywords = value
-      .split(/[,/|]+/)
-      .map((keyword) => keyword.trim())
-      .filter(Boolean);
+    const searchedContacts = allContacts.filter(
+      (contact) => {
+        const region = String(
+          contact.region || ''
+        ).toLowerCase();
 
-    return [...new Set(keywords)];
-  };
+        const crop = String(
+          contact.crop || ''
+        ).toLowerCase();
 
-  try {
-    const regionKeywords = splitKeywords(
-      filters.region
-    );
-
-    const cropKeywords = splitKeywords(
-      filters.crop
-    );
-
-    const searchConditions = [];
-
-    /**
-     * 지역과 작물을 모두 입력한 경우
-     *
-     * 지역 중 하나 AND 작물 중 하나에 해당하는
-     * 모든 조합을 검색합니다.
-     */
-    if (
-      regionKeywords.length > 0 &&
-      cropKeywords.length > 0
-    ) {
-      regionKeywords.forEach((region) => {
-        cropKeywords.forEach((crop) => {
-          searchConditions.push({
-            region,
-            crop,
-          });
-        });
-      });
-    } else if (regionKeywords.length > 0) {
-      /**
-       * 지역만 입력한 경우
-       */
-      regionKeywords.forEach((region) => {
-        searchConditions.push({
-          region,
-          crop: '',
-        });
-      });
-    } else if (cropKeywords.length > 0) {
-      /**
-       * 작물만 입력한 경우
-       */
-      cropKeywords.forEach((crop) => {
-        searchConditions.push({
-          region: '',
-          crop,
-        });
-      });
-    } else {
-      /**
-       * 검색어를 입력하지 않은 경우
-       */
-      searchConditions.push({
-        region: '',
-        crop: '',
-      });
-    }
-
-    /**
-     * 만들어진 모든 검색 조건을 동시에 요청합니다.
-     */
-    const searchRequests = searchConditions.map(
-      ({ region, crop }) => {
-        const query = new URLSearchParams();
-
-        if (region) {
-          query.set('region', region);
-        }
-
-        if (crop) {
-          query.set('crop', crop);
-        }
-
-        const queryString = query.toString();
-
-        const endpoint = queryString
-          ? `/contacts?${queryString}`
-          : '/contacts';
-
-        return api.get(endpoint);
-      }
-    );
-
-    const searchResults = await Promise.all(
-      searchRequests
-    );
-
-    /**
-     * 여러 번 검색한 결과를 하나로 합치면서
-     * 같은 고객이 중복으로 표시되지 않도록 처리합니다.
-     */
-    const contactMap = new Map();
-
-    searchResults.forEach((result) => {
-      if (!Array.isArray(result)) {
-        return;
-      }
-
-      result.forEach((contact) => {
-        contactMap.set(
-          contact.conNum,
-          contact
+        return (
+          region.includes(normalizedKeyword) ||
+          crop.includes(normalizedKeyword)
         );
-      });
-    });
-
-    const mergedContacts = Array.from(
-      contactMap.values()
-    ).sort(
-      (firstContact, secondContact) =>
-        secondContact.conNum -
-        firstContact.conNum
+      }
     );
 
-    setContacts(mergedContacts);
-  } catch (error) {
-    setErrorMessage(
-      error.message ||
-        '고객 검색 중 오류가 발생했습니다.'
-    );
-  } finally {
-    setIsLoading(false);
-  }
-};
+    setContacts(searchedContacts);
+  };
 
   /**
    * 검색 조건을 초기화합니다.
    */
-  const handleSearchReset = async () => {
-    setFilters({
-      region: '',
-      crop: '',
-    });
+  const handleSearchReset = () => {
+    setSearchKeyword('');
 
     setErrorMessage('');
     setSuccessMessage('');
@@ -904,27 +767,19 @@ const handleSearch = async (event) => {
             </h2>
 
             <p className="text-xs text-gray-500 font-bold mt-1">
-              지역이나 작물의 일부 단어만 입력해도
-              검색됩니다.
+              재배 지역 또는 작물의 일부 단어만 입력해도
+              해당 고객을 검색할 수 있습니다.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_auto] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
             <input
               type="text"
-              name="region"
-              value={filters.region}
-              onChange={handleFilterChange}
-              placeholder="지역 직접 검색 (예: 나주)"
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
-            />
-
-            <input
-              type="text"
-              name="crop"
-              value={filters.crop}
-              onChange={handleFilterChange}
-              placeholder="재배작물 직접 검색 (예: 배)"
+              value={searchKeyword}
+              onChange={(event) =>
+                setSearchKeyword(event.target.value)
+              }
+              placeholder="재배 지역 또는 작물 검색 (예: 나주, 배)"
               className="px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
             />
 
