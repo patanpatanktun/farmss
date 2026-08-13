@@ -24,6 +24,7 @@ import com.farmms.backend.dto.MmsHistoryResponse;
 import com.farmms.backend.dto.MmsSendRequest;
 import com.farmms.backend.dto.MmsSendResponse;
 import com.farmms.backend.gateway.MmsGateway;
+import com.farmms.backend.gateway.MmsDeliveryStatus;
 import com.farmms.backend.gateway.MmsSendCommand;
 import com.farmms.backend.gateway.MmsSendResult;
 
@@ -259,6 +260,14 @@ public class MmsService {
                     successCount++;
 
                     /*
+                     * 예약발송 이후 실제 결과를 조회할 수 있도록
+                     * SOLAPI가 반환한 그룹 ID를 저장합니다.
+                     */
+                    history.updateProviderMessageId(
+                            result.providerMessageId()
+                    );
+
+                    /*
                      * 예약발송과 즉시발송 상태를 구분합니다.
                      *
                      * 예약발송
@@ -418,10 +427,12 @@ public class MmsService {
     /**
      * 로그인한 회원의 MMS 발송 이력을 조회합니다.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public List<MmsHistoryResponse> getHistory(
             Long userNum
     ) {
+
+        synchronizeReservedHistories(userNum);
 
         return mmsHistoryRepository
                 .findAllByUserNumOrderByMmsNumDesc(
@@ -430,6 +441,44 @@ public class MmsService {
                 .stream()
                 .map(MmsHistoryResponse::from)
                 .toList();
+    }
+
+    /**
+     * 예약 시간이 지난 RESERVED 내역의 실제 발송 결과를
+     * SOLAPI에서 확인하여 SUCCESS 또는 FAILED로 변경합니다.
+     *
+     * 예약 시간이 지나기 전이거나 아직 발송 처리 중이면
+     * RESERVED 상태를 그대로 유지합니다.
+     */
+    private void synchronizeReservedHistories(
+            Long userNum
+    ) {
+        List<MmsHistory> reservedHistories =
+                mmsHistoryRepository
+                        .findAllByUserNumAndSendStatusAndReserveDateLessThanEqual(
+                                userNum,
+                                "RESERVED",
+                                LocalDateTime.now()
+                        );
+
+        for (MmsHistory history : reservedHistories) {
+            if (!history.hasProviderMessageId()) {
+                continue;
+            }
+
+            MmsDeliveryStatus deliveryStatus =
+                    mmsGateway.getDeliveryStatus(
+                            history.getProviderMessageId()
+                    );
+
+            if (deliveryStatus == MmsDeliveryStatus.SUCCESS) {
+                history.markSuccess();
+            } else if (
+                    deliveryStatus == MmsDeliveryStatus.FAILED
+            ) {
+                history.markFailed();
+            }
+        }
     }
 
     /**

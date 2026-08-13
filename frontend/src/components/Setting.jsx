@@ -382,7 +382,7 @@ export default function Setting() {
       <main className="max-w-[900px] mx-auto px-6 py-10 w-full flex-1 space-y-8">
         <div className="px-2">
           <h1 className="text-3xl font-black text-gray-900 mb-2">
-            환경 설정
+            마이 페이지
           </h1>
 
           <p className="text-gray-700 font-bold">

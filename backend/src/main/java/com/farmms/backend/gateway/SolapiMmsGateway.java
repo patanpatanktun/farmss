@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Locale;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -23,6 +24,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import com.solapi.sdk.message.dto.request.MessageListRequest;
+import com.solapi.sdk.message.dto.response.MessageListResponse;
+import com.solapi.sdk.message.dto.response.MultipleDetailMessageSentResponse;
 import com.solapi.sdk.SolapiClient;
 import com.solapi.sdk.message.dto.request.SendRequestConfig;
 import com.solapi.sdk.message.model.Message;
@@ -138,6 +142,10 @@ public class SolapiMmsGateway implements MmsGateway {
     /**
      * 고객 한 명에게 실제 MMS를 발송합니다.
      */
+    /**
+     * 고객 한 명에게 실제 MMS를 발송하거나
+     * 예약 발송을 등록합니다.
+     */
     @Override
     public MmsSendResult send(
             MmsSendCommand command
@@ -150,11 +158,12 @@ public class SolapiMmsGateway implements MmsGateway {
                             command.imageUrl()
                     );
 
-            Message message = new Message();
+            Message message =
+                    new Message();
 
             /*
-             * 사용자가 입력한 발신번호를 사용하지 않고
-             * 운영자가 SOLAPI에 등록한 공통 발신번호를 사용합니다.
+             * 모든 사용자는 운영자가 SOLAPI에 등록한
+             * 공통 대표 발신번호를 사용합니다.
              */
             message.setFrom(senderNumber);
 
@@ -169,53 +178,75 @@ public class SolapiMmsGateway implements MmsGateway {
             );
 
             /*
-             * FarMMS 화면에서는 MMS 제목을 입력받지 않지만,
-             * SOLAPI에서 제목이 필요한 경우 고정 제목을 사용합니다.
+             * 화면에서 MMS 제목을 입력받지 않는 경우
+             * 기본 제목을 사용합니다.
              */
-            String title = command.title();
+            String title =
+                    command.title();
 
             if (
                     title == null ||
                     title.isBlank()
             ) {
-                title = "FarMMS 홍보 안내";
+                title =
+                        "FarMMS 홍보 안내";
             }
 
-            message.setSubject(title.trim());
+            message.setSubject(
+                    title.trim()
+            );
+
             message.setImageId(imageId);
 
             /*
-             * 즉시발송 / 예약발송에 맞는
-             * SOLAPI 발송 설정을 생성합니다.
-             *
-             * sendConfig == null
-             * -> 즉시발송
-             *
-             * sendConfig != null
-             * -> 예약발송
+             * 즉시 발송이면 null,
+             * 예약 발송이면 예약 설정이 반환됩니다.
              */
             SendRequestConfig sendConfig =
-                    createSendRequestConfig(command);
+                    createSendRequestConfig(
+                            command
+                    );
 
             /*
-             * SOLAPI에 MMS 발송을 요청합니다.
+             * SOLAPI 발송 응답을 받습니다.
              *
-             * 여기에서 성공했다는 것은 SOLAPI가 발송 요청을
-             * 정상적으로 접수했다는 뜻입니다.
+             * 이 응답의 그룹 ID를 저장해야 나중에
+             * 실제 발송 결과를 다시 조회할 수 있습니다.
              */
-            messageService.send(
-                    message,
-                    sendConfig
-            );
+            MultipleDetailMessageSentResponse response =
+                    messageService.send(
+                            message,
+                            sendConfig
+                    );
 
-            if (command.scheduledDate() != null) {
-                return MmsSendResult.success(
-                        "SOLAPI-SCHEDULED"
+            if (
+                    response == null ||
+                    response.getGroupInfo() == null
+            ) {
+                throw new IllegalStateException(
+                        "SOLAPI 발송 응답이 올바르지 않습니다."
                 );
             }
 
+            String groupId =
+                    response
+                            .getGroupInfo()
+                            .getGroupId();
+
+            if (
+                    groupId == null ||
+                    groupId.isBlank()
+            ) {
+                throw new IllegalStateException(
+                        "SOLAPI 그룹 ID를 받지 못했습니다."
+                );
+            }
+
+            /*
+             * 즉시 발송과 예약 발송 모두 그룹 ID를 반환합니다.
+             */
             return MmsSendResult.success(
-                    "SOLAPI-ACCEPTED"
+                    groupId.trim()
             );
 
         } catch (Exception error) {
@@ -223,9 +254,182 @@ public class SolapiMmsGateway implements MmsGateway {
                     findErrorMessage(error);
 
             return MmsSendResult.fail(
-                    "MMS 발송 실패: " + errorMessage
+                    "MMS 발송 실패: " +
+                    errorMessage
             );
         }
+    }
+
+    /**
+     * SOLAPI 그룹 ID로 실제 MMS 발송 결과를 확인합니다.
+     *
+     * 예약 시간이 됐다는 이유만으로 성공 처리하지 않고,
+     * SOLAPI가 제공하는 실제 상태를 확인합니다.
+     */
+    @Override
+    public MmsDeliveryStatus getDeliveryStatus(
+            String providerMessageId
+    ) {
+        if (
+                providerMessageId == null ||
+                providerMessageId.isBlank()
+        ) {
+            return MmsDeliveryStatus.UNKNOWN;
+        }
+
+        try {
+            MessageListRequest request =
+                    new MessageListRequest();
+
+            /*
+             * 발송 요청 시 반환받은 그룹 ID로 검색합니다.
+             */
+            request.setGroupId(
+                    providerMessageId.trim()
+            );
+
+            request.setLimit(20);
+
+            MessageListResponse response =
+                    messageService.getMessageList(
+                            request
+                    );
+
+            if (
+                    response == null ||
+                    response.getMessageList() == null ||
+                    response.getMessageList().isEmpty()
+            ) {
+                /*
+                 * SOLAPI 조회 결과가 아직 만들어지지 않았다면
+                 * 발송 대기 상태로 유지합니다.
+                 */
+                return MmsDeliveryStatus.PENDING;
+            }
+
+            boolean pendingExists = false;
+
+            for (
+                    Message resultMessage :
+                    response
+                            .getMessageList()
+                            .values()
+            ) {
+                String status =
+                        normalizeDeliveryStatus(
+                                resultMessage.getStatus()
+                        );
+
+                String statusCode =
+                        resultMessage.getStatusCode();
+
+                /*
+                 * SOLAPI의 발송 완료 성공 코드입니다.
+                 */
+                if (
+                        "COMPLETE".equals(status) &&
+                        "4000".equals(statusCode)
+                ) {
+                    continue;
+                }
+
+                /*
+                 * 발송이 완료됐지만 성공 코드가 아니라면
+                 * 실제 발송 실패로 처리합니다.
+                 */
+                if ("COMPLETE".equals(status)) {
+                    return MmsDeliveryStatus.FAILED;
+                }
+
+                /*
+                 * SOLAPI가 실패 상태를 반환한 경우입니다.
+                 */
+                if ("FAILED".equals(status)) {
+                    return MmsDeliveryStatus.FAILED;
+                }
+
+                /*
+                 * 아직 발송 전이거나 발송 처리 중입니다.
+                 */
+                if (
+                        "PENDING".equals(status) ||
+                        "SENDING".equals(status)
+                ) {
+                    pendingExists = true;
+                    continue;
+                }
+
+                /*
+                 * 일부 SDK 버전에서는 status 값이 다르게
+                 * 내려올 수 있으므로 상태 코드도 확인합니다.
+                 */
+                if ("4000".equals(statusCode)) {
+                    continue;
+                }
+
+                /*
+                 * 2000번대는 발송 대기,
+                 * 3000번대는 발송 처리 중입니다.
+                 */
+                if (
+                        statusCode != null &&
+                        (
+                            statusCode.startsWith("2") ||
+                            statusCode.startsWith("3")
+                        )
+                ) {
+                    pendingExists = true;
+                    continue;
+                }
+
+                /*
+                 * 완료됐지만 4000이 아닌 상태 코드는
+                 * 실패 결과로 판단합니다.
+                 */
+                if (
+                        statusCode != null &&
+                        statusCode.startsWith("4")
+                ) {
+                    return MmsDeliveryStatus.FAILED;
+                }
+
+                pendingExists = true;
+            }
+
+            if (pendingExists) {
+                return MmsDeliveryStatus.PENDING;
+            }
+
+            /*
+             * 모든 메시지가 정상 완료된 경우입니다.
+             */
+            return MmsDeliveryStatus.SUCCESS;
+
+        } catch (Exception error) {
+            /*
+             * SOLAPI 상태 조회 자체가 실패한 경우에는
+             * 발송 실패로 확정하지 않습니다.
+             *
+             * 다음 조회 때 다시 확인할 수 있도록
+             * UNKNOWN을 반환합니다.
+             */
+            return MmsDeliveryStatus.UNKNOWN;
+        }
+    }
+
+    /**
+     * SOLAPI 상태 문자열을 비교 가능한 형태로 정리합니다.
+     */
+    private String normalizeDeliveryStatus(
+            String status
+    ) {
+        if (status == null) {
+            return "";
+        }
+
+        return status
+                .trim()
+                .toUpperCase(Locale.ROOT);
     }
 
     /**

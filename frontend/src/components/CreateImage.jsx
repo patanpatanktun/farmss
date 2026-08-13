@@ -663,12 +663,7 @@ export default function CreateImage() {
                 </div>
               )}
 
-              <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-sm font-bold text-amber-900 leading-relaxed">
-                현재는 기능 확인을 위한 Mock 이미지를
-                생성합니다. 참고 이미지를 실제 생성형
-                AI에 전달하는 기능은 실제 AI API 연결
-                단계에서 적용됩니다.
-              </div>
+
             </section>
           </div>
         )}

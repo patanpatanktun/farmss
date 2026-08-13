@@ -11,13 +11,34 @@ const EMPTY_DASHBOARD = {
   productCount: 0,
   imageCount: 0,
   mmsTotalCount: 0,
-  mmsSuccessCount: 0,
-  mmsFailCount: 0,
-  mmsSuccessRate: 0,
-  totalDownloadCount: 0,
 };
 
+const PROMOTION_SLIDES = [
+  {
+    src: '/promotion-fertilizer-pear.png',
+    alt: '배 재배 농가를 위한 유기능 비료 홍보물',
+  },
+  {
+    src: '/promotion-fertilizer-field.png',
+    alt: '광주 농가를 위한 유기질 비료 홍보물',
+  },
+  {
+    src: '/promotion-pepper-seed.png',
+    alt: '프리미엄 고추 종자 홍보물',
+  },
+  {
+    src: '/promotion-pest-control.png',
+    alt: '친환경 병충해 관리제 홍보물',
+  },
+];
+
 export default function Main() {
+  const [displayName, setDisplayName] =
+    useState(
+      localStorage.getItem('userId')?.trim() ||
+        '회원'
+    );
+
   const [dashboard, setDashboard] =
     useState(EMPTY_DASHBOARD);
 
@@ -26,6 +47,9 @@ export default function Main() {
 
   const [errorMessage, setErrorMessage] =
     useState('');
+
+  const [currentSlide, setCurrentSlide] =
+    useState(0);
 
   /**
    * 대시보드 통계를 조회합니다.
@@ -58,13 +82,67 @@ export default function Main() {
     loadDashboard();
   }, []);
 
+  /**
+   * 홍보물 슬라이드를 4초마다 자동으로 넘깁니다.
+   */
+  useEffect(() => {
+    const slideTimer = window.setInterval(() => {
+      setCurrentSlide((previousSlide) =>
+        (previousSlide + 1) %
+        PROMOTION_SLIDES.length
+      );
+    }, 4000);
+
+    return () => {
+      window.clearInterval(slideTimer);
+    };
+  }, []);
+
+  const showPreviousSlide = () => {
+    setCurrentSlide((previousSlide) =>
+      previousSlide === 0
+        ? PROMOTION_SLIDES.length - 1
+        : previousSlide - 1
+    );
+  };
+
+  const showNextSlide = () => {
+    setCurrentSlide((previousSlide) =>
+      (previousSlide + 1) %
+      PROMOTION_SLIDES.length
+    );
+  };
+
+  /**
+   * 로그인한 회원의 이름 또는 상호명을 조회합니다.
+   */
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profile =
+          await api.get('/users/me');
+
+        const profileName =
+          profile?.name?.trim();
+
+        if (profileName) {
+          setDisplayName(profileName);
+        }
+      } catch {
+        // 프로필 조회 실패 시 로그인할 때 저장한 값을 사용합니다.
+      }
+    };
+
+    loadProfile();
+  }, []);
+
   return (
     <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
       <Header />
 
       <main className="max-w-[1360px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
-        <section className="bg-white rounded-3xl p-8 lg:p-12 border border-gray-200 shadow-md grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          <div className="lg:col-span-2 space-y-5">
+        <section className="bg-gradient-to-br from-white via-emerald-50 to-green-100 rounded-3xl p-8 lg:p-10 border border-emerald-200 shadow-md grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
+          <div className="lg:col-span-3 space-y-5">
             <div className="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-sm font-black tracking-tight">
               농자재 홍보 통합 서비스
             </div>
@@ -85,25 +163,61 @@ export default function Main() {
             </p>
           </div>
 
-          <div className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center shadow-inner">
-            <p className="text-xs font-black text-gray-700 mb-3">
-              고객 수신 문자 예시
-            </p>
+          <div className="lg:col-span-2">
+            <div className="relative max-w-[390px] mx-auto overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-50 shadow-inner group">
+              <div className="relative aspect-square">
+                {PROMOTION_SLIDES.map(
+                  (promotion, index) => (
+                    <img
+                      key={promotion.src}
+                      src={promotion.src}
+                      alt={promotion.alt}
+                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+                        index === currentSlide
+                          ? 'opacity-100 scale-100'
+                          : 'opacity-0 scale-[1.02] pointer-events-none'
+                      }`}
+                    />
+                  )
+                )}
 
-            <div className="w-56 bg-white rounded-2xl p-4 shadow-md border border-gray-200 text-xs space-y-3">
-              <div className="bg-emerald-700 text-white p-3 rounded-xl text-center font-black text-sm shadow-sm">
-                유기질비료 특별 할인
-              </div>
+                <button
+                  type="button"
+                  onClick={showPreviousSlide}
+                  aria-label="이전 홍보물"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  ‹
+                </button>
 
-              <div className="bg-gray-50 p-2.5 rounded-xl text-gray-800 leading-relaxed text-[11px] font-bold border border-gray-200">
-                <strong className="text-gray-900 font-black">
-                  [FarMMS 홍보 안내]
-                </strong>
+                <button
+                  type="button"
+                  onClick={showNextSlide}
+                  aria-label="다음 홍보물"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  ›
+                </button>
 
-                <br />
-
-                농가 영농지원 유기질비료 신청을
-                받습니다. 지금 바로 문의해보세요!
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-black/40 px-3 py-2">
+                  {PROMOTION_SLIDES.map(
+                    (promotion, index) => (
+                      <button
+                        key={`${promotion.src}-dot`}
+                        type="button"
+                        onClick={() =>
+                          setCurrentSlide(index)
+                        }
+                        aria-label={`${index + 1}번째 홍보물 보기`}
+                        className={`h-2.5 rounded-full transition-all ${
+                          index === currentSlide
+                            ? 'w-7 bg-emerald-400'
+                            : 'w-2.5 bg-white/80 hover:bg-white'
+                        }`}
+                      />
+                    )
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -140,24 +254,20 @@ export default function Main() {
         </section>
 
         <section className="bg-white rounded-3xl p-8 lg:p-10 border border-gray-200 shadow-md space-y-7">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
             <div>
               <h2 className="text-2xl font-black text-gray-900 tracking-tight">
                 서비스 이용 현황
               </h2>
 
               <p className="text-gray-600 font-bold text-sm mt-1">
-                현재 로그인한 사용자의 실제 이용
-                데이터입니다.
+                <span className="text-emerald-700 font-black">
+                  {displayName}님
+                </span>
+                의 실제 이용 데이터입니다.
               </p>
             </div>
 
-            <Link
-              to="/checkmms"
-              className="text-sm font-black text-emerald-700 hover:underline"
-            >
-              발송 내역 자세히 보기 →
-            </Link>
           </div>
 
           {isLoading && (
@@ -173,7 +283,7 @@ export default function Main() {
           )}
 
           {!isLoading && !errorMessage && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <DashboardCard
                 label="등록 고객"
                 value={dashboard.contactCount}
@@ -196,40 +306,10 @@ export default function Main() {
               />
 
               <DashboardCard
-                label="이미지 다운로드"
-                value={dashboard.totalDownloadCount}
-                unit="회"
-                color="blue"
-              />
-
-              <DashboardCard
                 label="전체 MMS"
                 value={dashboard.mmsTotalCount}
                 unit="건"
                 color="gray"
-              />
-
-              <DashboardCard
-                label="발송 성공"
-                value={dashboard.mmsSuccessCount}
-                unit="건"
-                color="green"
-              />
-
-              <DashboardCard
-                label="발송 실패"
-                value={dashboard.mmsFailCount}
-                unit="건"
-                color="red"
-              />
-
-              <DashboardCard
-                label="발송 성공률"
-                value={formatRate(
-                  dashboard.mmsSuccessRate
-                )}
-                unit="%"
-                color="green"
               />
             </div>
           )}
@@ -305,29 +385,34 @@ function ServiceCard({
   path,
 }) {
   return (
-    <article className="bg-white rounded-3xl border border-gray-200 p-7 shadow-md hover:border-emerald-300 transition flex flex-col justify-between min-h-64">
+    <Link
+      to={path}
+      aria-label={`${title} 페이지로 이동`}
+      className="group bg-white hover:bg-emerald-700 rounded-3xl border border-gray-200 hover:border-emerald-700 p-7 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-64 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+    >
       <div>
-        <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center font-black">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 group-hover:bg-white border border-emerald-200 group-hover:border-white text-emerald-700 flex items-center justify-center font-black transition-colors duration-300">
           {number}
         </div>
 
-        <h2 className="text-xl font-black text-gray-900 mt-5">
+        <h2 className="text-xl font-black text-gray-900 group-hover:text-white mt-5 transition-colors duration-300">
           {title}
         </h2>
 
-        <p className="text-gray-700 text-sm font-bold leading-relaxed mt-3">
+        <p className="text-gray-700 group-hover:text-emerald-50 text-sm font-bold leading-relaxed mt-3 transition-colors duration-300">
           {description}
         </p>
       </div>
 
-      <Link
-        to={path}
-        className="text-emerald-700 font-black text-base hover:underline flex items-center gap-2 pt-5"
+      <div
+        className="text-emerald-700 group-hover:text-white font-black text-base hover:underline flex items-center gap-2 pt-5 transition-colors duration-300"
       >
         <span>바로가기</span>
-        <span>→</span>
-      </Link>
-    </article>
+        <span className="group-hover:translate-x-1 transition-transform duration-300">
+          →
+        </span>
+      </div>
+    </Link>
   );
 }
 
@@ -342,21 +427,6 @@ function DashboardCard({
       card: 'bg-slate-50 border-gray-200',
       label: 'text-gray-500',
       value: 'text-gray-900',
-    },
-    green: {
-      card: 'bg-emerald-50 border-emerald-200',
-      label: 'text-emerald-700',
-      value: 'text-emerald-700',
-    },
-    red: {
-      card: 'bg-red-50 border-red-200',
-      label: 'text-red-600',
-      value: 'text-red-600',
-    },
-    blue: {
-      card: 'bg-blue-50 border-blue-200',
-      label: 'text-blue-700',
-      value: 'text-blue-700',
     },
   };
 
@@ -411,18 +481,4 @@ function GuideCard({
       </Link>
     </article>
   );
-}
-
-function formatRate(value) {
-  const rate = Number(value);
-
-  if (Number.isNaN(rate)) {
-    return 0;
-  }
-
-  if (Number.isInteger(rate)) {
-    return rate;
-  }
-
-  return rate.toFixed(1);
 }

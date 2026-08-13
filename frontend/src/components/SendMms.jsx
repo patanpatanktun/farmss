@@ -19,6 +19,16 @@ const EMPTY_RESULT = {
   message: '',
 };
 
+const HOUR_OPTIONS = Array.from(
+  { length: 12 },
+  (_, index) => String(index + 1).padStart(2, '0')
+);
+
+const MINUTE_OPTIONS = Array.from(
+  { length: 60 },
+  (_, index) => String(index).padStart(2, '0')
+);
+
 export default function SendMms() {
   const location = useLocation();
 
@@ -64,6 +74,18 @@ export default function SendMms() {
 
   const [reserveDate, setReserveDate] =
     useState('');
+
+  const [reserveDay, setReserveDay] =
+    useState('');
+
+  const [reserveHour, setReserveHour] =
+    useState('');
+
+  const [reserveMinute, setReserveMinute] =
+    useState('');
+
+  const [reservePeriod, setReservePeriod] =
+    useState('오후');
 
   const [sendResult, setSendResult] =
     useState(EMPTY_RESULT);
@@ -180,6 +202,44 @@ export default function SendMms() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  /**
+   * 날짜, 오전·오후, 시, 분을 서버 전송용
+   * datetime-local 값으로 합칩니다.
+   */
+  useEffect(() => {
+    if (
+      !reserveDay ||
+      !reserveHour ||
+      !reserveMinute
+    ) {
+      setReserveDate('');
+      return;
+    }
+
+    let hour = Number(reserveHour);
+
+    if (reservePeriod === '오전' && hour === 12) {
+      hour = 0;
+    } else if (
+      reservePeriod === '오후' &&
+      hour !== 12
+    ) {
+      hour += 12;
+    }
+
+    setReserveDate(
+      `${reserveDay}T${String(hour).padStart(
+        2,
+        '0'
+      )}:${reserveMinute}`
+    );
+  }, [
+    reserveDay,
+    reserveHour,
+    reserveMinute,
+    reservePeriod,
+  ]);
 
   /**
    * 상품 번호로 상품 정보를 찾습니다.
@@ -977,6 +1037,10 @@ export default function SendMms() {
                     onClick={() => {
                       setReserve(false);
                       setReserveDate('');
+                      setReserveDay('');
+                      setReserveHour('');
+                      setReserveMinute('');
+                      setReservePeriod('오후');
                     }}
                     className={`p-4 rounded-2xl border-2 text-left transition ${
                       !reserve
@@ -1012,23 +1076,102 @@ export default function SendMms() {
 
                 {reserve && (
                   <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4">
-                    <label
-                      htmlFor="reserveDate"
-                      className="block text-sm font-black text-gray-800 mb-2"
-                    >
+                    <p className="block text-sm font-black text-gray-800 mb-3">
                       예약 날짜 및 시간
-                    </label>
+                    </p>
 
-                    <input
-                      type="datetime-local"
-                      id="reserveDate"
-                      value={reserveDate}
-                      min={getMinimumReserveDate()}
-                      onChange={(event) =>
-                        setReserveDate(event.target.value)
-                      }
-                      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
-                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_1fr] gap-3">
+                      <div>
+                        <label
+                          htmlFor="reserveDay"
+                          className="block mb-2 text-xs font-black text-gray-600"
+                        >
+                          날짜
+                        </label>
+
+                        <input
+                          type="date"
+                          id="reserveDay"
+                          value={reserveDay}
+                          min={getMinimumReserveDay()}
+                          onChange={(event) =>
+                            setReserveDay(event.target.value)
+                          }
+                          className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="reservePeriod"
+                          className="block mb-2 text-xs font-black text-gray-600"
+                        >
+                          오전/오후
+                        </label>
+
+                        <select
+                          id="reservePeriod"
+                          value={reservePeriod}
+                          onChange={(event) =>
+                            setReservePeriod(event.target.value)
+                          }
+                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                        >
+                          <option value="오전">오전</option>
+                          <option value="오후">오후</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="reserveHour"
+                          className="block mb-2 text-xs font-black text-gray-600"
+                        >
+                          시
+                        </label>
+
+                        <select
+                          id="reserveHour"
+                          value={reserveHour}
+                          onChange={(event) =>
+                            setReserveHour(event.target.value)
+                          }
+                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                        >
+                          <option value="">시</option>
+                          {HOUR_OPTIONS.map((hour) => (
+                            <option key={hour} value={hour}>
+                              {hour}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="reserveMinute"
+                          className="block mb-2 text-xs font-black text-gray-600"
+                        >
+                          분
+                        </label>
+
+                        <select
+                          id="reserveMinute"
+                          value={reserveMinute}
+                          onChange={(event) =>
+                            setReserveMinute(event.target.value)
+                          }
+                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                        >
+                          <option value="">분</option>
+                          {MINUTE_OPTIONS.map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
 
                     <p className="mt-2 text-xs font-bold text-gray-500">
                       현재 시간 이후의 날짜와 시간을 선택해주세요.
@@ -1224,16 +1367,16 @@ function formatPhone(phone) {
 }
 
 /**
- * datetime-local 입력의 최소값으로 사용할
- * 현재 시각 1분 뒤의 로컬 시간을 반환합니다.
+ * 예약 날짜 입력의 최소값으로 사용할
+ * 오늘 날짜를 반환합니다.
  */
-function getMinimumReserveDate() {
-  const date = new Date(Date.now() + 60_000);
+function getMinimumReserveDay() {
+  const date = new Date();
   const timezoneOffset = date.getTimezoneOffset() * 60_000;
 
   return new Date(date.getTime() - timezoneOffset)
     .toISOString()
-    .slice(0, 16);
+    .slice(0, 10);
 }
 
 /**

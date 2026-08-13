@@ -92,6 +92,19 @@ export default function CheckMms() {
 
   useEffect(() => {
     loadData();
+
+    /*
+     * 예약 발송 결과가 화면을 새로 고치지 않아도
+     * 반영되도록 30초마다 발송 내역을 다시 조회합니다.
+     */
+    const refreshTimer = window.setInterval(
+      loadData,
+      30000
+    );
+
+    return () => {
+      window.clearInterval(refreshTimer);
+    };
   }, [loadData]);
 
   /**
@@ -400,6 +413,10 @@ export default function CheckMms() {
               <option value="FAILED">
                 발송 실패
               </option>
+
+              <option value="RESERVED">
+                예약 발송 전
+              </option>
             </select>
 
             <button
@@ -510,7 +527,11 @@ export default function CheckMms() {
                         >
                           <td className="px-5 py-5 text-sm font-bold text-gray-700 whitespace-nowrap">
                             {formatDateTime(
-                              history.sendDate
+                              history.reserveFlag ===
+                                'Y' &&
+                                history.reserveDate
+                                ? history.reserveDate
+                                : history.sendDate
                             )}
                           </td>
 
@@ -774,14 +795,22 @@ function DetailItem({ label, value }) {
 }
 
 function StatusBadge({ status }) {
-  const isSuccess = status === 'SUCCESS';
+  const colorClasses = {
+    SUCCESS:
+      'bg-emerald-50 border-emerald-200 text-emerald-700',
+    FAILED:
+      'bg-red-50 border-red-200 text-red-600',
+    RESERVED:
+      'bg-amber-50 border-amber-200 text-amber-700',
+    REQUESTED:
+      'bg-blue-50 border-blue-200 text-blue-700',
+  };
 
   return (
     <span
       className={`inline-block px-3 py-1 rounded-xl border text-xs font-black ${
-        isSuccess
-          ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-          : 'bg-red-50 border-red-200 text-red-600'
+        colorClasses[status] ||
+        'bg-gray-50 border-gray-200 text-gray-600'
       }`}
     >
       {getStatusText(status)}
@@ -800,6 +829,10 @@ function getStatusText(status) {
 
   if (status === 'REQUESTED') {
     return '발송 요청';
+  }
+
+  if (status === 'RESERVED') {
+    return '예약 발송 전';
   }
 
   return status || '상태 없음';

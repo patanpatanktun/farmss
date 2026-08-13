@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 /**
  * 고객 한 명에게 발송한 MMS 이력을 저장하는 Entity입니다.
  *
- * 상품이나 생성 이미지가 삭제되더라도 발송 내역을 유지하기 위해
+ * 상품이나 생성 이미지가 삭제돼도 발송 내역을 유지하기 위해
  * 발송 당시 회원 번호, 상품명, 이미지 주소를 별도로 저장합니다.
  */
 @Entity
@@ -25,7 +25,9 @@ import lombok.NoArgsConstructor;
 public class MmsHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
     @Column(name = "mms_num")
     private Long mmsNum;
 
@@ -40,10 +42,11 @@ public class MmsHistory {
 
     /**
      * MMS에 첨부한 생성 이미지 번호입니다.
+     *
+     * 생성 이미지가 삭제되면 NULL이 될 수 있습니다.
      */
     @Column(
-            name = "image_id",
-            nullable = true
+            name = "image_id"
     )
     private Long imageId;
 
@@ -88,10 +91,10 @@ public class MmsHistory {
     /**
      * MMS 발송 처리 상태입니다.
      *
-     * REQUESTED
-     * RESERVED
-     * SUCCESS
-     * FAILED
+     * REQUESTED : SOLAPI 요청 전
+     * RESERVED  : 예약 발송 대기
+     * SUCCESS   : 실제 발송 성공
+     * FAILED    : 실제 발송 실패
      */
     @Column(
             name = "send_status",
@@ -103,8 +106,8 @@ public class MmsHistory {
     /**
      * 예약 발송 여부입니다.
      *
-     * Y = 예약발송
-     * N = 즉시발송
+     * Y = 예약 발송
+     * N = 즉시 발송
      */
     @Column(
             name = "reserve_flag",
@@ -114,17 +117,28 @@ public class MmsHistory {
     private String reserveFlag;
 
     /**
-     * 실제 예약발송 시간입니다.
+     * 예약 발송 시간입니다.
      *
-     * 즉시발송이면 NULL입니다.
+     * 즉시 발송이면 NULL입니다.
      */
-    @Column(
-            name = "reserve_date"
-    )
+    @Column(name = "reserve_date")
     private LocalDateTime reserveDate;
 
     /**
-     * MMS 발송 요청 처리 시각입니다.
+     * SOLAPI에서 반환받은 그룹 ID입니다.
+     *
+     * 예약 시간이 지난 후 실제 발송 결과를
+     * 조회할 때 사용합니다.
+     */
+    @Column(
+            name = "provider_message_id",
+            length = 100
+    )
+    private String providerMessageId;
+
+    /**
+     * MMS 발송 요청 또는 상태가 마지막으로
+     * 변경된 시간입니다.
      */
     @Column(
             name = "send_date",
@@ -145,7 +159,6 @@ public class MmsHistory {
             String reserveFlag,
             LocalDateTime reserveDate
     ) {
-
         this.userNum = userNum;
         this.imageId = imageId;
         this.conNum = conNum;
@@ -154,28 +167,23 @@ public class MmsHistory {
         this.mmsText = mmsText;
 
         /*
-         * SOLAPI 요청 전의 최초 상태입니다.
+         * SOLAPI 요청 전 최초 상태입니다.
          */
         this.sendStatus = "REQUESTED";
 
-        /*
-         * Y / N 형식으로 정리합니다.
-         */
         this.reserveFlag =
                 normalizeReserveFlag(
                         reserveFlag
                 );
 
-        /*
-         * 예약발송이면 예약시간,
-         * 즉시발송이면 null이 저장됩니다.
-         */
-        this.reserveDate =
-                reserveDate;
+        this.reserveDate = reserveDate;
 
         /*
-         * MMS 요청을 생성한 시간입니다.
+         * SOLAPI 그룹 ID는 발송 요청이 성공한 뒤
+         * 별도 메서드를 통해 저장합니다.
          */
+        this.providerMessageId = null;
+
         this.sendDate =
                 LocalDateTime.now();
     }
@@ -193,7 +201,6 @@ public class MmsHistory {
             String reserveFlag,
             LocalDateTime reserveDate
     ) {
-
         if (userNum == null) {
             throw new IllegalArgumentException(
                     "발송 회원 번호가 필요합니다."
@@ -230,28 +237,25 @@ public class MmsHistory {
             );
         }
 
-        /*
-         * 예약 여부를 Y / N으로 정리합니다.
-         */
         String normalizedReserveFlag =
                 normalizeReserveFlag(
                         reserveFlag
                 );
 
         /*
-         * 예약발송이면 반드시 예약시간이 있어야 합니다.
+         * 예약 발송이면 예약 시간이 반드시 필요합니다.
          */
         if (
                 "Y".equals(normalizedReserveFlag) &&
                 reserveDate == null
         ) {
             throw new IllegalArgumentException(
-                    "예약발송인 경우 예약시간이 필요합니다."
+                    "예약 발송인 경우 예약 시간이 필요합니다."
             );
         }
 
         /*
-         * 즉시발송이면 예약시간을 저장하지 않습니다.
+         * 즉시 발송이면 예약 시간을 저장하지 않습니다.
          */
         if ("N".equals(normalizedReserveFlag)) {
             reserveDate = null;
@@ -270,39 +274,87 @@ public class MmsHistory {
     }
 
     /**
-     * 즉시 MMS 발송 성공 상태로 변경합니다.
+     * SOLAPI에서 반환한 그룹 ID를 저장합니다.
+     */
+    public void updateProviderMessageId(
+            String providerMessageId
+    ) {
+        if (
+                providerMessageId == null ||
+                providerMessageId.isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "SOLAPI 메시지 그룹 ID가 필요합니다."
+            );
+        }
+
+        this.providerMessageId =
+                providerMessageId.trim();
+    }
+
+    /**
+     * MMS 실제 발송 성공 상태로 변경합니다.
+     *
+     * 즉시 발송 성공 또는 예약 발송 완료 후
+     * SOLAPI에서 성공을 확인했을 때 호출합니다.
      */
     public void markSuccess() {
-
-        this.sendStatus =
-                "SUCCESS";
-
-        this.sendDate =
-                LocalDateTime.now();
+        this.sendStatus = "SUCCESS";
+        this.sendDate = LocalDateTime.now();
     }
 
     /**
-     * MMS 예약발송 등록 성공 상태로 변경합니다.
+     * MMS 예약 등록 성공 상태로 변경합니다.
+     *
+     * 아직 실제 발송 성공 상태는 아닙니다.
      */
     public void markReserved() {
-
-        this.sendStatus =
-                "RESERVED";
-
-        this.sendDate =
-                LocalDateTime.now();
+        this.sendStatus = "RESERVED";
+        this.sendDate = LocalDateTime.now();
     }
 
     /**
-     * MMS 발송 실패 상태로 변경합니다.
+     * MMS 실제 발송 실패 상태로 변경합니다.
      */
     public void markFailed() {
+        this.sendStatus = "FAILED";
+        this.sendDate = LocalDateTime.now();
+    }
 
-        this.sendStatus =
-                "FAILED";
+    /**
+     * 현재 예약 발송 대기 상태인지 확인합니다.
+     */
+    public boolean isReserved() {
+        return "RESERVED".equals(
+                this.sendStatus
+        );
+    }
 
-        this.sendDate =
-                LocalDateTime.now();
+    /**
+     * 예약 시간이 지났는지 확인합니다.
+     */
+    public boolean isReservationDue(
+            LocalDateTime currentDateTime
+    ) {
+        if (
+                currentDateTime == null ||
+                reserveDate == null
+        ) {
+            return false;
+        }
+
+        return !reserveDate.isAfter(
+                currentDateTime
+        );
+    }
+
+    /**
+     * SOLAPI 발송 결과를 조회할 수 있는지 확인합니다.
+     */
+    public boolean hasProviderMessageId() {
+        return
+                providerMessageId != null &&
+                !providerMessageId.isBlank();
     }
 
     /**
@@ -311,7 +363,6 @@ public class MmsHistory {
     private static String normalizeImageUrl(
             String imageUrl
     ) {
-
         if (
                 imageUrl == null ||
                 imageUrl.isBlank()
@@ -328,7 +379,6 @@ public class MmsHistory {
     private static String normalizeReserveFlag(
             String reserveFlag
     ) {
-
         if (
                 reserveFlag == null ||
                 reserveFlag.isBlank()
@@ -342,8 +392,8 @@ public class MmsHistory {
                         .toUpperCase();
 
         if (
-                !normalized.equals("Y") &&
-                !normalized.equals("N")
+                !"Y".equals(normalized) &&
+                !"N".equals(normalized)
         ) {
             throw new IllegalArgumentException(
                     "예약 발송 여부는 Y 또는 N이어야 합니다."
