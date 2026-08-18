@@ -1,10 +1,6 @@
 package com.farmms.backend.service.product;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,57 +8,71 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * 상품 참고 이미지 파일을 서버에 저장하고 삭제합니다.
- */
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
 @Service
 public class ProductImageStorageService {
 
-    /**
-     * 허용되는 이미지 MIME 타입과 확장자입니다.
-     */
-    private static final Map<String, String>
-            ALLOWED_IMAGE_TYPES = Map.of(
+    private static final Map<String, String> ALLOWED_IMAGE_TYPES =
+            Map.of(
                     "image/jpeg", "jpg",
                     "image/png", "png",
                     "image/webp", "webp"
             );
 
-    /**
-     * 업로드 가능한 파일의 최대 크기입니다.
-     * 10MB로 제한합니다.
-     */
     private static final long MAX_FILE_SIZE =
             10L * 1024L * 1024L;
 
-    /**
-     * 상품 참고 이미지가 실제로 저장되는 폴더입니다.
-     *
-     * application.yml에 별도 설정이 없으면
-     * 프로젝트 실행 위치의 uploads/products 폴더를 사용합니다.
-     */
-    private final Path productUploadDirectory;
+    private static final String ENDPOINT =
+            "https://kr.object.ncloudstorage.com";
+
+    private static final String REGION =
+            "kr-standard";
+
+    private final S3Client s3Client;
+    private final String bucketName;
 
     public ProductImageStorageService(
-            @Value(
-                    "${app.upload.product-directory:"
-                    + "uploads/products}"
-            )
-            String productUploadDirectory
+            @Value("${NCP_ACCESS_KEY}") String accessKey,
+            @Value("${NCP_SECRET_KEY}") String secretKey,
+            @Value("${NCP_BUCKET_NAME}") String bucketName
     ) {
-        this.productUploadDirectory =
-                Path.of(productUploadDirectory)
-                        .toAbsolutePath()
-                        .normalize();
+        this.bucketName = bucketName;
 
-        createUploadDirectory();
+        AwsBasicCredentials credentials =
+                AwsBasicCredentials.create(
+                        accessKey,
+                        secretKey
+                );
+
+        this.s3Client =
+                S3Client.builder()
+                        .endpointOverride(
+                                URI.create(ENDPOINT)
+                        )
+                        .region(
+                                Region.of(REGION)
+                        )
+                        .credentialsProvider(
+                                StaticCredentialsProvider.create(
+                                        credentials
+                                )
+                        )
+                        .forcePathStyle(true)
+                        .build();
     }
 
     /**
-     * 참고 이미지를 서버에 저장하고
-     * 브라우저에서 사용할 이미지 주소를 반환합니다.
+     * 상품 참고 이미지를 NCP Object Storage에 저장합니다.
      */
     public String store(MultipartFile imageFile) {
+
         validateImageFile(imageFile);
 
         String contentType =
@@ -71,41 +81,49 @@ public class ProductImageStorageService {
         String extension =
                 ALLOWED_IMAGE_TYPES.get(contentType);
 
-        String storedFileName =
-                UUID.randomUUID()
+        String objectKey =
+                "products/"
+                        + UUID.randomUUID()
                         + "."
                         + extension;
 
-        Path targetPath =
-                productUploadDirectory
-                        .resolve(storedFileName)
-                        .normalize();
+        try {
 
-        validateTargetPath(targetPath);
+        	PutObjectRequest request =
+        	        PutObjectRequest.builder()
+        	                .bucket(bucketName)
+        	                .key(objectKey)
+        	                .contentType(contentType)
+        	                .build();
 
-        try (
-                InputStream inputStream =
-                        imageFile.getInputStream()
-        ) {
-            Files.copy(
-                    inputStream,
-                    targetPath,
-                    StandardCopyOption.REPLACE_EXISTING
+            s3Client.putObject(
+                    request,
+                    RequestBody.fromInputStream(
+                            imageFile.getInputStream(),
+                            imageFile.getSize()
+                    )
             );
-        } catch (IOException error) {
+
+        } catch (Exception error) {
+
             throw new IllegalStateException(
-                    "참고 이미지 저장 중 오류가 발생했습니다.",
+                    "NCP Object Storage에 참고 이미지를 저장하는 중 오류가 발생했습니다.",
                     error
             );
         }
 
-        return "/uploads/products/" + storedFileName;
+        return ENDPOINT
+                + "/"
+                + bucketName
+                + "/"
+                + objectKey;
     }
 
     /**
-     * 기존 참고 이미지 파일을 삭제합니다.
+     * Object Storage에 저장된 참고 이미지를 삭제합니다.
      */
     public void delete(String imageUrl) {
+
         if (
                 imageUrl == null ||
                 imageUrl.isBlank()
@@ -113,41 +131,55 @@ public class ProductImageStorageService {
             return;
         }
 
-        String fileName;
+        String prefix =
+                ENDPOINT
+                        + "/"
+                        + bucketName
+                        + "/";
 
-        try {
-            fileName = Path.of(imageUrl)
-                    .getFileName()
-                    .toString();
-        } catch (Exception error) {
-            throw new IllegalArgumentException(
-                    "올바르지 않은 이미지 주소입니다."
-            );
+        /*
+         * 과거 서버 로컬 이미지 URL은
+         * Object Storage 객체가 아니므로 무시합니다.
+         */
+        if (!imageUrl.startsWith(prefix)) {
+            return;
         }
 
-        Path targetPath =
-                productUploadDirectory
-                        .resolve(fileName)
-                        .normalize();
+        String objectKey =
+                imageUrl.substring(
+                        prefix.length()
+                );
 
-        validateTargetPath(targetPath);
+        if (objectKey.isBlank()) {
+            return;
+        }
 
         try {
-            Files.deleteIfExists(targetPath);
-        } catch (IOException error) {
+
+            DeleteObjectRequest request =
+                    DeleteObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(objectKey)
+                            .build();
+
+            s3Client.deleteObject(request);
+
+        } catch (Exception error) {
+
             throw new IllegalStateException(
-                    "기존 참고 이미지 삭제 중 오류가 발생했습니다.",
+                    "NCP Object Storage의 참고 이미지를 삭제하는 중 오류가 발생했습니다.",
                     error
             );
         }
     }
 
     /**
-     * 이미지 파일이 업로드 가능한 상태인지 검사합니다.
+     * 업로드 이미지 검증
      */
     private void validateImageFile(
             MultipartFile imageFile
     ) {
+
         if (
                 imageFile == null ||
                 imageFile.isEmpty()
@@ -174,40 +206,6 @@ public class ProductImageStorageService {
         ) {
             throw new IllegalArgumentException(
                     "JPG, JPEG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다."
-            );
-        }
-    }
-
-    /**
-     * 업로드 폴더가 없으면 생성합니다.
-     */
-    private void createUploadDirectory() {
-        try {
-            Files.createDirectories(
-                    productUploadDirectory
-            );
-        } catch (IOException error) {
-            throw new IllegalStateException(
-                    "상품 이미지 저장 폴더를 생성할 수 없습니다.",
-                    error
-            );
-        }
-    }
-
-    /**
-     * 저장하거나 삭제하려는 파일이 지정된 업로드 폴더
-     * 외부를 가리키지 않는지 검사합니다.
-     */
-    private void validateTargetPath(
-            Path targetPath
-    ) {
-        if (
-                !targetPath.startsWith(
-                        productUploadDirectory
-                )
-        ) {
-            throw new IllegalArgumentException(
-                    "올바르지 않은 이미지 저장 경로입니다."
             );
         }
     }
