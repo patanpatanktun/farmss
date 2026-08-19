@@ -2,6 +2,7 @@ package com.farmms.backend.service.image;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +15,11 @@ import com.farmms.backend.domain.prompt.PromptHistory;
 import com.farmms.backend.domain.prompt.PromptHistoryRepository;
 import com.farmms.backend.dto.image.GeneratedImageResponse;
 import com.farmms.backend.dto.image.ImageDownloadResponse;
+import com.farmms.backend.dto.image.ImageGenerateAcceptedResponse;
 import com.farmms.backend.dto.image.ImageGenerateRequest;
 import com.farmms.backend.dto.image.ImageRegenerateRequest;
 import com.farmms.backend.dto.image.ImageRegenerateResponse;
+import com.farmms.backend.event.image.ImageGenerationRequestedEvent;
 import com.farmms.backend.gateway.image.ImageGenerationGateway;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -43,11 +46,33 @@ public class GeneratedImageService {
     private final PromptHistoryRepository
             promptHistoryRepository;
 
+    /**
+     * 이미지 재생성 기능에서는 아직
+     * OpenAI Gateway를 직접 사용합니다.
+     */
     private final ImageGenerationGateway
             imageGenerationGateway;
 
+    /**
+     * 생성 이미지 파일 삭제 등에 사용합니다.
+     */
     private final GeneratedImageStorageService
             generatedImageStorageService;
+
+    /**
+     * 이미지 생성 Transaction이 끝난 뒤
+     * 백그라운드 작업 이벤트를 발생시킵니다.
+     */
+    private final ApplicationEventPublisher
+            applicationEventPublisher;
+
+    /**
+     * 생성 이미지 하단의 문의번호 배너
+     * 후처리를 담당합니다.
+     */
+    private final GeneratedImagePostProcessService
+            generatedImagePostProcessService;
+
 
     /**
      * 로그인한 사용자가 생성한 이미지 목록을 조회합니다.
@@ -55,6 +80,7 @@ public class GeneratedImageService {
     public List<GeneratedImageResponse> findAll(
             Long userNum
     ) {
+
         return generatedImageRepository
                 .findAllByUserNumOrderByCreateDayDesc(
                         userNum
@@ -64,32 +90,58 @@ public class GeneratedImageService {
                 .toList();
     }
 
+
     /**
-     * 로그인한 사용자가 소유한 생성 이미지 한 개를 조회합니다.
+     * 로그인한 사용자가 소유한
+     * 생성 이미지 한 개를 조회합니다.
+     *
+     * 프론트에서는 이 API를 반복 호출하여
+     * PENDING / PROCESSING / COMPLETED / FAILED
+     * 상태를 확인할 수 있습니다.
      */
     public GeneratedImageResponse findOne(
             Long userNum,
             Long imageId
     ) {
+
         GeneratedImage image =
                 findOwnedImage(
                         userNum,
                         imageId
                 );
 
-        return GeneratedImageResponse.from(image);
+        return GeneratedImageResponse.from(
+                image
+        );
     }
 
+
     /**
-     * 상품과 프롬프트를 이용하여 새로운 홍보 이미지를 생성합니다.
+     * 새로운 홍보 이미지 생성 요청을 접수합니다.
+     *
+     * 실제 OpenAI 이미지 생성은
+     * 백그라운드 Thread에서 실행됩니다.
+     *
+     * 처리 순서:
+     *
+     * 1. 고객 확인
+     * 2. 상품 확인
+     * 3. 업체 전화번호 확인
+     * 4. PromptHistory 저장
+     * 5. GeneratedImage PENDING 저장
+     * 6. 비동기 이벤트 발생
+     * 7. HTTP 응답 즉시 반환
      */
     @Transactional
-    public GeneratedImageResponse generate(
+    public ImageGenerateAcceptedResponse generate(
             Long userNum,
             ImageGenerateRequest request
     ) {
+
         /*
-         * 선택한 고객이 로그인한 회원의 고객인지 확인합니다.
+         * 1.
+         * 선택한 고객이 로그인한 회원의
+         * 고객인지 확인합니다.
          */
         contactRepository
                 .findByConNumAndUserNum(
@@ -102,8 +154,11 @@ public class GeneratedImageService {
                         )
                 );
 
+
         /*
-         * 선택한 상품이 로그인한 회원의 상품인지 확인합니다.
+         * 2.
+         * 선택한 상품이 로그인한 회원의
+         * 상품인지 확인합니다.
          */
         Product product =
                 productRepository
@@ -117,18 +172,35 @@ public class GeneratedImageService {
                                 )
                         );
 
-        validateCompanyPhone(product);
+
+        /*
+         * 3.
+         * 팀원이 추가한 업체 전화번호
+         * 검증 기능을 그대로 유지합니다.
+         */
+        validateCompanyPhone(
+                product
+        );
+
 
         String promptText =
-                request.promptText().trim();
+                request.promptText()
+                        .trim();
+
 
         /*
-         * 상품에 마지막으로 사용한 프롬프트를 저장합니다.
+         * 상품에 마지막 사용 프롬프트를
+         * 저장합니다.
          */
-        product.updatePromptText(promptText);
+        product.updatePromptText(
+                promptText
+        );
+
 
         /*
-         * 사용자가 입력한 원본 프롬프트를 이력에 저장합니다.
+         * 4.
+         * 사용자가 입력한 원본 프롬프트를
+         * prompt_history에 저장합니다.
          */
         PromptHistory promptHistory =
                 PromptHistory.create(
@@ -137,94 +209,96 @@ public class GeneratedImageService {
                         promptText
                 );
 
+
         PromptHistory savedPromptHistory =
                 promptHistoryRepository.save(
                         promptHistory
                 );
 
-        String imageUrl = null;
 
-        try {
-            /*
-             * 상품 정보를 포함한 최종 프롬프트를 생성합니다.
-             */
-            String imagePrompt =
-                    buildGeneratePrompt(
-                            product,
-                            promptText
-                    );
-
-            /*
-             * 참고 이미지가 있으면 이미지 편집 API,
-             * 없으면 이미지 생성 API가 실행됩니다.
-             */
-            imageUrl =
-                    imageGenerationGateway.generate(
-                            imagePrompt,
-                            product.getReferenceImageUrl()
-                    );
-
-            /*
-             * OpenAI가 서버에 저장한 이미지라면
-             * 하단에 업체명과 전화번호를 직접 합성합니다.
-             */
-            imageUrl =
-                    addContactBannerIfStoredImage(
-                            imageUrl,
-                            product
-                    );
-
-        } catch (RuntimeException error) {
-            /*
-             * 생성 또는 합성에 실패했다면
-             * 만들어진 이미지 파일을 정리합니다.
-             */
-            if (imageUrl != null) {
-                generatedImageStorageService.delete(
-                        imageUrl
+        /*
+         * 상품 정보를 포함한
+         * OpenAI 최종 프롬프트를 만듭니다.
+         *
+         * 팀원이 추가한 기존 프롬프트 생성 방식은
+         * 그대로 유지합니다.
+         */
+        String imagePrompt =
+                buildGeneratePrompt(
+                        product,
+                        promptText
                 );
-            }
 
-            /*
-             * 이번 요청에서 저장한 프롬프트 이력도 삭제합니다.
-             */
-            promptHistoryRepository.delete(
-                    savedPromptHistory
-            );
 
-            promptHistoryRepository.flush();
-
-            throw error;
-        }
-
-        GeneratedImage generatedImage =
-                GeneratedImage.create(
+        /*
+         * 5.
+         * 아직 OpenAI 이미지를 생성하지 않습니다.
+         *
+         * 먼저 generated_image에
+         * PENDING 상태의 작업을 저장합니다.
+         *
+         * 이 시점에는 imageUrl = null 입니다.
+         */
+        GeneratedImage pendingImage =
+                GeneratedImage.createPending(
                         userNum,
                         product.getProNum(),
-                        savedPromptHistory.getPromptId(),
-                        imageUrl
+                        savedPromptHistory.getPromptId()
                 );
+
 
         GeneratedImage savedImage =
                 generatedImageRepository.save(
-                        generatedImage
+                        pendingImage
                 );
 
-        return GeneratedImageResponse.from(
-                savedImage
+
+        /*
+         * 6.
+         * 이미지 생성 이벤트를 발행합니다.
+         *
+         * 현재 Transaction이 정상적으로 Commit된 후
+         * ImageGenerationAsyncService가 이벤트를 받아
+         * 실제 OpenAI 생성을 실행합니다.
+         */
+        applicationEventPublisher.publishEvent(
+                new ImageGenerationRequestedEvent(
+                        savedImage.getImageId(),
+                        imagePrompt,
+                        product.getReferenceImageUrl(),
+                        product.getCompany(),
+                        product.getCompanyPhone()
+                )
+        );
+
+
+        /*
+         * 7.
+         * OpenAI 응답을 기다리지 않고
+         * 즉시 요청 접수 결과를 반환합니다.
+         */
+        return new ImageGenerateAcceptedResponse(
+                savedImage.getImageId(),
+                savedImage.getStatus(),
+                "이미지 생성 요청이 접수되었습니다."
         );
     }
 
+
     /**
-     * 기존 생성 이미지를 사용자의 수정 요청에 따라 재생성합니다.
+     * 기존 생성 이미지를 사용자의 수정 요청에 따라
+     * 새로운 이미지로 재생성합니다.
+     *
+     * 현재 재생성 기능은 기존 동기 방식을 유지합니다.
      */
     @Transactional
     public ImageRegenerateResponse regenerate(
             Long userNum,
             ImageRegenerateRequest request
     ) {
+
         /*
-         * 기존 이미지의 소유권을 확인합니다.
+         * 기존 이미지 소유권 확인
          */
         GeneratedImage originalImage =
                 findOwnedImage(
@@ -232,8 +306,21 @@ public class GeneratedImageService {
                         request.getImageId()
                 );
 
+
         /*
-         * 기존 이미지에 연결된 상품을 조회합니다.
+         * 아직 백그라운드 생성이 끝나지 않았다면
+         * 재생성을 허용하지 않습니다.
+         */
+        if (!originalImage.isCompleted()) {
+
+            throw new IllegalStateException(
+                    "이미지 생성이 완료된 후 재생성할 수 있습니다."
+            );
+        }
+
+
+        /*
+         * 기존 이미지와 연결된 상품을 조회합니다.
          */
         Product product =
                 productRepository
@@ -247,10 +334,14 @@ public class GeneratedImageService {
                                 )
                         );
 
-        validateCompanyPhone(product);
+
+        validateCompanyPhone(
+                product
+        );
+
 
         /*
-         * 기존 이미지에 연결된 프롬프트 이력을 조회합니다.
+         * 기존 이미지의 PromptHistory를 조회합니다.
          */
         PromptHistory originalPromptHistory =
                 promptHistoryRepository
@@ -263,20 +354,30 @@ public class GeneratedImageService {
                                 )
                         );
 
+
         String editPrompt =
-                request.getEditPrompt().trim();
+                request.getEditPrompt()
+                        .trim();
+
 
         if (editPrompt.isBlank()) {
+
             throw new IllegalArgumentException(
                     "이미지 수정 요청을 입력해주세요."
             );
         }
+
 
         String regeneratePrompt =
                 buildRegeneratePrompt(
                         editPrompt
                 );
 
+
+        /*
+         * 재생성 요청도 새로운 PromptHistory로
+         * 저장합니다.
+         */
         PromptHistory promptHistory =
                 PromptHistory.create(
                         userNum,
@@ -284,16 +385,22 @@ public class GeneratedImageService {
                         editPrompt
                 );
 
+
         PromptHistory savedPromptHistory =
                 promptHistoryRepository.save(
                         promptHistory
                 );
 
-        String regeneratedImageUrl = null;
+
+        String regeneratedImageUrl =
+                null;
+
 
         try {
+
             /*
-             * 기존 이미지를 참고 이미지로 사용하여 재생성합니다.
+             * 기존 이미지를 참고 이미지로 사용하여
+             * OpenAI 이미지 편집 API를 실행합니다.
              */
             regeneratedImageUrl =
                     imageGenerationGateway.generate(
@@ -301,35 +408,57 @@ public class GeneratedImageService {
                             originalImage.getImageUrl()
                     );
 
+
             /*
-             * 재생성된 이미지에도 업체명과 전화번호를
-             * 다시 정확하게 합성합니다.
+             * 팀원이 추가한 문의 전화번호 배너를
+             * 재생성 이미지에도 적용합니다.
              */
             regeneratedImageUrl =
-                    addContactBannerIfStoredImage(
-                            regeneratedImageUrl,
-                            product
-                    );
+                    generatedImagePostProcessService
+                            .addContactBannerIfStoredImage(
+                                    regeneratedImageUrl,
+                                    product.getCompany(),
+                                    product.getCompanyPhone()
+                            );
+
 
         } catch (RuntimeException error) {
-            if (regeneratedImageUrl != null) {
+
+            /*
+             * OpenAI 생성까지 성공했지만
+             * 이후 오류가 발생했을 경우
+             * 생성된 파일을 정리합니다.
+             */
+            if (
+                    regeneratedImageUrl != null
+                    &&
+                    !regeneratedImageUrl.isBlank()
+            ) {
+
                 generatedImageStorageService.delete(
                         regeneratedImageUrl
                 );
             }
 
+
+            /*
+             * 실패한 재생성 요청의
+             * PromptHistory를 정리합니다.
+             */
             promptHistoryRepository.delete(
                     savedPromptHistory
             );
 
             promptHistoryRepository.flush();
 
+
             throw error;
         }
 
+
         /*
          * 기존 이미지를 덮어쓰지 않고
-         * 새로운 생성 이미지 행으로 저장합니다.
+         * 새로운 generated_image 행으로 저장합니다.
          */
         GeneratedImage regeneratedImage =
                 GeneratedImage.createRegenerated(
@@ -339,10 +468,12 @@ public class GeneratedImageService {
                         regeneratedImageUrl
                 );
 
+
         GeneratedImage savedImage =
                 generatedImageRepository.save(
                         regeneratedImage
                 );
+
 
         return new ImageRegenerateResponse(
                 originalImage.getImageId(),
@@ -354,21 +485,38 @@ public class GeneratedImageService {
         );
     }
 
+
     /**
-     * 이미지 다운로드 횟수를 증가시키고 URL을 반환합니다.
+     * 이미지 다운로드 횟수를 증가시키고
+     * 이미지 URL을 반환합니다.
      */
     @Transactional
     public ImageDownloadResponse download(
             Long userNum,
             Long imageId
     ) {
+
         GeneratedImage image =
                 findOwnedImage(
                         userNum,
                         imageId
                 );
 
+
+        /*
+         * PENDING / PROCESSING / FAILED 이미지에는
+         * 다운로드할 정상 이미지가 존재하지 않습니다.
+         */
+        if (!image.isCompleted()) {
+
+            throw new IllegalStateException(
+                    "아직 이미지 생성이 완료되지 않았습니다."
+            );
+        }
+
+
         image.increaseDownload();
+
 
         return new ImageDownloadResponse(
                 image.getImageId(),
@@ -376,6 +524,7 @@ public class GeneratedImageService {
                 image.getDownload()
         );
     }
+
 
     /**
      * 생성 이미지와 연결된 프롬프트를 삭제합니다.
@@ -387,27 +536,50 @@ public class GeneratedImageService {
             Long userNum,
             Long imageId
     ) {
+
         GeneratedImage image =
                 findOwnedImage(
                         userNum,
                         imageId
                 );
 
+
+        /*
+         * Background Thread에서 이미지가 생성 중인데
+         * DB 행이 먼저 삭제되면 상태 저장이 실패할 수 있으므로
+         * 생성 중 삭제를 제한합니다.
+         */
+        if (image.isGenerating()) {
+
+            throw new IllegalStateException(
+                    "이미지 생성 중에는 삭제할 수 없습니다."
+            );
+        }
+
+
         String imageUrl =
                 image.getImageUrl();
+
 
         Long promptId =
                 image.getPromptId();
 
-        generatedImageRepository.delete(image);
+
+        generatedImageRepository.delete(
+                image
+        );
+
         generatedImageRepository.flush();
 
+
         if (
-                promptId != null &&
+                promptId != null
+                &&
                 promptHistoryRepository.existsById(
                         promptId
                 )
         ) {
+
             promptHistoryRepository.deleteById(
                     promptId
             );
@@ -415,13 +587,27 @@ public class GeneratedImageService {
             promptHistoryRepository.flush();
         }
 
-        generatedImageStorageService.delete(
-                imageUrl
-        );
+
+        /*
+         * FAILED 이미지처럼 imageUrl이 없는 경우도
+         * 있을 수 있으므로 null을 확인합니다.
+         */
+        if (
+                imageUrl != null
+                &&
+                !imageUrl.isBlank()
+        ) {
+
+            generatedImageStorageService.delete(
+                    imageUrl
+            );
+        }
     }
 
+
     /**
-     * 신규 홍보 이미지에 사용할 전체 프롬프트를 만듭니다.
+     * 신규 홍보 이미지에 사용할
+     * 전체 OpenAI 프롬프트를 만듭니다.
      *
      * 전화번호는 Java가 직접 합성하므로
      * OpenAI 이미지에는 전화번호를 작성하지 않도록 지시합니다.
@@ -430,16 +616,21 @@ public class GeneratedImageService {
             Product product,
             String promptText
     ) {
+
         String description =
                 product.getProDescription();
 
+
         if (
-                description == null ||
+                description == null
+                ||
                 description.isBlank()
         ) {
+
             description =
                     "등록된 상품 설명 없음";
         }
+
 
         return """
                 한국 농자재 판매업체가 농가 고객에게 보낼
@@ -479,12 +670,15 @@ public class GeneratedImageService {
                 );
     }
 
+
     /**
-     * 이미지 재생성에 사용할 프롬프트를 만듭니다.
+     * 이미지 재생성에 사용할
+     * OpenAI 프롬프트를 만듭니다.
      */
     private String buildRegeneratePrompt(
             String editPrompt
     ) {
+
         return """
                 제공된 기존 홍보 이미지를 기준으로 이미지를 수정하세요.
 
@@ -526,112 +720,28 @@ public class GeneratedImageService {
                 );
     }
 
-    /**
-     * OpenAI가 서버의 uploads/generated 폴더에 저장한
-     * 이미지에만 업체 연락처 배너를 추가합니다.
-     *
-     * Mock Gateway가 반환하는 외부 URL은
-     * 로컬 파일이 아니므로 그대로 반환합니다.
-     */
-    /**
-     * 서버에 저장된 OpenAI 생성 이미지에
-     * 정확한 문의 전화번호 배너를 추가합니다.
-     */
-    private String addContactBannerIfStoredImage(
-            String imageUrl,
-            Product product
-    ) {
-        if (
-                imageUrl == null ||
-                imageUrl.isBlank()
-        ) {
-            throw new IllegalStateException(
-                    "생성된 이미지 주소가 존재하지 않습니다."
-            );
-        }
-
-        /*
-         * 외부 Mock 이미지만 후처리에서 제외합니다.
-         *
-         * 다음 두 형식을 모두 허용합니다.
-         *
-         * /uploads/generated/파일.png
-         * http://localhost:8082/uploads/generated/파일.png
-         */
-        if (
-                !imageUrl.contains(
-                        "/uploads/generated/"
-                )
-        ) {
-            return imageUrl;
-        }
-
-        /*
-         * 전체 URL로 반환된 경우 로컬 이미지 경로로 변경합니다.
-         */
-        String localImageUrl =
-                extractGeneratedImageUrl(
-                        imageUrl
-                );
-
-        String processedImageUrl =
-                generatedImageStorageService
-                        .addCompanyContactBanner(
-                                localImageUrl,
-                                product.getCompany(),
-                                product.getCompanyPhone()
-                        );
-
-        System.out.println(
-                "[FarMMS] 문의 배너 후처리 완료: "
-                + processedImageUrl
-        );
-
-        return processedImageUrl;
-    }
 
     /**
-     * 전체 이미지 URL에서 서버 내부 이미지 경로만 추출합니다.
-     *
-     * 예:
-     * http://localhost:8082/uploads/generated/abc.png
-     * -> /uploads/generated/abc.png
-     */
-    private String extractGeneratedImageUrl(
-            String imageUrl
-    ) {
-        int generatedPathIndex =
-                imageUrl.indexOf(
-                        "/uploads/generated/"
-                );
-
-        if (generatedPathIndex < 0) {
-            throw new IllegalArgumentException(
-                    "생성 이미지 주소가 올바르지 않습니다."
-            );
-        }
-
-        return imageUrl.substring(
-                generatedPathIndex
-        );
-    }
-
-    /**
-     * 상품에 판매 업체 전화번호가 등록되어 있는지 확인합니다.
+     * 상품에 판매 업체 전화번호가
+     * 등록되어 있는지 확인합니다.
      */
     private void validateCompanyPhone(
             Product product
     ) {
+
         if (
-                product.getCompanyPhone() == null ||
+                product.getCompanyPhone() == null
+                ||
                 product.getCompanyPhone().isBlank()
         ) {
+
             throw new IllegalArgumentException(
                     "상품에 판매 업체 전화번호가 등록되어 있지 않습니다. "
                     + "상품 관리에서 전화번호를 입력한 후 다시 시도해주세요."
             );
         }
     }
+
 
     /**
      * 이미지 번호와 회원 번호를 함께 확인합니다.
@@ -640,6 +750,7 @@ public class GeneratedImageService {
             Long userNum,
             Long imageId
     ) {
+
         return generatedImageRepository
                 .findByImageIdAndUserNum(
                         imageId,

@@ -2,6 +2,7 @@ package com.farmms.backend.controller;
 
 import java.util.List;
 
+import com.farmms.backend.dto.image.ImageGenerateAcceptedResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -71,23 +72,28 @@ public class GeneratedImageController {
     }
 
     /**
-     * 프롬프트를 이용해
-     * 새로운 AI 홍보 이미지를 생성합니다.
+     * 새로운 AI 홍보 이미지 생성 요청을 접수합니다.
+     *
+     * 실제 OpenAI 이미지 생성은
+     * 백그라운드에서 처리됩니다.
+     *
+     * 따라서 이미지 생성 완료를 기다리지 않고
+     * HTTP 202 Accepted를 즉시 반환합니다.
      */
     @PostMapping
-    public ResponseEntity<GeneratedImageResponse> generate(
+    public ResponseEntity<ImageGenerateAcceptedResponse> generate(
             @AuthenticationPrincipal Long userNum,
             @Valid @RequestBody ImageGenerateRequest request
     ) {
 
-        GeneratedImageResponse response =
+        ImageGenerateAcceptedResponse response =
                 generatedImageService.generate(
                         userNum,
                         request
                 );
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .accepted()
                 .body(response);
     }
 
