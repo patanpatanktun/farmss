@@ -585,48 +585,174 @@ export default function SendMms() {
   };
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1200px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          sm:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-3
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+            MMS SENDING
+          </div>
+
+          <h1
+            className="
+              text-[32px]
+              sm:text-[38px]
+              font-bold
+              tracking-[-0.03em]
+              text-[#17372a]
+            "
+          >
             MMS 발송
           </h1>
 
-          <p className="text-gray-700 font-bold mt-2">
-            수신 고객과 홍보 이미지를 선택하고
-            MMS 문구를 작성해주세요.
+          <p
+            className="
+              text-[#59685f]
+              text-[16px]
+              sm:text-[17px]
+              font-normal
+              mt-2
+            "
+          >
+            수신 고객과 홍보 이미지를 선택하고 MMS 문구를 작성해주세요.
           </p>
         </div>
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div
+            className="
+              bg-[#f8e7e3]
+              border-l-[3px]
+              border-[#b45a47]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#873c2e]
+              rounded-none
+            "
+          >
             {errorMessage}
           </div>
         )}
 
         {successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+          <div
+            className="
+              bg-[#e8f3ee]
+              border-l-[3px]
+              border-[#17372a]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#17372a]
+              rounded-none
+            "
+          >
             {successMessage}
           </div>
         )}
 
         {isLoading ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-16 shadow-md text-center text-gray-500 font-bold">
+          <div
+            className="
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              p-16
+              shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+              text-center
+              text-[#748078]
+              text-[16px]
+              font-normal
+            "
+          >
             MMS 발송 정보를 불러오는 중입니다.
           </div>
         ) : (
           <>
-            <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
+            <section
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-8
+                lg:p-10
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                space-y-6
+              "
+            >
               <div>
-                <h2 className="text-xl font-black text-gray-900">
+                <h2
+                  className="
+                    text-[24px]
+                    font-bold
+                    text-[#17372a]
+                    tracking-[-0.02em]
+                  "
+                >
                   1. 수신 고객 선택
                 </h2>
 
-                <p className="text-sm text-gray-600 font-bold mt-1">
-                  지역, 재배작물 또는 고객 그룹으로
-                  발송 대상을 선택할 수 있습니다.
+                <p
+                  className="
+                    text-[15px]
+                    text-[#59675f]
+                    font-normal
+                    mt-1.5
+                  "
+                >
+                  지역, 재배작물 또는 고객 그룹으로 발송 대상을 선택할 수 있습니다.
                 </p>
               </div>
 
@@ -637,7 +763,21 @@ export default function SendMms() {
                   value={filters.region}
                   onChange={handleFilterChange}
                   placeholder="지역 검색 (예: 광주, 나주)"
-                  className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    bg-[#f7f3eb]
+                    placeholder:text-[#8a968e]
+                  "
                 />
 
                 <input
@@ -646,18 +786,43 @@ export default function SendMms() {
                   value={filters.crop}
                   onChange={handleFilterChange}
                   placeholder="작물 검색 (예: 배, 벼)"
-                  className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    bg-[#f7f3eb]
+                    placeholder:text-[#8a968e]
+                  "
                 />
 
                 <select
                   name="groupNum"
                   value={filters.groupNum}
                   onChange={handleFilterChange}
-                  className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    bg-[#f7f3eb]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                  "
                 >
-                  <option value="">
-                    전체 그룹
-                  </option>
+                  <option value="">전체 그룹</option>
 
                   {groups.map((group) => (
                     <option
@@ -680,7 +845,20 @@ export default function SendMms() {
                     disabled={
                       filteredContacts.length === 0
                     }
-                    className="px-4 py-2.5 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 disabled:border-gray-200 disabled:text-gray-400 rounded-xl text-xs font-black"
+                    className="
+                      px-4
+                      py-2.5
+                      border
+                      border-[#17372a]/30
+                      text-[#17372a]
+                      hover:bg-[#17372a]/[0.06]
+                      disabled:border-[#17372a]/10
+                      disabled:text-[#17372a]/40
+                      rounded-none
+                      text-[13px]
+                      font-semibold
+                      transition
+                    "
                   >
                     {allVisibleSelected
                       ? '검색 결과 선택 해제'
@@ -692,7 +870,18 @@ export default function SendMms() {
                     onClick={() =>
                       setSelectedContactNums([])
                     }
-                    className="px-4 py-2.5 border-2 border-gray-200 hover:bg-gray-50 rounded-xl text-xs font-black"
+                    className="
+                      px-4
+                      py-2.5
+                      border
+                      border-[#17372a]/25
+                      hover:bg-[#17372a]/[0.05]
+                      rounded-none
+                      text-[13px]
+                      font-semibold
+                      text-[#536159]
+                      transition
+                    "
                   >
                     전체 선택 해제
                   </button>
@@ -700,19 +889,30 @@ export default function SendMms() {
                   <button
                     type="button"
                     onClick={handleFilterReset}
-                    className="px-4 py-2.5 border-2 border-gray-200 hover:bg-gray-50 rounded-xl text-xs font-black"
+                    className="
+                      px-4
+                      py-2.5
+                      border
+                      border-[#17372a]/25
+                      hover:bg-[#17372a]/[0.05]
+                      rounded-none
+                      text-[13px]
+                      font-semibold
+                      text-[#536159]
+                      transition
+                    "
                   >
                     검색 초기화
                   </button>
                 </div>
 
-                <p className="text-sm font-black text-gray-700">
+                <p className="text-[14px] font-semibold text-[#59675f]">
                   검색 결과{' '}
-                  <span className="text-emerald-700">
+                  <span className="text-[#17372a] font-bold">
                     {filteredContacts.length}
                   </span>
                   명 · 선택{' '}
-                  <span className="text-emerald-700">
+                  <span className="text-[#17372a] font-bold">
                     {selectedContactNums.length}
                   </span>
                   명
@@ -720,25 +920,48 @@ export default function SendMms() {
               </div>
 
               {contacts.length === 0 ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm font-bold text-amber-800">
+                <div
+                  className="
+                    rounded-none
+                    border
+                    border-[#17372a]/25
+                    bg-[#f0e8dc]
+                    p-6
+                    text-[14px]
+                    font-medium
+                    text-[#17372a]
+                  "
+                >
                   등록된 고객이 없습니다.
 
                   <Link
                     to="/contact"
-                    className="block mt-3 text-emerald-700 font-black hover:underline"
+                    className="block mt-3 text-[#17372a] font-bold hover:underline"
                   >
                     고객 등록하러 가기 →
                   </Link>
                 </div>
               ) : filteredContacts.length === 0 ? (
-                <div className="rounded-2xl border border-gray-200 bg-slate-50 p-8 text-center text-gray-500 font-bold">
+                <div
+                  className="
+                    rounded-none
+                    border
+                    border-[#17372a]/25
+                    bg-[#f7f3eb]
+                    p-8
+                    text-center
+                    text-[#748078]
+                    text-[15px]
+                    font-normal
+                  "
+                >
                   검색 조건에 해당하는 고객이 없습니다.
                 </div>
               ) : (
-                <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-2xl">
-                  <table className="w-full text-left">
-                    <thead className="sticky top-0 bg-slate-50 border-b border-gray-200">
-                      <tr className="text-xs font-black text-gray-600">
+                <div className="max-h-96 overflow-y-auto border border-[#17372a]/25 rounded-none">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="sticky top-0 bg-[#f0e8dc] border-b border-[#17372a]/25">
+                      <tr className="text-[13px] font-semibold text-[#59675f]">
                         <th className="px-4 py-3 text-center">
                           선택
                         </th>
@@ -765,14 +988,14 @@ export default function SendMms() {
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-[#17372a]/15">
                       {filteredContacts.map(
                         (contact) => (
                           <tr
                             key={contact.conNum}
-                            className="hover:bg-slate-50"
+                            className="hover:bg-[#f2ebd9] transition"
                           >
-                            <td className="px-4 py-3 text-center">
+                            <td className="px-4 py-3.5 text-center">
                               <input
                                 type="checkbox"
                                 checked={selectedContactSet.has(
@@ -783,31 +1006,31 @@ export default function SendMms() {
                                     contact.conNum
                                   )
                                 }
-                                className="w-4 h-4 rounded text-emerald-700"
+                                className="w-4 h-4 rounded-none accent-[#17372a]"
                               />
                             </td>
 
-                            <td className="px-4 py-3 text-sm font-black">
+                            <td className="px-4 py-3.5 text-[14px] font-semibold text-[#17372a]">
                               {contact.conName}
                             </td>
 
-                            <td className="px-4 py-3 text-sm font-bold whitespace-nowrap">
-                              {formatPhone(
+                            <td className="px-4 py-3.5 text-[14px] text-[#59675f] font-normal whitespace-nowrap">
+                              {formatMaskedPhone(
                                 contact.phone
                               )}
                             </td>
 
-                            <td className="px-4 py-3 text-sm font-bold">
+                            <td className="px-4 py-3.5 text-[14px] text-[#59675f] font-normal">
                               {contact.region ||
                                 '-'}
                             </td>
 
-                            <td className="px-4 py-3 text-sm font-bold">
+                            <td className="px-4 py-3.5 text-[14px] text-[#59675f] font-normal">
                               {contact.crop ||
                                 '-'}
                             </td>
 
-                            <td className="px-4 py-3 text-sm font-bold whitespace-nowrap">
+                            <td className="px-4 py-3.5 text-[14px] text-[#59675f] font-normal whitespace-nowrap">
                               {contact.groupNum
                                 ? groupMap.get(
                                     Number(
@@ -826,34 +1049,81 @@ export default function SendMms() {
               )}
             </section>
 
-            <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
+            <section
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-8
+                lg:p-10
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                space-y-6
+              "
+            >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black text-gray-900">
+                  <h2
+                    className="
+                      text-[24px]
+                      font-bold
+                      text-[#17372a]
+                      tracking-[-0.02em]
+                    "
+                  >
                     2. 발송 이미지 선택
                   </h2>
 
-                  <p className="text-sm text-gray-600 font-bold mt-1">
-                    이미지 관리에서 생성한 홍보
-                    이미지를 선택해주세요.
+                  <p
+                    className="
+                      text-[15px]
+                      text-[#59675f]
+                      font-normal
+                      mt-1.5
+                    "
+                  >
+                    이미지 관리에서 생성한 홍보 이미지를 선택해주세요.
                   </p>
                 </div>
 
                 <Link
                   to="/manageimage"
-                  className="px-4 py-2.5 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-black whitespace-nowrap"
+                  className="
+                    px-4
+                    py-2.5
+                    border
+                    border-[#17372a]/30
+                    text-[#17372a]
+                    hover:bg-[#17372a]/[0.06]
+                    rounded-none
+                    text-[13px]
+                    font-semibold
+                    whitespace-nowrap
+                    transition
+                  "
                 >
                   이미지 관리
                 </Link>
               </div>
 
               {images.length === 0 ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm font-bold text-amber-800">
+                <div
+                  className="
+                    rounded-none
+                    border
+                    border-[#17372a]/25
+                    bg-[#f0e8dc]
+                    p-6
+                    text-[14px]
+                    font-medium
+                    text-[#17372a]
+                  "
+                >
                   발송할 이미지가 없습니다.
 
                   <Link
                     to="/createimage"
-                    className="block mt-3 text-emerald-700 font-black hover:underline"
+                    className="block mt-3 text-[#17372a] font-bold hover:underline"
                   >
                     이미지 만들러 가기 →
                   </Link>
@@ -881,13 +1151,13 @@ export default function SendMms() {
                             )
                           )
                         }
-                        className={`w-52 flex-shrink-0 rounded-2xl border-2 p-3 text-left transition ${
+                        className={`w-52 flex-shrink-0 rounded-none border-2 p-3 text-left transition ${
                           isSelected
-                            ? 'border-emerald-700 bg-emerald-50'
-                            : 'border-gray-200 bg-white hover:border-emerald-400'
+                            ? 'border-[#17372a] bg-[#e8f3ee]'
+                            : 'border-[#17372a]/25 bg-[#f7f3eb] hover:border-[#17372a]/60'
                         }`}
                       >
-                        <div className="aspect-square rounded-xl overflow-hidden bg-slate-50 border border-gray-200">
+                        <div className="aspect-square rounded-none overflow-hidden bg-[#f0e8dc] border border-[#17372a]/20">
                           <img
                             src={image.imageUrl}
                             alt="MMS 발송 이미지"
@@ -895,16 +1165,16 @@ export default function SendMms() {
                           />
                         </div>
 
-                        <p className="mt-3 font-black text-sm text-gray-900 truncate">
+                        <p className="mt-3 font-semibold text-[14px] text-[#17372a] truncate">
                           {product?.proName ||
                             `이미지 ${image.imageId}`}
                         </p>
 
                         <p
-                          className={`mt-1 text-xs font-black ${
+                          className={`mt-1 text-[12px] font-semibold ${
                             isSelected
-                              ? 'text-emerald-700'
-                              : 'text-gray-500'
+                              ? 'text-[#17372a]'
+                              : 'text-[#748078]'
                           }`}
                         >
                           {isSelected
@@ -918,24 +1188,36 @@ export default function SendMms() {
               )}
 
               {selectedImage && (
-                <div className="rounded-2xl bg-slate-50 border border-gray-200 p-5 grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-5">
+                <div
+                  className="
+                    rounded-none
+                    bg-[#f0e8dc]
+                    border
+                    border-[#17372a]/25
+                    p-6
+                    grid
+                    grid-cols-1
+                    sm:grid-cols-[140px_1fr]
+                    gap-6
+                  "
+                >
                   <img
                     src={selectedImage.imageUrl}
                     alt="선택한 발송 이미지"
-                    className="w-full h-32 object-cover rounded-xl border border-gray-200 bg-white"
+                    className="w-full h-32 object-cover rounded-none border border-[#17372a]/20 bg-[#f7f3eb]"
                   />
 
                   <div className="space-y-2">
-                    <p className="text-xs font-black text-gray-500">
+                    <p className="text-[12px] font-semibold text-[#748078] tracking-[0.05em]">
                       선택한 상품
                     </p>
 
-                    <p className="text-lg font-black text-gray-900">
+                    <p className="text-[18px] font-bold text-[#17372a]">
                       {selectedProduct?.proName ||
                         '상품 정보 없음'}
                     </p>
 
-                    <p className="text-sm font-bold text-gray-600">
+                    <p className="text-[14px] font-normal text-[#59675f]">
                       {selectedProduct?.category ||
                         '-'}{' '}
                       ·{' '}
@@ -944,7 +1226,7 @@ export default function SendMms() {
                     </p>
 
                     {selectedProduct && (
-                      <p className="text-lg font-black text-emerald-700">
+                      <p className="text-[16px] font-bold text-[#17372a]">
                         {Number(
                           selectedProduct.price
                         ).toLocaleString(
@@ -958,22 +1240,51 @@ export default function SendMms() {
               )}
             </section>
 
-            <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
+            <section
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-8
+                lg:p-10
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                space-y-6
+              "
+            >
               <div>
-                <h2 className="text-xl font-black text-gray-900">
+                <h2
+                  className="
+                    text-[24px]
+                    font-bold
+                    text-[#17372a]
+                    tracking-[-0.02em]
+                  "
+                >
                   3. 발송 내용 입력
                 </h2>
 
-                <p className="text-sm text-gray-600 font-bold mt-1">
-                  솔라피에 등록된 FarMMS 운영자
-                  대표번호로 모든 MMS가 발송됩니다.
+                <p
+                  className="
+                    text-[15px]
+                    text-[#59675f]
+                    font-normal
+                    mt-1.5
+                  "
+                >
+                  솔라피에 등록된 FarMMS 운영자 대표번호로 모든 MMS가 발송됩니다.
                 </p>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label
                   htmlFor="senderNumber"
-                  className="block text-sm font-black text-gray-800"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   발신번호
                 </label>
@@ -988,19 +1299,35 @@ export default function SendMms() {
                   }
                   readOnly
                   placeholder="FarMMS 대표 발신번호"
-                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-slate-100 text-gray-700 cursor-not-allowed"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#59675f]
+                    bg-[#f0e8dc]
+                    cursor-not-allowed
+                  "
                 />
 
-                <p className="text-xs text-gray-500 font-bold px-1">
-                  발신번호는 사용자가 수정할 수 없으며,
-                  FarMMS 운영자 대표번호로 고정됩니다.
+                <p className="text-[12px] text-[#748078] font-normal px-1">
+                  발신번호는 사용자가 수정할 수 없으며, FarMMS 운영자 대표번호로 고정됩니다.
                 </p>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label
                   htmlFor="mmsContent"
-                  className="block text-sm font-black text-gray-800"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   발송 문구
                 </label>
@@ -1017,17 +1344,32 @@ export default function SendMms() {
                     rows={8}
                     maxLength={2000}
                     placeholder="고객에게 발송할 MMS 내용을 입력해주세요."
-                    className="w-full p-4 pb-9 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700 bg-slate-50/50 resize-none"
+                    className="
+                      w-full
+                      p-4
+                      pb-9
+                      border
+                      border-[#17372a]/25
+                      rounded-none
+                      font-normal
+                      text-[15px]
+                      text-[#17372a]
+                      focus:outline-none
+                      focus:border-[#17372a]
+                      bg-[#f7f3eb]
+                      resize-none
+                      placeholder:text-[#8a968e]
+                    "
                   />
 
-                  <span className="absolute right-4 bottom-3 text-xs font-black text-gray-500">
+                  <span className="absolute right-4 bottom-3 text-[12px] font-normal text-[#748078]">
                     {content.length} / 2,000자
                   </span>
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <p className="block text-sm font-black text-gray-800">
+                <p className="block text-[13px] font-semibold text-[#536159]">
                   발송 방식
                 </p>
 
@@ -1042,16 +1384,16 @@ export default function SendMms() {
                       setReserveMinute('');
                       setReservePeriod('오후');
                     }}
-                    className={`p-4 rounded-2xl border-2 text-left transition ${
+                    className={`p-4 rounded-none border text-left transition ${
                       !reserve
-                        ? 'border-emerald-700 bg-emerald-50'
-                        : 'border-gray-200 bg-white hover:border-emerald-300'
+                        ? 'border-[#17372a] bg-[#e8f3ee]'
+                        : 'border-[#17372a]/25 bg-[#f7f3eb] hover:border-[#17372a]/50'
                     }`}
                   >
-                    <span className="block font-black text-gray-900">
+                    <span className="block font-bold text-[15px] text-[#17372a]">
                       즉시 발송
                     </span>
-                    <span className="block mt-1 text-xs font-bold text-gray-500">
+                    <span className="block mt-1 text-[13px] font-normal text-[#59675f]">
                       발송 요청 후 바로 전송합니다.
                     </span>
                   </button>
@@ -1059,24 +1401,24 @@ export default function SendMms() {
                   <button
                     type="button"
                     onClick={() => setReserve(true)}
-                    className={`p-4 rounded-2xl border-2 text-left transition ${
+                    className={`p-4 rounded-none border text-left transition ${
                       reserve
-                        ? 'border-emerald-700 bg-emerald-50'
-                        : 'border-gray-200 bg-white hover:border-emerald-300'
+                        ? 'border-[#17372a] bg-[#e8f3ee]'
+                        : 'border-[#17372a]/25 bg-[#f7f3eb] hover:border-[#17372a]/50'
                     }`}
                   >
-                    <span className="block font-black text-gray-900">
+                    <span className="block font-bold text-[15px] text-[#17372a]">
                       예약 발송
                     </span>
-                    <span className="block mt-1 text-xs font-bold text-gray-500">
+                    <span className="block mt-1 text-[13px] font-normal text-[#59675f]">
                       지정한 날짜와 시간에 전송합니다.
                     </span>
                   </button>
                 </div>
 
                 {reserve && (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4">
-                    <p className="block text-sm font-black text-gray-800 mb-3">
+                  <div className="rounded-none border border-[#17372a]/25 bg-[#f0e8dc] p-5 space-y-4">
+                    <p className="block text-[13px] font-semibold text-[#536159]">
                       예약 날짜 및 시간
                     </p>
 
@@ -1084,7 +1426,7 @@ export default function SendMms() {
                       <div>
                         <label
                           htmlFor="reserveDay"
-                          className="block mb-2 text-xs font-black text-gray-600"
+                          className="block mb-1.5 text-[12px] font-semibold text-[#536159]"
                         >
                           날짜
                         </label>
@@ -1097,14 +1439,27 @@ export default function SendMms() {
                           onChange={(event) =>
                             setReserveDay(event.target.value)
                           }
-                          className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                          className="
+                            w-full
+                            px-4
+                            py-3.5
+                            border
+                            border-[#17372a]/25
+                            rounded-none
+                            font-normal
+                            text-[15px]
+                            text-[#17372a]
+                            bg-[#f7f3eb]
+                            focus:outline-none
+                            focus:border-[#17372a]
+                          "
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="reservePeriod"
-                          className="block mb-2 text-xs font-black text-gray-600"
+                          className="block mb-1.5 text-[12px] font-semibold text-[#536159]"
                         >
                           오전/오후
                         </label>
@@ -1115,7 +1470,20 @@ export default function SendMms() {
                           onChange={(event) =>
                             setReservePeriod(event.target.value)
                           }
-                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                          className="
+                            w-full
+                            px-3
+                            py-3.5
+                            border
+                            border-[#17372a]/25
+                            rounded-none
+                            font-normal
+                            text-[15px]
+                            text-[#17372a]
+                            bg-[#f7f3eb]
+                            focus:outline-none
+                            focus:border-[#17372a]
+                          "
                         >
                           <option value="오전">오전</option>
                           <option value="오후">오후</option>
@@ -1125,7 +1493,7 @@ export default function SendMms() {
                       <div>
                         <label
                           htmlFor="reserveHour"
-                          className="block mb-2 text-xs font-black text-gray-600"
+                          className="block mb-1.5 text-[12px] font-semibold text-[#536159]"
                         >
                           시
                         </label>
@@ -1136,7 +1504,20 @@ export default function SendMms() {
                           onChange={(event) =>
                             setReserveHour(event.target.value)
                           }
-                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                          className="
+                            w-full
+                            px-3
+                            py-3.5
+                            border
+                            border-[#17372a]/25
+                            rounded-none
+                            font-normal
+                            text-[15px]
+                            text-[#17372a]
+                            bg-[#f7f3eb]
+                            focus:outline-none
+                            focus:border-[#17372a]
+                          "
                         >
                           <option value="">시</option>
                           {HOUR_OPTIONS.map((hour) => (
@@ -1150,7 +1531,7 @@ export default function SendMms() {
                       <div>
                         <label
                           htmlFor="reserveMinute"
-                          className="block mb-2 text-xs font-black text-gray-600"
+                          className="block mb-1.5 text-[12px] font-semibold text-[#536159]"
                         >
                           분
                         </label>
@@ -1161,7 +1542,20 @@ export default function SendMms() {
                           onChange={(event) =>
                             setReserveMinute(event.target.value)
                           }
-                          className="w-full px-3 py-3.5 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+                          className="
+                            w-full
+                            px-3
+                            py-3.5
+                            border
+                            border-[#17372a]/25
+                            rounded-none
+                            font-normal
+                            text-[15px]
+                            text-[#17372a]
+                            bg-[#f7f3eb]
+                            focus:outline-none
+                            focus:border-[#17372a]
+                          "
                         >
                           <option value="">분</option>
                           {MINUTE_OPTIONS.map((minute) => (
@@ -1173,7 +1567,7 @@ export default function SendMms() {
                       </div>
                     </div>
 
-                    <p className="mt-2 text-xs font-bold text-gray-500">
+                    <p className="mt-2 text-[12px] text-[#748078] font-normal">
                       현재 시간 이후의 날짜와 시간을 선택해주세요.
                     </p>
                   </div>
@@ -1181,13 +1575,38 @@ export default function SendMms() {
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
+            <section
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-8
+                lg:p-10
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                space-y-6
+              "
+            >
               <div>
-                <h2 className="text-xl font-black text-gray-900">
+                <h2
+                  className="
+                    text-[24px]
+                    font-bold
+                    text-[#17372a]
+                    tracking-[-0.02em]
+                  "
+                >
                   4. 발송 내용 확인
                 </h2>
 
-                <p className="text-sm text-gray-600 font-bold mt-1">
+                <p
+                  className="
+                    text-[15px]
+                    text-[#59675f]
+                    font-normal
+                    mt-1.5
+                  "
+                >
                   {reserve
                     ? '선택한 시간에 맞춰 예약 발송됩니다.'
                     : '솔라피를 통해 실제 MMS가 즉시 발송됩니다.'}
@@ -1233,26 +1652,64 @@ export default function SendMms() {
                 type="button"
                 onClick={handleSend}
                 disabled={isSending}
-                className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black text-lg rounded-2xl shadow-md"
+                className="
+                  w-full
+                  h-[54px]
+                  bg-[#17372a]
+                  hover:bg-[#214b39]
+                  disabled:bg-[#9ca7a0]
+                  disabled:cursor-not-allowed
+                  text-white
+                  font-bold
+                  text-[16px]
+                  rounded-none
+                  transition
+                  shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+                "
               >
                 {isSending
                   ? reserve
                     ? 'MMS 예약 접수 중...'
                     : 'MMS 발송 처리 중...'
                   : reserve
-                    ? `${selectedContactNums.length}명에게 예약 발송하기`
-                    : `${selectedContactNums.length}명에게 MMS 발송하기`}
+                  ? `${selectedContactNums.length}명에게 예약 발송하기`
+                  : `${selectedContactNums.length}명에게 MMS 발송하기`}
               </button>
             </section>
 
             {sendResult.status && (
-              <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
+              <section
+                className="
+                  bg-[#f8f0e2]
+                  border
+                  border-[#17372a]/25
+                  rounded-none
+                  p-8
+                  lg:p-10
+                  shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                  space-y-6
+                "
+              >
                 <div>
-                  <h2 className="text-xl font-black text-gray-900">
+                  <h2
+                    className="
+                      text-[24px]
+                      font-bold
+                      text-[#17372a]
+                      tracking-[-0.02em]
+                    "
+                  >
                     발송 결과
                   </h2>
 
-                  <p className="text-sm text-gray-600 font-bold mt-1">
+                  <p
+                    className="
+                      text-[15px]
+                      text-[#59675f]
+                      font-normal
+                      mt-1.5
+                    "
+                  >
                     {sendResult.message}
                   </p>
                 </div>
@@ -1266,20 +1723,34 @@ export default function SendMms() {
                   <SummaryItem
                     label="성공"
                     value={`${sendResult.successCount}건`}
-                    color="text-emerald-700"
+                    color="text-[#17372a]"
                   />
 
                   <SummaryItem
                     label="실패"
                     value={`${sendResult.failCount}건`}
-                    color="text-red-600"
+                    color="text-[#b45a47]"
                   />
                 </div>
 
                 <div className="flex justify-end">
                   <Link
                     to="/checkmms"
-                    className="px-6 py-3 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black text-sm"
+                    className="
+                      px-6
+                      h-[46px]
+                      border
+                      border-[#17372a]/30
+                      text-[#17372a]
+                      hover:bg-[#17372a]/[0.06]
+                      rounded-none
+                      font-semibold
+                      text-[14px]
+                      flex
+                      items-center
+                      justify-center
+                      transition
+                    "
                   >
                     발송 내역 확인하기
                   </Link>
@@ -1290,10 +1761,38 @@ export default function SendMms() {
         )}
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-600 text-xs mt-12 shadow-sm">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -1302,16 +1801,24 @@ export default function SendMms() {
 function SummaryItem({
   label,
   value,
-  color = 'text-gray-900',
+  color = 'text-[#17372a]',
 }) {
   return (
-    <div className="rounded-2xl bg-slate-50 border border-gray-200 p-5">
-      <p className="text-xs font-black text-gray-500">
+    <div
+      className="
+        rounded-none
+        bg-[#f0e8dc]
+        border
+        border-[#17372a]/20
+        p-5
+      "
+    >
+      <p className="text-[12px] font-semibold text-[#748078] tracking-[0.05em]">
         {label}
       </p>
 
       <p
-        className={`mt-2 text-lg font-black ${color}`}
+        className={`mt-2 text-[18px] font-bold ${color}`}
       >
         {value}
       </p>
@@ -1360,6 +1867,40 @@ function formatPhone(phone) {
     return numbers.replace(
       /(\d{3})(\d{3})(\d{4})/,
       '$1-$2-$3'
+    );
+  }
+
+  return phone;
+}
+
+function formatMaskedPhone(phone) {
+  if (!phone) {
+    return '-';
+  }
+
+  const numbers = String(phone).replace(/[^0-9]/g, '');
+
+  if (numbers.length === 11) {
+    return numbers.replace(
+      /(\d{3})(\d{4})(\d{4})/,
+      '$1-****-$3'
+    );
+  }
+
+  if (
+    numbers.startsWith('02') &&
+    numbers.length === 10
+  ) {
+    return numbers.replace(
+      /(\d{2})(\d{4})(\d{4})/,
+      '$1-****-$3'
+    );
+  }
+
+  if (numbers.length === 10) {
+    return numbers.replace(
+      /(\d{3})(\d{3})(\d{4})/,
+      '$1-***-$3'
     );
   }
 

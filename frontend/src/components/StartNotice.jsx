@@ -1,23 +1,23 @@
-import {
+import React, {
   useCallback,
   useEffect,
   useState,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/api';
-import Header from './Header';
 
 const EMPTY_FORM = {
   title: '',
   content: '',
 };
 
-export default function Notice() {
+export default function StartNotice() {
   const [notices, setNotices] = useState([]);
-  const [searchType, setSearchType] = useState('all'); // 'all' | 'title' | 'writer'
+  const [searchType, setSearchType] = useState('all');
   const [keyword, setKeyword] = useState('');
   const [appliedKeyword, setAppliedKeyword] = useState('');
   const [appliedSearchType, setAppliedSearchType] = useState('all');
-  const [sortBy, setSortBy] = useState('latest'); // 'latest' | 'oldest' | 'number'
+  const [sortBy, setSortBy] = useState('latest');
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [editingNotice, setEditingNotice] = useState(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -73,7 +73,6 @@ export default function Notice() {
     loadMyRole();
   }, []);
 
-  // 정렬 로직 적용된 목록 계산
   const sortedNotices = [...notices].sort((a, b) => {
     if (sortBy === 'latest') {
       return new Date(b.createDate) - new Date(a.createDate);
@@ -226,7 +225,158 @@ export default function Notice() {
         `}
       </style>
 
-      <Header />
+      {/* 헤더 */}
+      <header
+        className="
+          sticky
+          top-0
+          z-50
+          w-full
+          bg-[#eee9df]/95
+          backdrop-blur-md
+          border-b
+          border-[#17372a]/10
+        "
+      >
+        <div
+          className="
+            max-w-[1440px]
+            mx-auto
+            px-7
+            sm:px-10
+            lg:px-14
+            h-[88px]
+            flex
+            items-center
+            justify-between
+          "
+        >
+          <Link
+            to="/start"
+            className="flex items-center gap-3"
+          >
+            <span
+              className="
+                text-[#17372a]
+                font-bold
+                text-[29px]
+                tracking-[-0.035em]
+              "
+            >
+              FarMMS
+            </span>
+
+            <span className="w-[1px] h-5 bg-[#17372a]/20" />
+
+            <span
+              className="
+                hidden
+                sm:block
+                text-[#68766e]
+                font-medium
+                text-[12px]
+                tracking-[0.01em]
+              "
+            >
+              농업의 가치를 더하다
+            </span>
+          </Link>
+
+          <nav
+            className="
+              hidden
+              lg:flex
+              items-center
+              gap-10
+              text-[15px]
+              font-semibold
+              text-[#536159]
+            "
+          >
+            <a
+              href="/start#service"
+              className="hover:text-[#17372a] transition"
+            >
+              서비스 소개
+            </a>
+
+            <a
+              href="/start#process"
+              className="hover:text-[#17372a] transition"
+            >
+              이용 방법
+            </a>
+
+            <Link
+              to="/StartNotice"
+              className="text-[#17372a] transition"
+            >
+              공지사항
+            </Link>
+
+            <Link
+              to="/pricing"
+              className="hover:text-[#17372a] transition"
+            >
+              요금 안내
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="
+                hidden
+                sm:flex
+                items-center
+                justify-center
+                px-5
+                py-3
+                border
+                border-[#17372a]/25
+                hover:border-[#17372a]
+                text-[#17372a]
+                font-semibold
+                text-sm
+                rounded-[18px_6px_18px_6px]
+                transition-all
+                duration-300
+                bg-transparent
+              "
+            >
+              로그인
+            </Link>
+
+            <Link
+              to="/signup"
+              className="
+                group
+                flex
+                items-center
+                justify-center
+                px-6
+                py-3
+                bg-[#17372a]
+                hover:bg-[#214b39]
+                text-white
+                font-semibold
+                text-sm
+                rounded-[18px_6px_18px_6px]
+                transition-all
+                duration-300
+                shadow-[0_10px_24px_rgba(23,55,42,0.13)]
+                hover:-translate-y-0.5
+              "
+            >
+              시작하기
+
+              <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">
+                →
+              </span>
+            </Link>
+          </div>
+        </div>
+      </header>
 
       <main
         className="
@@ -347,7 +497,6 @@ export default function Notice() {
           </div>
         </section>
 
-        {/* 검색 영역 (전체, 작성자, 제목 필터 포함) */}
         <section
           className="
             bg-[#f8f0e2]
@@ -477,7 +626,6 @@ export default function Notice() {
             overflow-hidden
           "
         >
-          {/* 공지사항 목록 바로 위에 딱 붙여서 배치한 정렬 영역 */}
           <div className="px-6 py-3 bg-[#f0e8dc] border-b border-[#17372a]/20 flex items-center justify-between">
             <div className="text-[13px] text-[#59675f] font-medium">
               {appliedKeyword && (
@@ -635,37 +783,95 @@ export default function Notice() {
         />
       )}
 
-      <footer
-        className="
-          w-full
-          bg-[#10291f]
-          text-white
-          py-8
-          text-center
-          mt-14
-        "
-      >
+      {/* 푸터 */}
+      <footer className="bg-[#10291f] text-white mt-14">
         <div
           className="
-            max-w-[1360px]
+            max-w-[1440px]
             mx-auto
-            px-6
+            px-7
             sm:px-10
-            flex
-            flex-col
-            sm:flex-row
-            items-center
-            justify-between
-            gap-3
+            lg:px-14
+            py-14
           "
         >
-          <p className="text-[14px] font-bold">
-            FarMMS
-          </p>
+          <div
+            className="
+              flex
+              flex-col
+              md:flex-row
+              md:items-center
+              md:justify-between
+              gap-8
+            "
+          >
+            <div>
+              <p
+                className="
+                  text-[26px]
+                  font-bold
+                  tracking-[-0.03em]
+                "
+              >
+                FarMMS
+              </p>
 
-          <p className="text-white/50 text-[13px] font-normal">
-            © 2026 FarMMS. All rights reserved.
-          </p>
+              <p className="mt-2 text-white/45 text-xs font-normal">
+                농업의 가치를 더하다
+              </p>
+            </div>
+
+            <div
+              className="
+                flex
+                flex-wrap
+                gap-8
+                text-white/60
+                text-sm
+                font-medium
+              "
+            >
+              <a href="/start#service" className="hover:text-white transition">
+                서비스 소개
+              </a>
+
+              <a href="/start#process" className="hover:text-white transition">
+                이용 방법
+              </a>
+
+              <Link to="/StartNotice" className="hover:text-white transition">
+                공지사항
+              </Link>
+
+              <Link to="/pricing" className="hover:text-white transition">
+                요금 안내
+              </Link>
+            </div>
+          </div>
+
+          <div
+            className="
+              mt-12
+              pt-7
+              border-t
+              border-white/10
+              text-white/35
+              text-[11px]
+              flex
+              flex-col
+              sm:flex-row
+              justify-between
+              gap-3
+            "
+          >
+            <span>
+              © 2026 FarMMS. All rights reserved.
+            </span>
+
+            <span>
+              AI · CUSTOMER · MMS
+            </span>
+          </div>
         </div>
       </footer>
     </div>

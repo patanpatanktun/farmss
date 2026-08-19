@@ -21,18 +21,17 @@ const RECOMMENDED_PRODUCT_NAMES = [
   '종자',
   '살충제',
   '살균제',
-  '제초제'
+  '제초제',
 ];
 
 const RECOMMENDED_CATEGORIES = [
   '비료',
   '종자',
   '농약',
-  '영양제'
+  '영양제',
 ];
 
-const MAX_IMAGE_SIZE =
-  10 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
@@ -242,15 +241,6 @@ export default function Product() {
     }));
   };
 
-  const handleProductNameSelect = (productName) => {
-    setIsCustomProductName(false);
-
-    setForm((previous) => ({
-      ...previous,
-      proName: productName,
-    }));
-  };
-
   const handleCategorySelect = (category) => {
     setIsCustomCategory(false);
 
@@ -258,21 +248,6 @@ export default function Product() {
       ...previous,
       category,
     }));
-  };
-
-  const handleCustomProductNameSelect = () => {
-    setIsCustomProductName(true);
-
-    if (
-      RECOMMENDED_PRODUCT_NAMES.includes(
-        form.proName
-      )
-    ) {
-      setForm((previous) => ({
-        ...previous,
-        proName: '',
-      }));
-    }
   };
 
   const handleCustomCategorySelect = () => {
@@ -566,16 +541,13 @@ export default function Product() {
   };
 
   /**
-   * 상품을 삭제합니다.
+   * 상품과 관련 생성 이미지 및 프롬프트를 삭제합니다.
+   *
+   * 기존 MMS 발송 내역은 삭제하지 않습니다.
    */
-  /**
- * 상품과 관련 생성 이미지 및 프롬프트를 삭제합니다.
- *
- * 기존 MMS 발송 내역은 삭제하지 않습니다.
- */
-    const handleProductDelete = async (product) => {
+  const handleProductDelete = async (product) => {
     const confirmed = window.confirm(
-        `[${product.proName}] 상품을 삭제하시겠습니까?\n\n` +
+      `[${product.proName}] 상품을 삭제하시겠습니까?\n\n` +
         '• 해당 상품으로 만든 생성 이미지가 모두 삭제됩니다.\n' +
         '• 이미지 생성에 사용한 프롬프트가 함께 삭제됩니다.\n' +
         '• 등록된 참고 이미지 파일이 삭제됩니다.\n' +
@@ -584,7 +556,7 @@ export default function Product() {
     );
 
     if (!confirmed) {
-        return;
+      return;
     }
 
     setDeletingProNum(product.proNum);
@@ -592,39 +564,39 @@ export default function Product() {
     setSuccessMessage('');
 
     try {
-        const response = await api.delete(
+      const response = await api.delete(
         `/products/${product.proNum}`
-        );
+      );
 
-        /*
-        * 현재 수정 중인 상품을 삭제한 경우
-        * 입력 폼도 초기화합니다.
-        */
-        if (
+      /*
+       * 현재 수정 중인 상품을 삭제한 경우
+       * 입력 폼도 초기화합니다.
+       */
+      if (
         Number(editingProNum) ===
         Number(product.proNum)
-        ) {
+      ) {
         resetForm();
-        }
+      }
 
-        setSuccessMessage(
+      setSuccessMessage(
         response?.message ||
-            '상품과 관련 생성 이미지가 삭제되었습니다. 기존 MMS 발송 내역은 유지됩니다.'
-        );
+          '상품과 관련 생성 이미지가 삭제되었습니다. 기존 MMS 발송 내역은 유지됩니다.'
+      );
 
-        /*
-        * 삭제가 끝난 뒤 상품 목록을 다시 불러옵니다.
-        */
-        await loadProducts();
+      /*
+       * 삭제가 끝난 뒤 상품 목록을 다시 불러옵니다.
+       */
+      await loadProducts();
     } catch (error) {
-        setErrorMessage(
+      setErrorMessage(
         error.message ||
-            '상품 삭제 중 오류가 발생했습니다.'
-        );
+          '상품 삭제 중 오류가 발생했습니다.'
+      );
     } finally {
-        setDeletingProNum(null);
+      setDeletingProNum(null);
     }
-    };
+  };
 
   /**
    * 등록된 참고 이미지만 삭제합니다.
@@ -692,33 +664,123 @@ export default function Product() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-gray-900 flex flex-col font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1360px] mx-auto px-6 lg:px-10 py-10 w-full flex-1">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          lg:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
+        <div>
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-3
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+            PRODUCT MANAGEMENT
+          </div>
+
+          <h1
+            className="
+              text-[32px]
+              sm:text-[38px]
+              font-bold
+              tracking-[-0.03em]
+              text-[#17372a]
+            "
+          >
             상품 관리
           </h1>
 
-          <p className="text-gray-700 font-bold mt-2">
-            홍보 이미지 제작에 사용할 상품과
-            참고 이미지를 등록하고 관리하세요.
+          <p
+            className="
+              text-[#59685f]
+              text-[16px]
+              sm:text-[17px]
+              font-normal
+              mt-2
+            "
+          >
+            홍보 이미지 제작에 사용할 상품과 참고 이미지를 등록하고 관리하세요.
           </p>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          <section className="xl:col-span-4 bg-white rounded-3xl border border-gray-200 p-7 shadow-md">
-            <div className="border-b border-gray-100 pb-4 mb-6">
-              <h2 className="text-xl font-black">
+          <section
+            className="
+              xl:col-span-4
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              p-7
+              lg:p-8
+              shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+              space-y-6
+            "
+          >
+            <div className="border-b border-[#17372a]/20 pb-4">
+              <h2
+                className="
+                  text-[24px]
+                  font-bold
+                  text-[#17372a]
+                  tracking-[-0.02em]
+                "
+              >
                 {editingProNum
                   ? '상품 정보 수정'
                   : '새 상품 등록'}
               </h2>
 
-              <p className="text-sm text-gray-600 font-bold mt-1">
-                상품 정보와 참고 이미지를
-                입력해주세요.
+              <p
+                className="
+                  text-[15px]
+                  text-[#59675f]
+                  font-normal
+                  mt-1.5
+                "
+              >
+                상품 정보와 참고 이미지를 입력해주세요.
               </p>
             </div>
 
@@ -786,10 +848,15 @@ export default function Product() {
                 helperText="상품 구매 문의를 받을 업체 전화번호를 입력해주세요."
               />
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label
                   htmlFor="proDescription"
-                  className="block text-sm font-black"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   상품 설명
                 </label>
@@ -801,16 +868,37 @@ export default function Product() {
                   onChange={handleFormChange}
                   placeholder="상품 특징과 장점을 입력해주세요."
                   rows={4}
-                  className="w-full px-4 py-3.5 text-sm font-bold border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700 resize-none"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    bg-[#f7f3eb]
+                    resize-none
+                    placeholder:text-[#8a968e]
+                  "
                 />
               </div>
+
               <div className="space-y-2">
                 <label
                   htmlFor="referenceImage"
-                  className="block text-sm font-black"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   상품 참고 이미지
-                  <span className="text-gray-400 ml-1">
+                  <span className="text-[#748078] font-normal ml-1">
                     (선택)
                   </span>
                 </label>
@@ -821,15 +909,31 @@ export default function Product() {
                   id="referenceImage"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageChange}
-                  className="block w-full text-sm font-bold file:mr-3 file:px-4 file:py-2.5 file:border-0 file:rounded-xl file:bg-emerald-50 file:text-emerald-800 file:font-black"
+                  className="
+                    block
+                    w-full
+                    text-[14px]
+                    font-normal
+                    text-[#59675f]
+                    file:mr-3
+                    file:px-4
+                    file:py-2.5
+                    file:border
+                    file:border-[#17372a]/25
+                    file:rounded-none
+                    file:bg-[#f0e8dc]
+                    file:text-[#17372a]
+                    file:font-semibold
+                    file:cursor-pointer
+                  "
                 />
 
-                <p className="text-xs text-gray-500 font-bold">
+                <p className="text-[12px] text-[#748078] font-normal">
                   JPG, PNG, WEBP · 최대 10MB
                 </p>
 
                 {displayReferenceImageUrl && (
-                  <div className="rounded-2xl border-2 border-gray-200 overflow-hidden">
+                  <div className="rounded-none border border-[#17372a]/25 overflow-hidden bg-[#f0e8dc]">
                     <img
                       src={
                         displayReferenceImageUrl
@@ -838,7 +942,7 @@ export default function Product() {
                       className="w-full h-56 object-contain bg-white"
                     />
 
-                    <div className="flex gap-2 p-3 border-t">
+                    <div className="flex gap-2 p-3 border-t border-[#17372a]/20">
                       {referenceImageFile && (
                         <button
                           type="button"
@@ -852,7 +956,18 @@ export default function Product() {
                                 previous + 1
                             );
                           }}
-                          className="flex-1 py-2 border rounded-xl text-xs font-black"
+                          className="
+                            flex-1
+                            py-2
+                            border
+                            border-[#17372a]/30
+                            text-[#17372a]
+                            hover:bg-[#17372a]/[0.06]
+                            rounded-none
+                            text-[12px]
+                            font-semibold
+                            transition
+                          "
                         >
                           선택 취소
                         </button>
@@ -869,7 +984,18 @@ export default function Product() {
                             disabled={
                               isDeletingImage
                             }
-                            className="flex-1 py-2 border border-red-200 text-red-600 rounded-xl text-xs font-black hover:bg-red-50"
+                            className="
+                              flex-1
+                              py-2
+                              border
+                              border-[#b45a47]/40
+                              text-[#b45a47]
+                              hover:bg-[#b45a47]/10
+                              rounded-none
+                              text-[12px]
+                              font-semibold
+                              transition
+                            "
                           >
                             {isDeletingImage
                               ? '삭제 중...'
@@ -882,23 +1008,58 @@ export default function Product() {
               </div>
 
               {errorMessage && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                <div
+                  className="
+                    bg-[#f8e7e3]
+                    border-l-[3px]
+                    border-[#b45a47]
+                    px-4
+                    py-3
+                    text-[13px]
+                    font-medium
+                    text-[#873c2e]
+                    rounded-none
+                  "
+                >
                   {errorMessage}
                 </div>
               )}
 
               {successMessage && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
+                <div
+                  className="
+                    bg-[#e8f3ee]
+                    border-l-[3px]
+                    border-[#17372a]
+                    px-4
+                    py-3
+                    text-[13px]
+                    font-medium
+                    text-[#17372a]
+                    rounded-none
+                  "
+                >
                   {successMessage}
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-2">
                 {editingProNum && (
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="w-1/3 py-3.5 border-2 border-gray-200 rounded-2xl font-black"
+                    className="
+                      w-1/3
+                      h-[50px]
+                      border
+                      border-[#17372a]/25
+                      hover:bg-[#17372a]/[0.05]
+                      rounded-none
+                      font-semibold
+                      text-[15px]
+                      text-[#536159]
+                      transition
+                    "
                   >
                     취소
                   </button>
@@ -907,24 +1068,46 @@ export default function Product() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className={`py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white font-black rounded-2xl ${
-                    editingProNum
-                      ? 'w-2/3'
-                      : 'w-full'
-                  }`}
+                  className={`
+                    h-[50px]
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    disabled:bg-[#9ca7a0]
+                    disabled:cursor-not-allowed
+                    text-white
+                    font-bold
+                    text-[15px]
+                    rounded-none
+                    transition
+                    shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+                    ${
+                      editingProNum
+                        ? 'w-2/3'
+                        : 'w-full'
+                    }
+                  `}
                 >
                   {isSaving
                     ? '저장 중...'
                     : editingProNum
-                      ? '상품 수정하기'
-                      : '상품 등록하기'}
+                    ? '상품 수정하기'
+                    : '상품 등록하기'}
                 </button>
               </div>
             </form>
           </section>
 
           <section className="xl:col-span-8 space-y-5">
-            <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-md">
+            <div
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-6
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+              "
+            >
               <div className="flex flex-col md:flex-row gap-3">
                 <input
                   type="text"
@@ -935,7 +1118,21 @@ export default function Product() {
                     )
                   }
                   placeholder="상품명으로 검색"
-                  className="flex-1 px-4 py-3.5 border-2 border-gray-200 rounded-2xl font-bold focus:outline-none focus:border-emerald-700"
+                  className="
+                    flex-1
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    bg-[#f7f3eb]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    placeholder:text-[#8a968e]
+                  "
                 />
 
                 <select
@@ -945,11 +1142,23 @@ export default function Product() {
                       event.target.value
                     )
                   }
-                  className="w-full md:w-52 px-4 py-3.5 border-2 border-gray-200 rounded-2xl font-black bg-white"
+                  className="
+                    w-full
+                    md:w-52
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    bg-[#f7f3eb]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                  "
                 >
-                  <option value="">
-                    전체 분류
-                  </option>
+                  <option value="">전체 분류</option>
 
                   {categoryOptions.map(
                     (category) => (
@@ -963,36 +1172,56 @@ export default function Product() {
                   )}
                 </select>
 
-                <div className="flex items-center justify-center px-5 bg-emerald-50 border border-emerald-200 rounded-2xl">
-                  <span className="font-bold">
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-center
+                    px-5
+                    bg-[#f0e8dc]
+                    border
+                    border-[#17372a]/20
+                    rounded-none
+                  "
+                >
+                  <span className="text-[13px] font-semibold text-[#536159]">
                     전체
                   </span>
 
-                  <strong className="text-2xl text-emerald-700 mx-2">
+                  <strong className="text-[18px] font-bold text-[#17372a] mx-2">
                     {products.length}
                   </strong>
 
-                  <span className="font-bold">
+                  <span className="text-[13px] font-semibold text-[#536159]">
                     개
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden">
+            <div
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                overflow-hidden
+              "
+            >
               {isLoading ? (
-                <div className="py-20 text-center font-bold text-gray-500">
+                <div className="py-20 text-center text-[#748078] text-[15px] font-normal">
                   상품 목록을 불러오는 중입니다.
                 </div>
               ) : products.length === 0 ? (
-                <div className="py-20 text-center font-bold text-gray-500">
+                <div className="py-20 text-center text-[#748078] text-[15px] font-normal">
                   등록된 상품이 없습니다.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                  <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-b text-sm font-black text-gray-600">
+                      <tr className="border-b border-[#17372a]/25 bg-[#f0e8dc] text-[13px] font-semibold text-[#59675f]">
                         <th className="px-5 py-4">
                           참고 이미지
                         </th>
@@ -1019,12 +1248,12 @@ export default function Product() {
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-[#17372a]/15">
                       {products.map(
                         (product) => (
                           <tr
                             key={product.proNum}
-                            className="hover:bg-slate-50"
+                            className="hover:bg-[#f2ebd9] transition"
                           >
                             <td className="px-5 py-4">
                               {product.referenceImageUrl ? (
@@ -1033,36 +1262,49 @@ export default function Product() {
                                     product.referenceImageUrl
                                   }
                                   alt="상품 참고"
-                                  className="w-20 h-20 object-cover rounded-xl border"
+                                  className="w-20 h-20 object-cover rounded-none border border-[#17372a]/20 bg-white"
                                 />
                               ) : (
-                                <div className="w-20 h-20 rounded-xl border border-dashed flex items-center justify-center text-xs text-gray-400 font-bold">
+                                <div className="w-20 h-20 rounded-none border border-dashed border-[#17372a]/30 flex items-center justify-center text-[12px] text-[#748078] font-normal bg-[#f0e8dc]">
                                   없음
                                 </div>
                               )}
                             </td>
 
-                            <td className="px-5 py-5 font-black whitespace-nowrap">
+                            <td className="px-5 py-4 font-semibold text-[14px] text-[#17372a] whitespace-nowrap">
                               {product.proName}
                             </td>
 
-                            <td className="px-5 py-5">
-                              <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-black">
+                            <td className="px-5 py-4">
+                              <span
+                                className="
+                                  inline-block
+                                  px-3
+                                  py-1
+                                  bg-[#e8f3ee]
+                                  border
+                                  border-[#17372a]/30
+                                  text-[#17372a]
+                                  rounded-none
+                                  text-[12px]
+                                  font-semibold
+                                "
+                              >
                                 {product.category}
                               </span>
                             </td>
 
-                            <td className="px-5 py-5 font-black whitespace-nowrap">
+                            <td className="px-5 py-4 font-semibold text-[14px] text-[#17372a] whitespace-nowrap">
                               {formatPrice(
                                 product.price
                               )}
                             </td>
 
-                            <td className="px-5 py-5 font-bold whitespace-nowrap">
+                            <td className="px-5 py-4 text-[14px] text-[#59675f] font-normal whitespace-nowrap">
                               {product.company}
                             </td>
 
-                            <td className="px-5 py-5">
+                            <td className="px-5 py-4">
                               <div className="flex justify-center gap-2">
                                 <button
                                   type="button"
@@ -1071,7 +1313,18 @@ export default function Product() {
                                       product
                                     )
                                   }
-                                  className="px-4 py-2 border-2 border-gray-200 rounded-xl text-xs font-black hover:border-emerald-600"
+                                  className="
+                                    px-4
+                                    py-2
+                                    border
+                                    border-[#17372a]/30
+                                    text-[#17372a]
+                                    hover:bg-[#17372a]/[0.06]
+                                    rounded-none
+                                    text-[12px]
+                                    font-semibold
+                                    transition
+                                  "
                                 >
                                   수정
                                 </button>
@@ -1087,7 +1340,19 @@ export default function Product() {
                                     deletingProNum ===
                                     product.proNum
                                   }
-                                  className="px-4 py-2 border-2 border-red-200 text-red-600 rounded-xl text-xs font-black hover:bg-red-50 disabled:bg-gray-100"
+                                  className="
+                                    px-4
+                                    py-2
+                                    border
+                                    border-[#b45a47]/40
+                                    text-[#b45a47]
+                                    hover:bg-[#b45a47]/10
+                                    disabled:bg-[#9ca7a0]/2info
+                                    rounded-none
+                                    text-[12px]
+                                    font-semibold
+                                    transition
+                                  "
                                 >
                                   {deletingProNum ===
                                   product.proNum
@@ -1108,10 +1373,38 @@ export default function Product() {
         </div>
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 text-center text-gray-600 text-xs mt-12">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -1132,7 +1425,7 @@ function RecommendedChoiceField({
 }) {
   return (
     <fieldset className="space-y-2.5">
-      <legend className="text-sm font-black">
+      <legend className="text-[13px] font-semibold text-[#536159]">
         {label}
       </legend>
 
@@ -1147,10 +1440,10 @@ function RecommendedChoiceField({
               type="button"
               onClick={() => onSelect(option)}
               aria-pressed={isSelected}
-              className={`min-h-11 px-3 py-2.5 rounded-xl border-2 text-xs font-black transition ${
+              className={`min-h-[44px] px-3 py-2.5 rounded-none border text-[13px] font-semibold transition ${
                 isSelected
-                  ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-800'
+                  ? 'border-[#17372a] bg-[#17372a] text-white'
+                  : 'border-[#17372a]/25 bg-[#f7f3eb] text-[#17372a] hover:border-[#17372a]/60 hover:bg-[#e8f3ee]'
               }`}
             >
               {option}
@@ -1163,10 +1456,10 @@ function RecommendedChoiceField({
         type="button"
         onClick={onCustomSelect}
         aria-pressed={isCustom}
-        className={`w-full min-h-11 px-4 py-2.5 rounded-xl border-2 text-sm font-black transition ${
+        className={`w-full min-h-[44px] px-4 py-2.5 rounded-none border text-[13px] font-semibold transition ${
           isCustom
-            ? 'border-emerald-700 bg-emerald-50 text-emerald-800'
-            : 'border-gray-200 bg-slate-50 text-gray-700 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-800'
+            ? 'border-[#17372a] bg-[#17372a] text-white'
+            : 'border-[#17372a]/25 bg-[#f0e8dc] text-[#536159] hover:border-[#17372a]/60 hover:bg-[#e8f3ee] hover:text-[#17372a]'
         }`}
       >
         직접 입력
@@ -1182,7 +1475,20 @@ function RecommendedChoiceField({
           placeholder={inputPlaceholder}
           maxLength={maxLength}
           autoFocus
-          className="w-full px-4 py-3.5 text-sm font-bold border-2 border-emerald-300 bg-emerald-50/40 rounded-2xl focus:outline-none focus:border-emerald-700"
+          className="
+            w-full
+            px-4
+            py-3.5
+            text-[15px]
+            font-normal
+            text-[#17372a]
+            border
+            border-[#17372a]
+            bg-[#f7f3eb]
+            rounded-none
+            focus:outline-none
+            focus:border-[#17372a]
+          "
         />
       )}
     </fieldset>
@@ -1203,10 +1509,15 @@ function FormInput({
   helperText,
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <label
         htmlFor={id}
-        className="block text-sm font-black"
+        className="
+          block
+          text-[13px]
+          font-semibold
+          text-[#536159]
+        "
       >
         {label}
       </label>
@@ -1221,11 +1532,25 @@ function FormInput({
         maxLength={maxLength}
         min={min}
         inputMode={inputMode}
-        className="w-full px-4 py-3.5 text-sm font-bold border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-700"
+        className="
+          w-full
+          px-4
+          py-3.5
+          text-[15px]
+          font-normal
+          text-[#17372a]
+          border
+          border-[#17372a]/25
+          rounded-none
+          focus:outline-none
+          focus:border-[#17372a]
+          bg-[#f7f3eb]
+          placeholder:text-[#8a968e]
+        "
       />
 
       {helperText && (
-        <p className="px-1 text-xs font-bold text-gray-500">
+        <p className="px-1 text-[12px] text-[#748078] font-normal">
           {helperText}
         </p>
       )}

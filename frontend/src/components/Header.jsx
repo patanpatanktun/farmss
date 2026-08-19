@@ -1,11 +1,14 @@
 import {
   Link,
   NavLink,
+  useLocation,
   useNavigate,
 } from 'react-router-dom';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const userId =
     localStorage.getItem('userId') || '회원';
 
@@ -19,110 +22,896 @@ export default function Header() {
     });
   };
 
-  const getMenuClassName = ({ isActive }) => {
-    const defaultClassName =
-      'py-1 whitespace-nowrap transition border-b-2';
+  const isPathActive = (paths) =>
+    paths.some((path) =>
+      location.pathname.startsWith(path)
+    );
 
-    if (isActive) {
-      return `${defaultClassName} text-emerald-700 border-emerald-700`;
+  const dropdownItemClass = ({ isActive }) => `
+    group
+    flex
+    items-center
+    justify-between
+    gap-6
+    w-full
+    px-4
+    py-3
+    rounded-none
+    text-[14px]
+    transition-all
+    duration-200
+    ${
+      isActive
+        ? 'bg-[#17372a] text-white'
+        : 'text-[#59675f] hover:bg-[#17372a]/[0.06] hover:text-[#17372a]'
     }
-
-    return `${defaultClassName} text-gray-800 border-transparent hover:text-emerald-700`;
-  };
+  `;
 
   return (
-    <header className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-[1360px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-8">
-        <div className="flex items-center gap-9 min-w-0 overflow-x-auto">
+    <header
+      className="
+        sticky
+        top-0
+        z-50
+        w-full
+        bg-[#eee9df]/95
+        backdrop-blur-xl
+        border-b
+        border-[#17372a]/25
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
+      <div
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          lg:px-10
+          h-[84px]
+          flex
+          items-center
+          justify-between
+          gap-8
+        "
+      >
+        {/* LEFT */}
+        <div className="flex items-center gap-10 min-w-0">
+
+          {/* Logo */}
           <Link
             to="/main"
-            className="text-2xl font-black text-emerald-800 tracking-tight shrink-0"
+            className="
+              shrink-0
+              flex
+              items-center
+              gap-3
+            "
           >
-            FarMMS
+            <span
+              className="
+                text-[#17372a]
+                text-[28px]
+                font-bold
+                tracking-[-0.035em]
+              "
+            >
+              FarMMS
+            </span>
+
+            <span
+              className="
+                hidden
+                sm:block
+                w-[1px]
+                h-5
+                bg-[#17372a]/20
+              "
+            />
+
+            <span
+              className="
+                hidden
+                sm:block
+                text-[#748078]
+                text-[11px]
+                font-medium
+              "
+            >
+              농업의 가치를 더하다
+            </span>
           </Link>
 
-          <nav className="flex items-center gap-7 font-bold text-base min-w-max">
-            <NavLink to="/main" className={getMenuClassName}>
+
+          {/* MAIN NAV */}
+          <nav
+            className="
+              hidden
+              lg:flex
+              items-center
+              gap-2
+            "
+          >
+
+            {/* HOME */}
+            <NavLink
+              to="/main"
+              className={({ isActive }) => `
+                relative
+                px-4
+                py-3
+                text-[15px]
+                font-semibold
+                transition
+                ${
+                  isActive
+                    ? 'text-[#17372a]'
+                    : 'text-[#66736b] hover:text-[#17372a]'
+                }
+              `}
+            >
               홈
             </NavLink>
 
-            <NavLink to="/notice" className={getMenuClassName}>
+
+            {/* 고객·상품관리 */}
+            <div className="relative group">
+
+              <button
+                type="button"
+                className={`
+                  flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-3
+                  text-[15px]
+                  font-semibold
+                  transition
+                  ${
+                    isPathActive([
+                      '/contact',
+                      '/product',
+                    ])
+                      ? 'text-[#17372a]'
+                      : 'text-[#66736b] group-hover:text-[#17372a]'
+                  }
+                `}
+              >
+                고객·상품관리
+
+                <span
+                  className="
+                    text-[10px]
+                    mt-[1px]
+                    transition-transform
+                    duration-200
+                    group-hover:rotate-180
+                  "
+                >
+                  ▾
+                </span>
+              </button>
+
+
+              {/* dropdown */}
+              <div
+                className="
+                  absolute
+                  left-0
+                  top-full
+                  pt-3
+                  opacity-0
+                  invisible
+                  translate-y-1
+                  group-hover:opacity-100
+                  group-hover:visible
+                  group-hover:translate-y-0
+                  transition-all
+                  duration-200
+                "
+              >
+                <div
+                  className="
+                    w-[230px]
+                    bg-white
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    p-2.5
+                    shadow-[0_20px_50px_rgba(40,48,42,0.14)]
+                  "
+                >
+                  <div
+                    className="
+                      px-3
+                      pt-2
+                      pb-3
+                    "
+                  >
+                    <p
+                      className="
+                        text-[#8a958e]
+                        text-[10px]
+                        font-medium
+                        tracking-[0.12em]
+                      "
+                    >
+                      CUSTOMER & PRODUCT
+                    </p>
+
+                    <p
+                      className="
+                        text-[#17372a]
+                        text-[13px]
+                        font-semibold
+                        mt-1
+                      "
+                    >
+                      고객과 상품을 관리하세요
+                    </p>
+                  </div>
+
+                  <NavLink
+                    to="/contact"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        연락처 관리
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        고객 명부 확인 및 등록
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/product"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        상품 관리
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        판매 상품 등록 및 수정
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+
+
+            {/* 이미지 생성·관리 */}
+            <div className="relative group">
+
+              <button
+                type="button"
+                className={`
+                  flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-3
+                  text-[15px]
+                  font-semibold
+                  transition
+                  ${
+                    isPathActive([
+                      '/createimage',
+                      '/manageimage',
+                    ])
+                      ? 'text-[#17372a]'
+                      : 'text-[#66736b] group-hover:text-[#17372a]'
+                  }
+                `}
+              >
+                이미지 생성·관리
+
+                <span
+                  className="
+                    text-[10px]
+                    transition-transform
+                    duration-200
+                    group-hover:rotate-180
+                  "
+                >
+                  ▾
+                </span>
+              </button>
+
+
+              <div
+                className="
+                  absolute
+                  left-0
+                  top-full
+                  pt-3
+                  opacity-0
+                  invisible
+                  translate-y-1
+                  group-hover:opacity-100
+                  group-hover:visible
+                  group-hover:translate-y-0
+                  transition-all
+                  duration-200
+                "
+              >
+                <div
+                  className="
+                    w-[240px]
+                    bg-white
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    p-2.5
+                    shadow-[0_20px_50px_rgba(40,48,42,0.14)]
+                  "
+                >
+                  <div className="px-3 pt-2 pb-3">
+                    <p
+                      className="
+                        text-[#8a958e]
+                        text-[10px]
+                        font-medium
+                        tracking-[0.12em]
+                      "
+                    >
+                      IMAGE
+                    </p>
+
+                    <p
+                      className="
+                        text-[#17372a]
+                        text-[13px]
+                        font-semibold
+                        mt-1
+                      "
+                    >
+                      홍보 이미지를 만들고 관리하세요
+                    </p>
+                  </div>
+
+                  <NavLink
+                    to="/createimage"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        이미지 만들기
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        홍보용 이미지 제작
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/manageimage"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        이미지 관리
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        만든 이미지 모아보기
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+
+
+            {/* MMS */}
+            <div className="relative group">
+
+              <button
+                type="button"
+                className={`
+                  flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-3
+                  text-[15px]
+                  font-semibold
+                  transition
+                  ${
+                    isPathActive([
+                      '/sendmms',
+                      '/checkmms',
+                    ])
+                      ? 'text-[#17372a]'
+                      : 'text-[#66736b] group-hover:text-[#17372a]'
+                  }
+                `}
+              >
+                MMS
+
+                <span
+                  className="
+                    text-[10px]
+                    transition-transform
+                    duration-200
+                    group-hover:rotate-180
+                  "
+                >
+                  ▾
+                </span>
+              </button>
+
+
+              <div
+                className="
+                  absolute
+                  left-0
+                  top-full
+                  pt-3
+                  opacity-0
+                  invisible
+                  translate-y-1
+                  group-hover:opacity-100
+                  group-hover:visible
+                  group-hover:translate-y-0
+                  transition-all
+                  duration-200
+                "
+              >
+                <div
+                  className="
+                    w-[230px]
+                    bg-white
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    p-2.5
+                    shadow-[0_20px_50px_rgba(40,48,42,0.14)]
+                  "
+                >
+                  <div className="px-3 pt-2 pb-3">
+                    <p
+                      className="
+                        text-[#8a958e]
+                        text-[10px]
+                        font-medium
+                        tracking-[0.12em]
+                      "
+                    >
+                      MMS
+                    </p>
+
+                    <p
+                      className="
+                        text-[#17372a]
+                        text-[13px]
+                        font-semibold
+                        mt-1
+                      "
+                    >
+                      홍보 메시지를 발송하세요
+                    </p>
+                  </div>
+
+                  <NavLink
+                    to="/sendmms"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        MMS 발송
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        고객에게 홍보 메시지 보내기
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/checkmms"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        발송 내역
+                      </p>
+
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        보낸 MMS 내역 확인
+                      </p>
+                    </div>
+
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+
+
+            {/* Notice */}
+            <NavLink
+              to="/notice"
+              className={({ isActive }) => `
+                relative
+                px-4
+                py-3
+                text-[15px]
+                font-semibold
+                transition
+                ${
+                  isActive
+                    ? 'text-[#17372a]'
+                    : 'text-[#66736b] hover:text-[#17372a]'
+                }
+              `}
+            >
               공지사항
             </NavLink>
 
-            <NavLink to="/contact" className={getMenuClassName}>
-              연락처 관리
-            </NavLink>
-
-            <NavLink to="/product" className={getMenuClassName}>
-              상품 관리
-            </NavLink>
-
-            <NavLink to="/createimage" className={getMenuClassName}>
-              이미지 만들기
-            </NavLink>
-
-            <NavLink to="/manageimage" className={getMenuClassName}>
-              이미지 관리
-            </NavLink>
-
-            <NavLink to="/sendmms" className={getMenuClassName}>
-              MMS 발송
-            </NavLink>
-
-            <NavLink to="/checkmms" className={getMenuClassName}>
-              발송 내역
-            </NavLink>
           </nav>
         </div>
 
-        <div className="hidden xl:flex items-center gap-4 text-gray-700 font-bold text-sm shrink-0">
-          <span className="whitespace-nowrap">
-            <strong className="text-emerald-800 font-black">
-              {userId}님
-            </strong>
-            &nbsp;환영합니다
-          </span>
 
-          <span className="text-gray-300">|</span>
+        {/* RIGHT DESKTOP */}
+        <div
+          className="
+            hidden
+            xl:flex
+            items-center
+            gap-5
+            shrink-0
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              pr-5
+              border-r
+              border-[#17372a]/20
+            "
+          >
+            <div
+              className="
+                w-9
+                h-9
+                rounded-none
+                bg-[#17372a]
+                text-white
+                flex
+                items-center
+                justify-center
+                text-[13px]
+                font-semibold
+              "
+            >
+              {userId.charAt(0).toUpperCase()}
+            </div>
+
+            <div className="leading-tight">
+              <p
+                className="
+                  text-[10px]
+                  text-[#8a958e]
+                  font-normal
+                  mb-1
+                "
+              >
+                로그인 사용자
+              </p>
+
+              <p
+                className="
+                  text-[13px]
+                  text-[#17372a]
+                  font-semibold
+                  whitespace-nowrap
+                "
+              >
+                {userId}님
+              </p>
+            </div>
+          </div>
+
 
           <NavLink
             to="/setting"
             className={({ isActive }) =>
               isActive
-                ? 'text-emerald-700 font-black'
-                : 'hover:text-emerald-700 transition'
+                ? `
+                    text-[#17372a]
+                    text-[13px]
+                    font-semibold
+                  `
+                : `
+                    text-[#67746c]
+                    text-[13px]
+                    font-medium
+                    hover:text-[#17372a]
+                    transition
+                  `
             }
           >
             마이페이지
           </NavLink>
 
+
           <button
             type="button"
             onClick={handleLogout}
-            className="text-red-500 hover:text-red-600 transition"
+            className="
+              group
+              flex
+              items-center
+              gap-2
+              text-[#7b6a61]
+              hover:text-[#17372a]
+              text-[13px]
+              font-medium
+              transition
+            "
           >
             로그아웃
+
+            <span
+              className="
+                w-8
+                h-8
+                rounded-none
+                border
+                border-[#17372a]/25
+                flex
+                items-center
+                justify-center
+                text-[14px]
+                group-hover:bg-[#17372a]
+                group-hover:text-white
+                transition
+              "
+            >
+              ↗
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="xl:hidden px-6 pb-3 flex items-center justify-end gap-4 text-sm font-bold">
-        <span className="text-emerald-800 font-black">
-          {userId}님
-        </span>
 
-        <NavLink to="/setting" className="text-gray-700">
-          설정
-        </NavLink>
-
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="text-red-500"
+      {/* MOBILE / TABLET */}
+      <div
+        className="
+          lg:hidden
+          border-t
+          border-[#17372a]/15
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            py-3
+            overflow-x-auto
+          "
         >
-          로그아웃
-        </button>
+          <nav
+            className="
+              flex
+              items-center
+              gap-6
+              min-w-max
+              text-[13px]
+              font-medium
+              text-[#66736b]
+            "
+          >
+            <NavLink
+              to="/main"
+              className="hover:text-[#17372a]"
+            >
+              홈
+            </NavLink>
+
+            <NavLink
+              to="/contact"
+              className="hover:text-[#17372a]"
+            >
+              연락처
+            </NavLink>
+
+            <NavLink
+              to="/product"
+              className="hover:text-[#17372a]"
+            >
+              상품
+            </NavLink>
+
+            <NavLink
+              to="/createimage"
+              className="hover:text-[#17372a]"
+            >
+              이미지 생성
+            </NavLink>
+
+            <NavLink
+              to="/manageimage"
+              className="hover:text-[#17372a]"
+            >
+              이미지 관리
+            </NavLink>
+
+            <NavLink
+              to="/sendmms"
+              className="hover:text-[#17372a]"
+            >
+              MMS
+            </NavLink>
+
+            <NavLink
+              to="/checkmms"
+              className="hover:text-[#17372a]"
+            >
+              발송 내역
+            </NavLink>
+          </nav>
+        </div>
+
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            pb-3
+            flex
+            items-center
+            justify-between
+          "
+        >
+          <span
+            className="
+              text-[#17372a]
+              text-[12px]
+              font-semibold
+            "
+          >
+            {userId}님
+          </span>
+
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+              text-[12px]
+              font-medium
+            "
+          >
+            <NavLink
+              to="/setting"
+              className="text-[#66736b]"
+            >
+              설정
+            </NavLink>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-[#806d64]"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
       </div>
     </header>
   );
