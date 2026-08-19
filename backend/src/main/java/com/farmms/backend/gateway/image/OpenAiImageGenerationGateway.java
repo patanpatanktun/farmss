@@ -13,8 +13,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition
-        .ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +26,9 @@ import com.farmms.backend.service.image.GeneratedImageStorageService;
  *
  * 참고 이미지가 없으면 images/generations API를 사용하고,
  * 참고 이미지가 있으면 images/edits API를 사용합니다.
+ *
+ * 상품 참고 이미지는 NCP Object Storage URL(https://...)에서도
+ * 직접 다운로드하여 OpenAI에 multipart 파일로 전달할 수 있습니다.
  */
 @Component
 @ConditionalOnProperty(
@@ -41,6 +43,10 @@ public class OpenAiImageGenerationGateway
     private final String imageModel;
     private final Duration requestTimeout;
 
+    /*
+     * 과거 로컬 저장 방식과의 호환성을 위해 유지합니다.
+     * 예: /uploads/products/product.png
+     */
     private final Path productUploadDirectory;
 
     private final ObjectMapper objectMapper;
@@ -115,6 +121,9 @@ public class OpenAiImageGenerationGateway
                 HttpClient.newBuilder()
                         .connectTimeout(
                                 Duration.ofSeconds(30)
+                        )
+                        .followRedirects(
+                                HttpClient.Redirect.NORMAL
                         )
                         .build();
     }
@@ -214,13 +223,19 @@ public class OpenAiImageGenerationGateway
     /**
      * 상품 참고 이미지를 OpenAI에 전달하여
      * 상품의 형태와 특징을 참고한 이미지를 생성합니다.
+     *
+     * 참고 이미지는 다음 형식을 모두 지원합니다.
+     *
+     * 1. NCP Object Storage 등의 외부 HTTP/HTTPS URL
+     * 2. 기존 AI 생성 이미지 /uploads/generated/...
+     * 3. 과거 로컬 상품 이미지 /uploads/products/...
      */
     private String generateWithReferenceImage(
             String promptText,
             String referenceImageUrl
     ) {
-        Path referenceImagePath =
-                resolveReferenceImagePath(
+        ReferenceImageData referenceImage =
+                resolveReferenceImageData(
                         referenceImageUrl
                 );
 
@@ -232,7 +247,7 @@ public class OpenAiImageGenerationGateway
                 createMultipartBody(
                         boundary,
                         promptText,
-                        referenceImagePath
+                        referenceImage
                 );
 
         HttpRequest request =
@@ -382,13 +397,12 @@ public class OpenAiImageGenerationGateway
     }
 
     /**
-     * OpenAI images/edits API에 전달할
-     * multipart/form-data 요청 본문을 생성합니다.
+     * images/edits API에 전달할 multipart/form-data 요청 본문을 생성합니다.
      */
     private byte[] createMultipartBody(
             String boundary,
             String promptText,
-            Path referenceImagePath
+            ReferenceImageData referenceImage
     ) {
         try {
             ByteArrayOutputStream output =
@@ -433,7 +447,7 @@ public class OpenAiImageGenerationGateway
                     output,
                     boundary,
                     "image[]",
-                    referenceImagePath
+                    referenceImage
             );
 
             writeUtf8(
@@ -462,6 +476,7 @@ public class OpenAiImageGenerationGateway
             String fieldName,
             String value
     ) throws IOException {
+
         writeUtf8(
                 output,
                 "--" + boundary + "\r\n"
@@ -482,22 +497,16 @@ public class OpenAiImageGenerationGateway
 
     /**
      * multipart 요청에 참고 이미지 파일을 추가합니다.
+     *
+     * Path가 아니라 byte[]를 사용하므로
+     * NCP Object Storage의 외부 URL 이미지도 바로 전달할 수 있습니다.
      */
     private void writeFilePart(
             ByteArrayOutputStream output,
             String boundary,
             String fieldName,
-            Path imagePath
+            ReferenceImageData image
     ) throws IOException {
-        String fileName =
-                imagePath
-                        .getFileName()
-                        .toString();
-
-        String contentType =
-                determineContentType(
-                        imagePath
-                );
 
         writeUtf8(
                 output,
@@ -509,31 +518,31 @@ public class OpenAiImageGenerationGateway
                 "Content-Disposition: form-data; name=\""
                 + fieldName
                 + "\"; filename=\""
-                + fileName
+                + image.fileName()
                 + "\"\r\n"
         );
 
         writeUtf8(
                 output,
                 "Content-Type: "
-                + contentType
+                + image.contentType()
                 + "\r\n\r\n"
         );
 
         output.write(
-                Files.readAllBytes(imagePath)
+                image.bytes()
         );
 
-        writeUtf8(output, "\r\n");
+        writeUtf8(
+                output,
+                "\r\n"
+        );
     }
 
     /**
-     * 참고 이미지 URL이
-     * 상품 참고 이미지인지,
-     * 기존 AI 생성 이미지인지 구분해서
-     * 실제 서버 파일 경로를 반환합니다.
+     * 참고 이미지 URL의 종류에 따라 실제 이미지 데이터를 확보합니다.
      */
-    private Path resolveReferenceImagePath(
+    private ReferenceImageData resolveReferenceImageData(
             String referenceImageUrl
     ) {
 
@@ -552,8 +561,19 @@ public class OpenAiImageGenerationGateway
                         .replace("\\", "/");
 
         /*
-         * 기존 AI 생성 이미지를
-         * 다시 편집하는 경우입니다.
+         * NCP Object Storage를 포함한 외부 HTTP/HTTPS URL
+         */
+        if (
+                normalizedUrl.startsWith("http://") ||
+                normalizedUrl.startsWith("https://")
+        ) {
+            return downloadExternalReferenceImage(
+                    normalizedUrl
+            );
+        }
+
+        /*
+         * 기존 AI 생성 이미지를 다시 편집하는 경우
          *
          * 예:
          * /uploads/generated/abc.png
@@ -563,27 +583,183 @@ public class OpenAiImageGenerationGateway
                         "/uploads/generated/"
                 )
         ) {
-            return generatedImageStorageService
-                    .resolveStoredImagePath(
-                            normalizedUrl
-                    );
+            Path imagePath =
+                    generatedImageStorageService
+                            .resolveStoredImagePath(
+                                    normalizedUrl
+                            );
+
+            return readLocalReferenceImage(
+                    imagePath
+            );
         }
 
         /*
-         * 그 외에는 기존 상품 참고 이미지로 처리합니다.
+         * 과거 로컬 상품 이미지 방식과의 호환성
          *
          * 예:
          * /uploads/products/product.png
          */
-        return resolveProductReferenceImagePath(
-                normalizedUrl
+        return readLocalReferenceImage(
+                resolveProductReferenceImagePath(
+                        normalizedUrl
+                )
         );
     }
 
+    /**
+     * NCP Object Storage 등의 외부 URL에서
+     * 참고 이미지를 다운로드합니다.
+     */
+    private ReferenceImageData downloadExternalReferenceImage(
+            String imageUrl
+    ) {
+
+        URI imageUri;
+
+        try {
+            imageUri =
+                    URI.create(imageUrl);
+
+        } catch (Exception error) {
+            throw new IllegalArgumentException(
+                    "상품 참고 이미지 URL이 올바르지 않습니다.",
+                    error
+            );
+        }
+
+        HttpRequest request =
+                HttpRequest.newBuilder()
+                        .uri(imageUri)
+                        .timeout(
+                                Duration.ofSeconds(60)
+                        )
+                        .GET()
+                        .build();
+
+        HttpResponse<byte[]> response;
+
+        try {
+            response =
+                    httpClient.send(
+                            request,
+                            HttpResponse.BodyHandlers
+                                    .ofByteArray()
+                    );
+
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+
+            throw new IllegalStateException(
+                    "상품 참고 이미지 다운로드가 중단되었습니다.",
+                    error
+            );
+
+        } catch (IOException error) {
+            throw new IllegalStateException(
+                    "상품 참고 이미지를 다운로드할 수 없습니다.",
+                    error
+            );
+        }
+
+        if (
+                response.statusCode() < 200 ||
+                response.statusCode() >= 300
+        ) {
+            throw new IllegalStateException(
+                    "상품 참고 이미지를 다운로드할 수 없습니다. "
+                    + "(HTTP "
+                    + response.statusCode()
+                    + ")"
+            );
+        }
+
+        byte[] imageBytes =
+                response.body();
+
+        if (
+                imageBytes == null ||
+                imageBytes.length == 0
+        ) {
+            throw new IllegalStateException(
+                    "다운로드한 상품 참고 이미지가 비어 있습니다."
+            );
+        }
+
+        String fileName =
+                extractFileNameFromUrl(
+                        imageUri
+                );
+
+        String contentType =
+                response.headers()
+                        .firstValue(
+                                "Content-Type"
+                        )
+                        .map(value ->
+                                value.split(";")[0].trim()
+                        )
+                        .filter(value ->
+                                value.startsWith("image/")
+                        )
+                        .orElseGet(() ->
+                                determineContentTypeFromFileName(
+                                        fileName
+                                )
+                        );
+
+        return new ReferenceImageData(
+                imageBytes,
+                fileName,
+                contentType
+        );
+    }
 
     /**
-     * 상품에 등록된 참고 이미지를
-     * uploads/products 폴더에서 찾습니다.
+     * 로컬 파일을 OpenAI 전달용 데이터로 읽습니다.
+     */
+    private ReferenceImageData readLocalReferenceImage(
+            Path imagePath
+    ) {
+
+        try {
+            byte[] imageBytes =
+                    Files.readAllBytes(
+                            imagePath
+                    );
+
+            if (imageBytes.length == 0) {
+                throw new IllegalStateException(
+                        "참고 이미지 파일이 비어 있습니다."
+                );
+            }
+
+            String fileName =
+                    imagePath
+                            .getFileName()
+                            .toString();
+
+            String contentType =
+                    determineContentType(
+                            imagePath
+                    );
+
+            return new ReferenceImageData(
+                    imageBytes,
+                    fileName,
+                    contentType
+            );
+
+        } catch (IOException error) {
+            throw new IllegalStateException(
+                    "참고 이미지 파일을 읽을 수 없습니다.",
+                    error
+            );
+        }
+    }
+
+    /**
+     * 과거 로컬 저장 방식의 상품 참고 이미지를 찾습니다.
      */
     private Path resolveProductReferenceImagePath(
             String referenceImageUrl
@@ -608,9 +784,6 @@ public class OpenAiImageGenerationGateway
                         .resolve(fileName)
                         .normalize();
 
-        /*
-         * uploads/products 외부 경로 접근 방지
-         */
         if (
                 !imagePath.startsWith(
                         productUploadDirectory
@@ -621,9 +794,6 @@ public class OpenAiImageGenerationGateway
             );
         }
 
-        /*
-         * 실제 파일 존재 여부 확인
-         */
         if (
                 !Files.exists(imagePath) ||
                 !Files.isRegularFile(imagePath)
@@ -637,11 +807,12 @@ public class OpenAiImageGenerationGateway
     }
 
     /**
-     * 참고 이미지의 MIME 타입을 확인합니다.
+     * 로컬 이미지 MIME 타입을 확인합니다.
      */
     private String determineContentType(
             Path imagePath
     ) {
+
         try {
             String detectedType =
                     Files.probeContentType(
@@ -656,13 +827,25 @@ public class OpenAiImageGenerationGateway
             }
 
         } catch (IOException ignored) {
-            // 확장자를 이용해 아래에서 다시 확인합니다.
+            // 확장자로 다시 판단합니다.
         }
 
-        String lowerFileName =
+        return determineContentTypeFromFileName(
                 imagePath
                         .getFileName()
                         .toString()
+        );
+    }
+
+    /**
+     * 파일명 확장자로 MIME 타입을 판단합니다.
+     */
+    private String determineContentTypeFromFileName(
+            String fileName
+    ) {
+
+        String lowerFileName =
+                fileName
                         .toLowerCase();
 
         if (
@@ -672,11 +855,48 @@ public class OpenAiImageGenerationGateway
             return MediaType.IMAGE_JPEG_VALUE;
         }
 
-        if (lowerFileName.endsWith(".webp")) {
+        if (
+                lowerFileName.endsWith(".webp")
+        ) {
             return "image/webp";
         }
 
         return MediaType.IMAGE_PNG_VALUE;
+    }
+
+    /**
+     * 외부 URL에서 파일명을 추출합니다.
+     */
+    private String extractFileNameFromUrl(
+            URI uri
+    ) {
+
+        String path =
+                uri.getPath();
+
+        if (
+                path == null ||
+                path.isBlank() ||
+                path.endsWith("/")
+        ) {
+            return "reference-image.png";
+        }
+
+        int lastSlash =
+                path.lastIndexOf('/');
+
+        String fileName =
+                lastSlash >= 0
+                        ? path.substring(
+                                lastSlash + 1
+                        )
+                        : path;
+
+        if (fileName.isBlank()) {
+            return "reference-image.png";
+        }
+
+        return fileName;
     }
 
     /**
@@ -686,6 +906,7 @@ public class OpenAiImageGenerationGateway
             ByteArrayOutputStream output,
             String value
     ) throws IOException {
+
         output.write(
                 value.getBytes(
                         StandardCharsets.UTF_8
@@ -699,6 +920,7 @@ public class OpenAiImageGenerationGateway
     private void validatePrompt(
             String promptText
     ) {
+
         if (
                 promptText == null ||
                 promptText.isBlank()
@@ -715,6 +937,7 @@ public class OpenAiImageGenerationGateway
     private String removeTrailingSlash(
             String value
     ) {
+
         if (
                 value == null ||
                 value.isBlank()
@@ -722,9 +945,12 @@ public class OpenAiImageGenerationGateway
             return "https://api.openai.com/v1";
         }
 
-        String normalized = value.trim();
+        String normalized =
+                value.trim();
 
-        while (normalized.endsWith("/")) {
+        while (
+                normalized.endsWith("/")
+        ) {
             normalized =
                     normalized.substring(
                             0,
@@ -736,7 +962,7 @@ public class OpenAiImageGenerationGateway
     }
 
     /**
-     * 참고 이미지가 없는 이미지 생성 요청 본문입니다.
+     * 참고 이미지 없이 생성 요청에 사용하는 JSON DTO입니다.
      */
     private record ImageGenerationRequest(
             String model,
@@ -744,6 +970,16 @@ public class OpenAiImageGenerationGateway
             String size,
             String quality,
             String output_format
+    ) {
+    }
+
+    /**
+     * OpenAI multipart에 전달할 참고 이미지 데이터입니다.
+     */
+    private record ReferenceImageData(
+            byte[] bytes,
+            String fileName,
+            String contentType
     ) {
     }
 }

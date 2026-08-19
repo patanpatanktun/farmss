@@ -444,7 +444,7 @@ public class GeneratedImageStorageService {
             int fontSize
     ) {
         return new Font(
-                "Malgun Gothic",
+                "NanumGothic",
                 Font.BOLD,
                 fontSize
         );

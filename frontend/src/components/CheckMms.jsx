@@ -322,28 +322,105 @@ export default function CheckMms() {
   };
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1360px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          sm:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-3
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+            MMS HISTORY
+          </div>
+
+          <h1
+            className="
+              text-[32px]
+              sm:text-[38px]
+              font-bold
+              tracking-[-0.03em]
+              text-[#17372a]
+            "
+          >
             발송 내역
           </h1>
 
-          <p className="text-gray-700 font-bold mt-2">
-            고객별 MMS 발송 결과와 사용한 홍보
-            이미지를 확인할 수 있습니다.
+          <p
+            className="
+              text-[#59685f]
+              text-[16px]
+              sm:text-[17px]
+              font-normal
+              mt-2
+            "
+          >
+            고객별 MMS 발송 결과와 사용한 홍보 이미지를 확인할 수 있습니다.
           </p>
         </div>
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div
+            className="
+              bg-[#f8e7e3]
+              border-l-[3px]
+              border-[#b45a47]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#873c2e]
+              rounded-none
+            "
+          >
             {errorMessage}
           </div>
         )}
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <SummaryCard
             label="총 발송 건수"
             value={`${summary.totalCount}건`}
@@ -352,13 +429,13 @@ export default function CheckMms() {
           <SummaryCard
             label="발송 성공"
             value={`${summary.successCount}건`}
-            color="text-emerald-700"
+            color="text-[#17372a]"
           />
 
           <SummaryCard
             label="발송 실패"
             value={`${summary.failCount}건`}
-            color="text-red-600"
+            color="text-[#b45a47]"
           />
 
           <SummaryCard
@@ -367,7 +444,18 @@ export default function CheckMms() {
           />
         </section>
 
-        <section className="bg-white rounded-3xl border border-gray-200 p-6 shadow-md space-y-4">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            p-6
+            lg:p-8
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            space-y-4
+          "
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_1fr_220px_auto] gap-3">
             <input
               type="text"
@@ -375,7 +463,21 @@ export default function CheckMms() {
               value={filters.keyword}
               onChange={handleFilterChange}
               placeholder="고객명, 전화번호, 상품명, 문구 검색"
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700"
+              className="
+                w-full
+                px-4
+                py-3.5
+                border
+                border-[#17372a]/25
+                rounded-none
+                font-normal
+                text-[15px]
+                text-[#17372a]
+                bg-[#f7f3eb]
+                focus:outline-none
+                focus:border-[#17372a]
+                placeholder:text-[#8a968e]
+              "
             />
 
             <input
@@ -384,7 +486,21 @@ export default function CheckMms() {
               value={filters.region}
               onChange={handleFilterChange}
               placeholder="지역 검색 (예: 광주, 나주)"
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700"
+              className="
+                w-full
+                px-4
+                py-3.5
+                border
+                border-[#17372a]/25
+                rounded-none
+                font-normal
+                text-[15px]
+                text-[#17372a]
+                bg-[#f7f3eb]
+                focus:outline-none
+                focus:border-[#17372a]
+                placeholder:text-[#8a968e]
+              "
             />
 
             <input
@@ -393,78 +509,126 @@ export default function CheckMms() {
               value={filters.crop}
               onChange={handleFilterChange}
               placeholder="작물 검색 (예: 배, 벼)"
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-emerald-700"
+              className="
+                w-full
+                px-4
+                py-3.5
+                border
+                border-[#17372a]/25
+                rounded-none
+                font-normal
+                text-[15px]
+                text-[#17372a]
+                bg-[#f7f3eb]
+                focus:outline-none
+                focus:border-[#17372a]
+                placeholder:text-[#8a968e]
+              "
             />
 
             <select
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl text-sm font-black bg-white focus:outline-none focus:border-emerald-700"
+              className="
+                w-full
+                px-4
+                py-3.5
+                border
+                border-[#17372a]/25
+                rounded-none
+                font-normal
+                text-[15px]
+                text-[#17372a]
+                bg-[#f7f3eb]
+                focus:outline-none
+                focus:border-[#17372a]
+              "
             >
-              <option value="">
-                전체 발송 상태
-              </option>
-
-              <option value="SUCCESS">
-                발송 성공
-              </option>
-
-              <option value="FAILED">
-                발송 실패
-              </option>
-
-              <option value="RESERVED">
-                예약 발송 전
-              </option>
+              <option value="">전체 발송 상태</option>
+              <option value="SUCCESS">발송 성공</option>
+              <option value="FAILED">발송 실패</option>
+              <option value="RESERVED">예약 발송 전</option>
             </select>
 
             <button
               type="button"
               onClick={handleFilterReset}
-              className="px-5 py-3 border-2 border-gray-200 hover:bg-gray-50 rounded-2xl text-sm font-black"
+              className="
+                px-5
+                py-3.5
+                border
+                border-[#17372a]/25
+                hover:bg-[#17372a]/[0.05]
+                rounded-none
+                text-[14px]
+                font-semibold
+                text-[#536159]
+                transition
+              "
             >
               초기화
             </button>
           </div>
 
-          <p className="text-sm font-black text-gray-600 px-1">
+          <p className="text-[14px] font-semibold text-[#59675f] px-1">
             검색 결과{' '}
-            <span className="text-emerald-700">
+            <span className="text-[#17372a] font-bold">
               {filteredHistories.length}
             </span>
             건
           </p>
         </section>
 
-        <section className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            overflow-hidden
+          "
+        >
           {isLoading ? (
-            <div className="py-20 text-center text-gray-500 font-bold">
+            <div className="py-20 text-center text-[#748078] text-[15px] font-normal">
               MMS 발송 내역을 불러오는 중입니다.
             </div>
           ) : filteredHistories.length === 0 ? (
             <div className="py-20 px-6 text-center">
-              <p className="text-xl font-black text-gray-800">
+              <p className="text-[20px] font-bold text-[#17372a]">
                 조회된 발송 내역이 없습니다.
               </p>
 
-              <p className="text-sm text-gray-500 font-bold mt-2">
-                고객을 선택해서 첫 MMS를
-                발송해보세요.
+              <p className="text-[14px] text-[#59675f] font-normal mt-2">
+                고객을 선택해서 첫 MMS를 발송해보세요.
               </p>
 
               <Link
                 to="/sendmms"
-                className="inline-block mt-6 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-black text-sm"
+                className="
+                  inline-block
+                  mt-6
+                  px-6
+                  py-3.5
+                  bg-[#17372a]
+                  hover:bg-[#214b39]
+                  text-white
+                  rounded-none
+                  font-bold
+                  text-[15px]
+                  transition
+                  shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+                "
               >
                 MMS 발송하러 가기
               </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-200 bg-slate-50 text-xs font-black text-gray-600">
+                  <tr className="border-b border-[#17372a]/25 bg-[#f0e8dc] text-[13px] font-semibold text-[#59675f]">
                     <th className="px-5 py-4">
                       발송 일시
                     </th>
@@ -495,7 +659,7 @@ export default function CheckMms() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[#17372a]/15">
                   {filteredHistories.map(
                     (history) => {
                       const contact =
@@ -523,9 +687,9 @@ export default function CheckMms() {
                       return (
                         <tr
                           key={history.mmsNum}
-                          className="hover:bg-slate-50"
+                          className="hover:bg-[#f2ebd9] transition"
                         >
-                          <td className="px-5 py-5 text-sm font-bold text-gray-700 whitespace-nowrap">
+                          <td className="px-5 py-4 text-[14px] font-normal text-[#59675f] whitespace-nowrap">
                             {formatDateTime(
                               history.reserveFlag ===
                                 'Y' &&
@@ -535,44 +699,44 @@ export default function CheckMms() {
                             )}
                           </td>
 
-                          <td className="px-5 py-5">
-                            <p className="font-black text-gray-900 whitespace-nowrap">
+                          <td className="px-5 py-4">
+                            <p className="font-semibold text-[14px] text-[#17372a] whitespace-nowrap">
                               {contact?.conName ||
                                 '고객 정보 없음'}
                             </p>
 
-                            <p className="text-xs text-gray-500 font-bold mt-1 whitespace-nowrap">
-                              {formatPhone(
+                            <p className="text-[12px] text-[#748078] font-normal mt-0.5 whitespace-nowrap">
+                              {formatMaskedPhone(
                                 contact?.phone
                               )}
                             </p>
                           </td>
 
-                          <td className="px-5 py-5 text-sm font-bold text-gray-700">
+                          <td className="px-5 py-4 text-[14px] text-[#59675f] font-normal">
                             <p>
                               {contact?.region ||
                                 '-'}
                             </p>
 
-                            <p className="text-emerald-700 mt-1">
+                            <p className="text-[#17372a] mt-0.5">
                               {contact?.crop ||
                                 '-'}
                             </p>
                           </td>
 
-                          <td className="px-5 py-5">
-                            <p className="font-black text-gray-900 whitespace-nowrap">
+                          <td className="px-5 py-4">
+                            <p className="font-semibold text-[14px] text-[#17372a] whitespace-nowrap">
                               {product?.proName ||
                                 '상품 정보 없음'}
                             </p>
 
-                            <p className="text-xs text-gray-500 font-bold mt-1">
+                            <p className="text-[12px] text-[#748078] font-normal mt-0.5">
                               {product?.company ||
                                 '-'}
                             </p>
                           </td>
 
-                          <td className="px-5 py-5">
+                          <td className="px-5 py-4">
                             <StatusBadge
                               status={
                                 history.sendStatus
@@ -580,14 +744,14 @@ export default function CheckMms() {
                             />
                           </td>
 
-                          <td className="px-5 py-5 text-sm font-black text-gray-700 whitespace-nowrap">
+                          <td className="px-5 py-4 text-[14px] font-normal text-[#59675f] whitespace-nowrap">
                             {history.reserveFlag ===
                             'Y'
                               ? '예약 발송'
                               : '즉시 발송'}
                           </td>
 
-                          <td className="px-5 py-5 text-center">
+                          <td className="px-5 py-4 text-center">
                             <button
                               type="button"
                               onClick={() =>
@@ -595,7 +759,18 @@ export default function CheckMms() {
                                   history
                                 )
                               }
-                              className="px-4 py-2 border-2 border-gray-200 hover:border-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-black"
+                              className="
+                                px-4
+                                py-2
+                                border
+                                border-[#17372a]/30
+                                text-[#17372a]
+                                hover:bg-[#17372a]/[0.06]
+                                rounded-none
+                                text-[12px]
+                                font-semibold
+                                transition
+                              "
                             >
                               상세보기
                             </button>
@@ -631,10 +806,38 @@ export default function CheckMms() {
         />
       )}
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 px-10 text-center text-gray-600 text-xs mt-12 shadow-sm">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -649,7 +852,7 @@ function HistoryDetailModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/60 px-4 py-8 flex items-center justify-center"
+      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm px-4 py-8 flex items-center justify-center"
       onMouseDown={(event) => {
         if (
           event.target ===
@@ -659,14 +862,14 @@ function HistoryDetailModal({
         }
       }}
     >
-      <div className="w-full max-w-4xl max-h-full overflow-y-auto bg-white rounded-3xl shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+      <div className="w-full max-w-4xl max-h-full overflow-y-auto bg-[#f8f0e2] border border-[#17372a]/25 rounded-none shadow-2xl p-8 space-y-6">
+        <div className="flex items-center justify-between pb-5 border-b border-[#17372a]/20">
           <div>
-            <h2 className="text-xl font-black text-gray-900">
+            <h2 className="text-[22px] font-bold text-[#17372a]">
               MMS 발송 상세
             </h2>
 
-            <p className="text-xs text-gray-500 font-bold mt-1">
+            <p className="text-[12px] text-[#748078] font-normal mt-1">
               {formatDateTime(
                 history.sendDate
               )}
@@ -676,29 +879,29 @@ function HistoryDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 font-black"
+            className="w-9 h-9 rounded-none border border-[#17372a]/25 bg-[#f0e8dc] hover:bg-[#17372a]/10 flex items-center justify-center text-[#17372a] font-bold transition"
           >
             ✕
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           <div>
             {image?.imageUrl ? (
               <img
                 src={image.imageUrl}
                 alt="MMS 발송 홍보 이미지"
-                className="w-full aspect-square object-cover rounded-2xl border border-gray-200 bg-slate-50"
+                className="w-full aspect-square object-cover rounded-none border border-[#17372a]/20 bg-[#f0e8dc]"
               />
             ) : (
-              <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-300 bg-slate-50 flex items-center justify-center text-gray-400 font-bold">
+              <div className="w-full aspect-square rounded-none border border-dashed border-[#17372a]/30 bg-[#f0e8dc] flex items-center justify-center text-[#748078] text-[14px] font-normal">
                 이미지 정보 없음
               </div>
             )}
           </div>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <DetailItem
                 label="수신 고객"
                 value={
@@ -709,7 +912,7 @@ function HistoryDetailModal({
 
               <DetailItem
                 label="전화번호"
-                value={formatPhone(
+                value={formatMaskedPhone(
                   contact?.phone
                 )}
               />
@@ -744,12 +947,12 @@ function HistoryDetailModal({
               />
             </div>
 
-            <div className="rounded-2xl bg-slate-50 border border-gray-200 p-5">
-              <p className="text-xs font-black text-gray-500">
+            <div className="rounded-none bg-[#f0e8dc] border border-[#17372a]/20 p-5 space-y-2">
+              <p className="text-[12px] font-semibold text-[#748078] tracking-[0.05em]">
                 발송 문구
               </p>
 
-              <p className="mt-3 text-sm font-bold text-gray-800 whitespace-pre-wrap leading-relaxed">
+              <p className="text-[14px] font-normal text-[#17372a] whitespace-pre-wrap leading-relaxed">
                 {history.mmsText}
               </p>
             </div>
@@ -763,16 +966,25 @@ function HistoryDetailModal({
 function SummaryCard({
   label,
   value,
-  color = 'text-gray-900',
+  color = 'text-[#17372a]',
 }) {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-md">
-      <p className="text-xs font-black text-gray-500">
+    <div
+      className="
+        bg-[#f8f0e2]
+        border
+        border-[#17372a]/25
+        rounded-none
+        p-6
+        shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+      "
+    >
+      <p className="text-[12px] font-semibold text-[#748078] tracking-[0.05em]">
         {label}
       </p>
 
       <p
-        className={`mt-2 text-2xl font-black ${color}`}
+        className={`mt-2 text-[24px] font-bold ${color}`}
       >
         {value}
       </p>
@@ -782,12 +994,12 @@ function SummaryCard({
 
 function DetailItem({ label, value }) {
   return (
-    <div className="rounded-2xl bg-slate-50 border border-gray-200 p-4">
-      <p className="text-xs font-black text-gray-500">
+    <div className="rounded-none bg-[#f0e8dc] border border-[#17372a]/20 p-4">
+      <p className="text-[12px] font-semibold text-[#748078] tracking-[0.05em]">
         {label}
       </p>
 
-      <p className="mt-1 font-black text-gray-900">
+      <p className="mt-1 font-semibold text-[15px] text-[#17372a]">
         {value}
       </p>
     </div>
@@ -797,20 +1009,20 @@ function DetailItem({ label, value }) {
 function StatusBadge({ status }) {
   const colorClasses = {
     SUCCESS:
-      'bg-emerald-50 border-emerald-200 text-emerald-700',
+      'bg-[#e8f3ee] border-[#17372a]/30 text-[#17372a]',
     FAILED:
-      'bg-red-50 border-red-200 text-red-600',
+      'bg-[#f8e7e3] border-[#b45a47]/40 text-[#b45a47]',
     RESERVED:
-      'bg-amber-50 border-amber-200 text-amber-700',
+      'bg-[#f0e8dc] border-[#17372a]/25 text-[#59675f]',
     REQUESTED:
-      'bg-blue-50 border-blue-200 text-blue-700',
+      'bg-[#e8f3ee] border-[#17372a]/30 text-[#17372a]',
   };
 
   return (
     <span
-      className={`inline-block px-3 py-1 rounded-xl border text-xs font-black ${
+      className={`inline-block px-3 py-1 rounded-none border text-[12px] font-semibold ${
         colorClasses[status] ||
-        'bg-gray-50 border-gray-200 text-gray-600'
+        'bg-[#f0e8dc] border-[#17372a]/25 text-[#59675f]'
       }`}
     >
       {getStatusText(status)}
@@ -882,27 +1094,34 @@ function formatDateTime(value) {
   ).format(date);
 }
 
-function formatPhone(phone) {
+function formatMaskedPhone(phone) {
   if (!phone) {
     return '-';
   }
 
-  const numbers = String(phone).replace(
-    /[^0-9]/g,
-    ''
-  );
+  const numbers = String(phone).replace(/[^0-9]/g, '');
 
   if (numbers.length === 11) {
     return numbers.replace(
       /(\d{3})(\d{4})(\d{4})/,
-      '$1-$2-$3'
+      '$1-****-$3'
+    );
+  }
+
+  if (
+    numbers.startsWith('02') &&
+    numbers.length === 10
+  ) {
+    return numbers.replace(
+      /(\d{2})(\d{4})(\d{4})/,
+      '$1-****-$3'
     );
   }
 
   if (numbers.length === 10) {
     return numbers.replace(
       /(\d{3})(\d{3})(\d{4})/,
-      '$1-$2-$3'
+      '$1-***-$3'
     );
   }
 

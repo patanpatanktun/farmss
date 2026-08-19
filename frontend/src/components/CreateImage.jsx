@@ -11,16 +11,25 @@ import Header from './Header';
 const PROMPT_EXAMPLES = [
   '농자재의 가치를 높여주는 고급스럽고 신뢰감 있는 분위기로 만들어 주세요.',
   '상품이 한눈에 들어오는 깔끔한 농자재 홍보 포스터로 만들어 주세요.',
-  '믿고 쓰는 농자재라는 신뢰감을 최대한 담아주세요.'
+  '믿고 쓰는 농자재라는 신뢰감을 최대한 담아주세요.',
 ];
 
 export default function CreateImage() {
   const [contacts, setContacts] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [products, setProducts] = useState([]);
+
+  // targetType: 'contact' 또는 'group'
+  const [targetType, setTargetType] = useState('contact');
 
   const [
     selectedContactNum,
     setSelectedContactNum,
+  ] = useState('');
+
+  const [
+    selectedGroupNum,
+    setSelectedGroupNum,
   ] = useState('');
 
   const [
@@ -47,16 +56,17 @@ export default function CreateImage() {
     useState('');
 
   /**
-   * 고객과 상품 목록을 조회합니다.
+   * 고객, 그룹, 상품 목록을 조회합니다.
    */
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage('');
 
     try {
-      const [contactData, productData] =
+      const [contactData, groupData, productData] =
         await Promise.all([
           api.get('/contacts'),
+          api.get('/contact-groups'),
           api.get('/products'),
         ]);
 
@@ -66,6 +76,12 @@ export default function CreateImage() {
         ? contactData
         : [];
 
+      const loadedGroups = Array.isArray(
+        groupData
+      )
+        ? groupData
+        : [];
+
       const loadedProducts = Array.isArray(
         productData
       )
@@ -73,11 +89,18 @@ export default function CreateImage() {
         : [];
 
       setContacts(loadedContacts);
+      setGroups(loadedGroups);
       setProducts(loadedProducts);
 
       if (loadedContacts.length > 0) {
         setSelectedContactNum(
           String(loadedContacts[0].conNum)
+        );
+      }
+
+      if (loadedGroups.length > 0) {
+        setSelectedGroupNum(
+          String(loadedGroups[0].groupNum)
         );
       }
 
@@ -101,7 +124,7 @@ export default function CreateImage() {
   }, [loadData]);
 
   /**
-   * 현재 선택한 고객입니다.
+   * 현재 선택한 개별 고객입니다.
    */
   const selectedContact = useMemo(
     () =>
@@ -112,6 +135,31 @@ export default function CreateImage() {
       ) || null,
     [contacts, selectedContactNum]
   );
+
+  /**
+   * 현재 선택한 고객 그룹입니다.
+   */
+  const selectedGroup = useMemo(
+    () =>
+      groups.find(
+        (group) =>
+          Number(group.groupNum) ===
+          Number(selectedGroupNum)
+      ) || null,
+    [groups, selectedGroupNum]
+  );
+
+  /**
+   * 선택된 그룹에 속한 고객 목록입니다.
+   */
+  const groupContacts = useMemo(() => {
+    if (!selectedGroup) return [];
+    return contacts.filter(
+      (contact) =>
+        Number(contact.groupNum) ===
+        Number(selectedGroup.groupNum)
+    );
+  }, [contacts, selectedGroup]);
 
   /**
    * 현재 선택한 상품입니다.
@@ -127,7 +175,7 @@ export default function CreateImage() {
   );
 
   /**
-   * 고객과 상품 정보를 사용해
+   * 고객 또는 그룹 정보를 사용해
    * AI 이미지 생성용 프롬프트를 만듭니다.
    */
   const createFinalPrompt = () => {
@@ -157,7 +205,7 @@ export default function CreateImage() {
       );
     }
 
-    if (selectedContact) {
+    if (targetType === 'contact' && selectedContact) {
       if (selectedContact.region) {
         promptParts.push(
           `주요 홍보 지역: ${selectedContact.region}`
@@ -167,6 +215,15 @@ export default function CreateImage() {
       if (selectedContact.crop) {
         promptParts.push(
           `주요 재배작물: ${selectedContact.crop}`
+        );
+      }
+    } else if (targetType === 'group' && selectedGroup) {
+      promptParts.push(
+        `홍보 대상 그룹: ${selectedGroup.groupName}`
+      );
+      if (selectedGroup.conDescription) {
+        promptParts.push(
+          `그룹 설명: ${selectedGroup.conDescription}`
         );
       }
     }
@@ -196,9 +253,16 @@ export default function CreateImage() {
     setSuccessMessage('');
     setGeneratedImage(null);
 
-    if (!selectedContactNum) {
+    if (targetType === 'contact' && !selectedContactNum) {
       setErrorMessage(
         '홍보 대상 고객을 선택해주세요.'
+      );
+      return;
+    }
+
+    if (targetType === 'group' && !selectedGroupNum) {
+      setErrorMessage(
+        '홍보 대상 그룹을 선택해주세요.'
       );
       return;
     }
@@ -222,11 +286,18 @@ export default function CreateImage() {
     setIsGenerating(true);
 
     try {
-      const data = await api.post('/images', {
-        conNum: Number(selectedContactNum),
+      const payload = {
         proNum: Number(selectedProductNum),
         promptText: finalPrompt,
-      });
+      };
+
+      if (targetType === 'contact') {
+        payload.conNum = Number(selectedContactNum);
+      } else {
+        payload.groupNum = Number(selectedGroupNum);
+      }
+
+      const data = await api.post('/images', payload);
 
       setGeneratedImage(data);
 
@@ -244,142 +315,462 @@ export default function CreateImage() {
   };
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1360px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          sm:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-3
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+            AI IMAGE STUDIO
+          </div>
+
+          <h1
+            className="
+              text-[32px]
+              sm:text-[38px]
+              font-bold
+              tracking-[-0.03em]
+              text-[#17372a]
+            "
+          >
             AI 홍보 이미지 만들기
           </h1>
 
-          <p className="text-gray-700 font-bold mt-2">
-            고객과 등록된 상품을 선택하면 AI가
-            맞춤형 홍보 이미지를 만들어 드립니다.
+          <p
+            className="
+              text-[#59685f]
+              text-[16px]
+              sm:text-[17px]
+              font-normal
+              mt-2
+            "
+          >
+            고객 또는 고객 그룹과 상품을 선택하면 AI가 맞춤형 홍보 이미지를 만들어 드립니다.
           </p>
         </div>
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div
+            className="
+              bg-[#f8e7e3]
+              border-l-[3px]
+              border-[#b45a47]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#873c2e]
+              rounded-[4px_14px_4px_14px]
+            "
+          >
             {errorMessage}
           </div>
         )}
 
         {successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+          <div
+            className="
+              bg-[#e8f3ee]
+              border-l-[3px]
+              border-[#17372a]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#17372a]
+              rounded-[4px_14px_4px_14px]
+            "
+          >
             {successMessage}
           </div>
         )}
 
         {isLoading ? (
-          <div className="bg-white rounded-3xl border border-gray-200 p-14 text-center text-gray-500 font-bold shadow-md">
+          <div
+            className="
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              p-16
+              text-center
+              text-[#748078]
+              text-[16px]
+              font-normal
+            "
+          >
             고객과 상품 정보를 불러오는 중입니다.
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="space-y-6">
-              <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
+            <div className="space-y-8">
+              {/* 1. 홍보 대상 선택 */}
+              <section
+                className="
+                  bg-[#f8f0e2]
+                  border
+                  border-[#17372a]/25
+                  rounded-none
+                  p-8
+                  lg:p-10
+                  shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                  space-y-6
+                "
+              >
                 <div>
-                  <h2 className="text-xl font-black text-gray-900">
-                    1. 홍보 대상 고객 선택
+                  <h2
+                    className="
+                      text-[24px]
+                      font-bold
+                      text-[#17372a]
+                      tracking-[-0.02em]
+                    "
+                  >
+                    1. 홍보 대상 선택
                   </h2>
 
-                  <p className="text-sm text-gray-600 font-bold mt-1">
-                    고객의 지역과 재배작물을 이미지
-                    생성 내용에 반영합니다.
+                  <p
+                    className="
+                      text-[15px]
+                      text-[#59675f]
+                      font-normal
+                      mt-1.5
+                    "
+                  >
+                    개별 고객 또는 고객 그룹을 선택하여 이미지 생성 내용에 반영하세요.
                   </p>
                 </div>
 
-                {contacts.length === 0 ? (
+                {/* 대상 유형 선택 탭 */}
+                <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#f0e8dc] rounded-none border border-[#17372a]/20">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetType('contact');
+                      setGeneratedImage(null);
+                      setSuccessMessage('');
+                    }}
+                    className={`
+                      py-3
+                      rounded-none
+                      text-[15px]
+                      font-semibold
+                      transition-all
+                      ${
+                        targetType === 'contact'
+                          ? 'bg-[#17372a] text-white shadow-sm'
+                          : 'text-[#59675f] hover:text-[#17372a]'
+                      }
+                    `}
+                  >
+                    개별 고객 선택
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetType('group');
+                      setGeneratedImage(null);
+                      setSuccessMessage('');
+                    }}
+                    className={`
+                      py-3
+                      rounded-none
+                      text-[15px]
+                      font-semibold
+                      transition-all
+                      ${
+                        targetType === 'group'
+                          ? 'bg-[#17372a] text-white shadow-sm'
+                          : 'text-[#59675f] hover:text-[#17372a]'
+                      }
+                    `}
+                  >
+                    고객 그룹 선택
+                  </button>
+                </div>
+
+                {targetType === 'contact' ? (
+                  contacts.length === 0 ? (
+                    <EmptyDataBox
+                      message="등록된 고객이 없습니다."
+                      link="/contact"
+                      linkText="고객 등록하러 가기"
+                    />
+                  ) : (
+                    <div className="space-y-5">
+                      <select
+                        value={selectedContactNum}
+                        onChange={(event) => {
+                          setSelectedContactNum(
+                            event.target.value
+                          );
+                          setGeneratedImage(null);
+                          setSuccessMessage('');
+                        }}
+                        className="
+                          w-full
+                          px-4
+                          py-3.5
+                          border
+                          border-[#17372a]/25
+                          rounded-none
+                          font-normal
+                          text-[15px]
+                          text-[#17372a]
+                          focus:outline-none
+                          focus:border-[#17372a]
+                          bg-[#f7f3eb]
+                        "
+                      >
+                        {contacts.map((contact) => (
+                          <option
+                            key={contact.conNum}
+                            value={contact.conNum}
+                          >
+                            {contact.conName} ·{' '}
+                            {contact.region ||
+                              '지역 미등록'}{' '}
+                            ·{' '}
+                            {contact.crop ||
+                              '작물 미등록'}
+                          </option>
+                        ))}
+                      </select>
+
+                      {selectedContact && (
+                        <div
+                          className="
+                            rounded-none
+                            bg-[#f0e8dc]
+                            border
+                            border-[#17372a]/25
+                            p-5
+                          "
+                        >
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InfoItem
+                              label="고객명"
+                              value={
+                                selectedContact.conName
+                              }
+                            />
+
+                            <InfoItem
+                              label="전화번호"
+                              value={formatPhone(
+                                selectedContact.phone
+                              )}
+                            />
+
+                            <InfoItem
+                              label="재배 지역"
+                              value={
+                                selectedContact.region ||
+                                '미등록'
+                              }
+                            />
+
+                            <InfoItem
+                              label="재배작물"
+                              value={
+                                selectedContact.crop ||
+                                '미등록'
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                ) : groups.length === 0 ? (
                   <EmptyDataBox
-                    message="등록된 고객이 없습니다."
+                    message="등록된 고객 그룹이 없습니다."
                     link="/contact"
-                    linkText="고객 등록하러 가기"
+                    linkText="그룹 등록하러 가기"
                   />
                 ) : (
-                  <>
+                  <div className="space-y-5">
                     <select
-                      value={selectedContactNum}
+                      value={selectedGroupNum}
                       onChange={(event) => {
-                        setSelectedContactNum(
+                        setSelectedGroupNum(
                           event.target.value
                         );
-
                         setGeneratedImage(null);
                         setSuccessMessage('');
                       }}
-                      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl font-bold focus:outline-none focus:border-emerald-700 bg-white"
+                      className="
+                        w-full
+                        px-4
+                        py-3.5
+                        border
+                        border-[#17372a]/25
+                        rounded-none
+                        font-normal
+                        text-[15px]
+                        text-[#17372a]
+                        focus:outline-none
+                        focus:border-[#17372a]
+                        bg-[#f7f3eb]
+                      "
                     >
-                      {contacts.map((contact) => (
-                        <option
-                          key={contact.conNum}
-                          value={contact.conNum}
-                        >
-                          {contact.conName} ·{' '}
-                          {contact.region ||
-                            '지역 미등록'}{' '}
-                          ·{' '}
-                          {contact.crop ||
-                            '작물 미등록'}
-                        </option>
-                      ))}
+                      {groups.map((group) => {
+                        const cnt = contacts.filter(
+                          (c) =>
+                            Number(c.groupNum) ===
+                            Number(group.groupNum)
+                        ).length;
+                        return (
+                          <option
+                            key={group.groupNum}
+                            value={group.groupNum}
+                          >
+                            {group.groupName} (소속 고객 {cnt}명)
+                          </option>
+                        );
+                      })}
                     </select>
 
-                    {selectedContact && (
-                      <div className="rounded-2xl bg-slate-50 border border-gray-200 p-5">
+                    {selectedGroup && (
+                      <div
+                        className="
+                          rounded-none
+                          bg-[#f0e8dc]
+                          border
+                          border-[#17372a]/25
+                          p-5
+                          space-y-3
+                        "
+                      >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <InfoItem
-                            label="고객명"
-                            value={
-                              selectedContact.conName
-                            }
+                            label="그룹명"
+                            value={selectedGroup.groupName}
                           />
 
                           <InfoItem
-                            label="전화번호"
-                            value={formatPhone(
-                              selectedContact.phone
-                            )}
+                            label="소속 인원"
+                            value={`${groupContacts.length}명`}
                           />
+                        </div>
 
-                          <InfoItem
-                            label="재배 지역"
-                            value={
-                              selectedContact.region ||
-                              '미등록'
-                            }
-                          />
+                        <div>
+                          <p className="text-[12px] font-semibold text-[#68766e]">
+                            그룹 설명
+                          </p>
 
-                          <InfoItem
-                            label="재배작물"
-                            value={
-                              selectedContact.crop ||
-                              '미등록'
-                            }
-                          />
+                          <p className="mt-1 text-[14px] text-[#17372a] font-normal">
+                            {selectedGroup.conDescription ||
+                              '등록된 설명이 없습니다.'}
+                          </p>
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </section>
 
-              <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
+              {/* 2. 홍보 상품 선택 */}
+              <section
+                className="
+                  bg-[#f8f0e2]
+                  border
+                  border-[#17372a]/25
+                  rounded-none
+                  p-8
+                  lg:p-10
+                  shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                  space-y-6
+                "
+              >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-black text-gray-900">
+                    <h2
+                      className="
+                        text-[24px]
+                        font-bold
+                        text-[#17372a]
+                        tracking-[-0.02em]
+                      "
+                    >
                       2. 홍보 상품 선택
                     </h2>
 
-                    <p className="text-sm text-gray-600 font-bold mt-1">
-                      상품 관리에서 등록한 상품을
-                      선택해주세요.
+                    <p
+                      className="
+                        text-[15px]
+                        text-[#59675f]
+                        font-normal
+                        mt-1.5
+                      "
+                    >
+                      상품 관리에서 등록한 상품을 선택해주세요.
                     </p>
                   </div>
 
                   <Link
                     to="/product"
-                    className="px-4 py-2.5 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-black text-center whitespace-nowrap"
+                    className="
+                      px-4
+                      py-2.5
+                      border
+                      border-[#17372a]/30
+                      text-[#17372a]
+                      hover:bg-[#17372a]/[0.06]
+                      rounded-none
+                      text-[13px]
+                      font-semibold
+                      text-center
+                      whitespace-nowrap
+                      transition
+                    "
                   >
                     상품 관리
                   </Link>
@@ -392,18 +783,30 @@ export default function CreateImage() {
                     linkText="상품 등록하러 가기"
                   />
                 ) : (
-                  <>
+                  <div className="space-y-5">
                     <select
                       value={selectedProductNum}
                       onChange={(event) => {
                         setSelectedProductNum(
                           event.target.value
                         );
-
                         setGeneratedImage(null);
                         setSuccessMessage('');
                       }}
-                      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-2xl font-bold focus:outline-none focus:border-emerald-700 bg-white"
+                      className="
+                        w-full
+                        px-4
+                        py-3.5
+                        border
+                        border-[#17372a]/25
+                        rounded-none
+                        font-normal
+                        text-[15px]
+                        text-[#17372a]
+                        focus:outline-none
+                        focus:border-[#17372a]
+                        bg-[#f7f3eb]
+                      "
                     >
                       {products.map((product) => (
                         <option
@@ -415,34 +818,69 @@ export default function CreateImage() {
                             product.price
                           ).toLocaleString(
                             'ko-KR'
-                          )}
+                          )}{' '}
                           원
                         </option>
                       ))}
                     </select>
 
                     {selectedProduct && (
-                      <div className="rounded-2xl bg-slate-50 border border-gray-200 overflow-hidden">
-                        <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
-                          <div className="bg-white border-b sm:border-b-0 sm:border-r border-gray-200 min-h-48">
+                      <div
+                        className="
+                          rounded-none
+                          bg-[#f0e8dc]
+                          border
+                          border-[#17372a]/25
+                          overflow-hidden
+                        "
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr]">
+                          <div
+                            className="
+                              bg-[#f7f3eb]
+                              border-b
+                              sm:border-b-0
+                              sm:border-r
+                              border-[#17372a]/20
+                              min-h-[160px]
+                            "
+                          >
                             {selectedProduct.referenceImageUrl ? (
                               <img
                                 src={
                                   selectedProduct.referenceImageUrl
                                 }
                                 alt={`${selectedProduct.proName} 참고 이미지`}
-                                className="w-full h-52 sm:h-full object-contain p-3"
+                                className="w-full h-44 sm:h-full object-contain p-3"
                               />
                             ) : (
-                              <div className="w-full h-48 flex flex-col items-center justify-center text-center text-gray-400 font-bold text-sm p-5">
+                              <div
+                                className="
+                                  w-full
+                                  h-44
+                                  flex
+                                  flex-col
+                                  items-center
+                                  justify-center
+                                  text-center
+                                  text-[#748078]
+                                  font-normal
+                                  text-[13px]
+                                  p-4
+                                "
+                              >
                                 <span>
-                                  등록된 참고 이미지가
-                                  없습니다.
+                                  등록된 참고 이미지가 없습니다.
                                 </span>
 
                                 <Link
                                   to="/product"
-                                  className="mt-3 text-emerald-700 text-xs font-black hover:underline"
+                                  className="
+                                    mt-2
+                                    text-[#17372a]
+                                    font-semibold
+                                    hover:underline
+                                  "
                                 >
                                   참고 이미지 등록하기
                                 </Link>
@@ -450,13 +888,13 @@ export default function CreateImage() {
                             )}
                           </div>
 
-                          <div className="p-5 space-y-3">
+                          <div className="p-5 space-y-2.5">
                             <div>
-                              <p className="text-xs font-black text-gray-500">
+                              <p className="text-[11px] font-semibold text-[#68766e]">
                                 상품명
                               </p>
 
-                              <p className="text-lg font-black text-gray-900 mt-1">
+                              <p className="text-[17px] font-bold text-[#17372a] mt-0.5">
                                 {
                                   selectedProduct.proName
                                 }
@@ -464,55 +902,96 @@ export default function CreateImage() {
                             </div>
 
                             <div className="flex flex-wrap gap-2">
-                              <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-black">
+                              <span
+                                className="
+                                  px-3
+                                  py-1
+                                  bg-[#17372a]/10
+                                  text-[#17372a]
+                                  rounded-full
+                                  text-[12px]
+                                  font-semibold
+                                "
+                              >
                                 {
                                   selectedProduct.category
                                 }
                               </span>
 
-                              <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-black">
+                              <span
+                                className="
+                                  px-3
+                                  py-1
+                                  bg-[#f7f3eb]
+                                  border
+                                  border-[#17372a]/25
+                                  text-[#59675f]
+                                  rounded-full
+                                  text-[12px]
+                                  font-semibold
+                                "
+                              >
                                 {
                                   selectedProduct.company
                                 }
                               </span>
                             </div>
 
-                            <p className="text-2xl font-black text-emerald-700">
+                            <p className="text-[20px] font-bold text-[#17372a] pt-1">
                               {Number(
                                 selectedProduct.price
                               ).toLocaleString(
                                 'ko-KR'
-                              )}
+                              )}{' '}
                               원
                             </p>
 
-                            <p className="text-sm font-bold text-gray-700 leading-relaxed">
+                            <p className="text-[14px] text-[#59675f] font-normal leading-relaxed">
                               {selectedProduct.proDescription ||
                                 '등록된 상품 설명이 없습니다.'}
                             </p>
-
-                            {selectedProduct.referenceImageUrl && (
-                              <p className="text-xs font-black text-emerald-700">
-                                참고 이미지 등록 완료
-                              </p>
-                            )}
                           </div>
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </section>
 
-              <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
+              {/* 3. 추가 요청사항 */}
+              <section
+                className="
+                  bg-[#f8f0e2]
+                  border
+                  border-[#17372a]/25
+                  rounded-none
+                  p-8
+                  lg:p-10
+                  shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                  space-y-6
+                "
+              >
                 <div>
-                  <h2 className="text-xl font-black text-gray-900">
+                  <h2
+                    className="
+                      text-[24px]
+                      font-bold
+                      text-[#17372a]
+                      tracking-[-0.02em]
+                    "
+                  >
                     3. 추가 요청사항
                   </h2>
 
-                  <p className="text-sm text-gray-600 font-bold mt-1">
-                    원하는 색상, 분위기와 강조 문구를
-                    입력해주세요.
+                  <p
+                    className="
+                      text-[15px]
+                      text-[#59675f]
+                      font-normal
+                      mt-1.5
+                    "
+                  >
+                    원하는 색상, 분위기와 강조 문구를 입력해주세요.
                   </p>
                 </div>
 
@@ -525,7 +1004,20 @@ export default function CreateImage() {
                         onClick={() =>
                           setPromptText(example)
                         }
-                        className="w-full p-4 bg-slate-50 border-2 border-gray-200 rounded-2xl text-left text-sm font-bold text-gray-800 hover:border-emerald-700 transition"
+                        className="
+                          w-full
+                          p-4
+                          bg-[#f0e8dc]
+                          border
+                          border-[#17372a]/25
+                          rounded-none
+                          text-left
+                          text-[14px]
+                          font-normal
+                          text-[#17372a]
+                          hover:border-[#17372a]
+                          transition
+                        "
                       >
                         {example}
                       </button>
@@ -541,13 +1033,38 @@ export default function CreateImage() {
                         event.target.value
                       )
                     }
-                    rows="7"
+                    rows="6"
                     maxLength={3000}
-                    placeholder="추가 요청사항을 입력하세요. 입력하지 않아도 상품과 고객 정보로 기본 프롬프트가 생성됩니다."
-                    className="w-full px-4 py-3.5 pb-8 border-2 border-gray-200 rounded-2xl font-bold text-sm resize-none focus:outline-none focus:border-emerald-700"
+                    placeholder="추가 요청사항을 입력하세요. 입력하지 않아도 상품과 고객(그룹) 정보로 기본 프롬프트가 생성됩니다."
+                    className="
+                      w-full
+                      px-4
+                      py-3.5
+                      pb-9
+                      border
+                      border-[#17372a]/25
+                      rounded-none
+                      font-normal
+                      text-[15px]
+                      text-[#17372a]
+                      resize-none
+                      focus:outline-none
+                      focus:border-[#17372a]
+                      bg-[#f7f3eb]
+                      placeholder:text-[#8a968e]
+                    "
                   />
 
-                  <span className="absolute right-4 bottom-3 text-xs font-bold text-gray-500">
+                  <span
+                    className="
+                      absolute
+                      right-4
+                      bottom-3
+                      text-[12px]
+                      font-normal
+                      text-[#748078]
+                    "
+                  >
                     {promptText.length} / 3,000자
                   </span>
                 </div>
@@ -557,10 +1074,24 @@ export default function CreateImage() {
                   onClick={handleGenerateImage}
                   disabled={
                     isGenerating ||
-                    contacts.length === 0 ||
+                    (targetType === 'contact' && contacts.length === 0) ||
+                    (targetType === 'group' && groups.length === 0) ||
                     products.length === 0
                   }
-                  className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black text-lg rounded-2xl shadow-md transition"
+                  className="
+                    w-full
+                    h-[56px]
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    disabled:bg-[#9ca7a0]
+                    disabled:cursor-not-allowed
+                    text-white
+                    font-semibold
+                    text-[16px]
+                    rounded-none
+                    shadow-[0_14px_30px_rgba(23,55,42,0.15)]
+                    transition
+                  "
                 >
                   {isGenerating
                     ? 'AI 이미지 생성 중...'
@@ -569,21 +1100,56 @@ export default function CreateImage() {
               </section>
             </div>
 
-            <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6 lg:sticky lg:top-40">
+            {/* 생성 결과 영역 */}
+            <section
+              className="
+                bg-[#f8f0e2]
+                border
+                border-[#17372a]/25
+                rounded-none
+                p-8
+                lg:p-10
+                shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+                space-y-6
+                lg:sticky
+                lg:top-28
+              "
+            >
               <div>
-                <h2 className="text-xl font-black text-gray-900">
+                <h2
+                  className="
+                    text-[24px]
+                    font-bold
+                    text-[#17372a]
+                    tracking-[-0.02em]
+                  "
+                >
                   생성 결과
                 </h2>
 
-                <p className="text-sm text-gray-600 font-bold mt-1">
-                  생성된 홍보 이미지를 확인할 수
-                  있습니다.
+                <p
+                  className="
+                    text-[15px]
+                    text-[#59675f]
+                    font-normal
+                    mt-1.5
+                  "
+                >
+                  생성된 홍보 이미지를 확인할 수 있습니다.
                 </p>
               </div>
 
               {selectedProduct?.referenceImageUrl && (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                  <p className="text-xs font-black text-emerald-800 mb-3">
+                <div
+                  className="
+                    rounded-none
+                    border
+                    border-[#17372a]/25
+                    bg-[#f0e8dc]
+                    p-4
+                  "
+                >
+                  <p className="text-[12px] font-semibold text-[#17372a] mb-3">
                     선택한 상품 참고 이미지
                   </p>
 
@@ -592,26 +1158,59 @@ export default function CreateImage() {
                       selectedProduct.referenceImageUrl
                     }
                     alt="선택 상품 참고 이미지"
-                    className="w-full max-h-52 object-contain rounded-xl bg-white border border-emerald-100"
+                    className="w-full max-h-48 object-contain rounded-none bg-[#f7f3eb] border border-[#17372a]/20"
                   />
                 </div>
               )}
 
               {isGenerating ? (
-                <div className="aspect-square rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex flex-col items-center justify-center text-center p-8">
-                  <div className="w-12 h-12 rounded-full border-4 border-emerald-200 border-t-emerald-700 animate-spin" />
+                <div
+                  className="
+                    aspect-square
+                    rounded-none
+                    bg-[#f0e8dc]
+                    border
+                    border-[#17372a]/25
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    text-center
+                    p-8
+                  "
+                >
+                  <div
+                    className="
+                      w-12
+                      h-12
+                      rounded-full
+                      border-4
+                      border-[#17372a]/20
+                      border-t-[#17372a]
+                      animate-spin
+                    "
+                  />
 
-                  <p className="mt-5 font-black text-emerald-800">
+                  <p className="mt-5 font-bold text-[#17372a] text-[17px]">
                     이미지를 만들고 있습니다.
                   </p>
 
-                  <p className="mt-2 text-sm font-bold text-gray-600">
+                  <p className="mt-2 text-[14px] font-normal text-[#59675f]">
                     잠시만 기다려주세요.
                   </p>
                 </div>
               ) : generatedImage ? (
                 <div className="space-y-5">
-                  <div className="aspect-square rounded-2xl overflow-hidden border border-gray-200 bg-slate-50">
+                  <div
+                    className="
+                      aspect-square
+                      rounded-none
+                      overflow-hidden
+                      border
+                      border-[#17372a]/25
+                      bg-[#f7f3eb]
+                    "
+                  >
                     <img
                       src={generatedImage.imageUrl}
                       alt="생성된 농자재 홍보 이미지"
@@ -619,60 +1218,128 @@ export default function CreateImage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-xl bg-slate-50 border border-gray-200 p-4">
-                      <p className="text-xs font-bold text-gray-500">
+                  <div className="grid grid-cols-2 gap-3 text-[14px]">
+                    <div
+                      className="
+                        rounded-none
+                        bg-[#f0e8dc]
+                        border
+                        border-[#17372a]/25
+                        p-4
+                      "
+                    >
+                      <p className="text-[12px] font-normal text-[#59675f]">
                         이미지 번호
                       </p>
 
-                      <p className="font-black mt-1">
+                      <p className="font-bold text-[#17372a] mt-1">
                         {generatedImage.imageId}
                       </p>
                     </div>
 
-                    <div className="rounded-xl bg-slate-50 border border-gray-200 p-4">
-                      <p className="text-xs font-bold text-gray-500">
+                    <div
+                      className="
+                        rounded-none
+                        bg-[#f0e8dc]
+                        border
+                        border-[#17372a]/25
+                        p-4
+                      "
+                    >
+                      <p className="text-[12px] font-normal text-[#59675f]">
                         다운로드 수
                       </p>
 
-                      <p className="font-black mt-1">
-                        {generatedImage.download ??
-                          0}
-                        회
+                      <p className="font-bold text-[#17372a] mt-1">
+                        {generatedImage.download ?? 0} 회
                       </p>
                     </div>
                   </div>
 
                   <Link
                     to="/manageimage"
-                    className="block w-full py-3.5 text-center border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black"
+                    className="
+                      block
+                      w-full
+                      h-[50px]
+                      leading-[50px]
+                      text-center
+                      border
+                      border-[#17372a]/30
+                      text-[#17372a]
+                      hover:bg-[#17372a]/[0.05]
+                      rounded-none
+                      font-semibold
+                      text-[15px]
+                      transition
+                    "
                   >
                     이미지 관리에서 확인하기
                   </Link>
                 </div>
               ) : (
-                <div className="aspect-square rounded-2xl bg-slate-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-center p-8">
-                  <p className="font-black text-gray-700">
+                <div
+                  className="
+                    aspect-square
+                    rounded-none
+                    bg-[#f0e8dc]
+                    border
+                    border-dashed
+                    border-[#17372a]/40
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    text-center
+                    p-8
+                  "
+                >
+                  <p className="font-bold text-[#17372a] text-[17px]">
                     아직 생성된 이미지가 없습니다.
                   </p>
 
-                  <p className="mt-2 text-sm font-bold text-gray-500">
-                    고객과 상품을 선택한 후 이미지를
-                    생성해주세요.
+                  <p className="mt-2 text-[14px] font-normal text-[#59675f]">
+                    홍보 대상과 상품을 선택한 후 이미지를 생성해주세요.
                   </p>
                 </div>
               )}
-
-
             </section>
           </div>
         )}
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 text-center text-gray-600 text-xs mt-12">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -681,11 +1348,11 @@ export default function CreateImage() {
 function InfoItem({ label, value }) {
   return (
     <div>
-      <p className="text-xs font-black text-gray-500">
+      <p className="text-[11px] font-semibold text-[#68766e]">
         {label}
       </p>
 
-      <p className="mt-1 font-black text-gray-900">
+      <p className="mt-0.5 font-bold text-[#17372a] text-[15px]">
         {value}
       </p>
     </div>
@@ -698,12 +1365,23 @@ function EmptyDataBox({
   linkText,
 }) {
   return (
-    <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-sm font-bold text-amber-800">
+    <div
+      className="
+        rounded-none
+        bg-[#f0e8dc]
+        border
+        border-[#17372a]/25
+        p-5
+        text-[14px]
+        font-normal
+        text-[#17372a]
+      "
+    >
       <p>{message}</p>
 
       <Link
         to={link}
-        className="inline-block mt-3 text-emerald-700 font-black hover:underline"
+        className="inline-block mt-2.5 text-[#17372a] font-semibold hover:underline"
       >
         {linkText} →
       </Link>

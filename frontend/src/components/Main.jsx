@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+
 import { Link } from 'react-router-dom';
 import { api } from '../api/api';
 import Header from './Header';
@@ -32,6 +33,29 @@ const PROMOTION_SLIDES = [
   },
 ];
 
+const PROMPT_SUGGESTIONS = [
+  {
+    title: '배 유기농 비료 홍보',
+    tag: '과수·비료',
+    prompt: '배 재배 농가를 위한 고품질 유기질 비료 홍보 이미지. 신선한 초록빛 배경에 20kg 포장지와 특가 가격을 강조해줘.',
+  },
+  {
+    title: '광주 맞춤형 유기질 비료',
+    tag: '지역·특가',
+    prompt: '광주 지역 농가를 타깃으로 한 친환경 유기질 비료 배너. 풍성한 수확을 연상시키는 벼 일러스트와 깔끔한 폰트 배치.',
+  },
+  {
+    title: '프리미엄 고추 종자',
+    tag: '종자·작물',
+    prompt: '발아율 95% 프리미엄 고추 종자 홍보물. 붉은 고추가 가득한 신뢰감 주는 배경에 튼튼한 생육 강조 문구 삽입.',
+  },
+  {
+    title: '친환경 병충해 관리제',
+    tag: '방제·보호',
+    prompt: '안심하고 사용할 수 있는 친환경 병충해 관리제 500ml 제품 배너. 작물 보호와 수확량 향상을 직관적으로 표현.',
+  },
+];
+
 export default function Main() {
   const [displayName, setDisplayName] =
     useState(
@@ -51,9 +75,6 @@ export default function Main() {
   const [currentSlide, setCurrentSlide] =
     useState(0);
 
-  /**
-   * 대시보드 통계를 조회합니다.
-   */
   useEffect(() => {
     const loadDashboard = async () => {
       setIsLoading(true);
@@ -82,9 +103,6 @@ export default function Main() {
     loadDashboard();
   }, []);
 
-  /**
-   * 홍보물 슬라이드를 4초마다 자동으로 넘깁니다.
-   */
   useEffect(() => {
     const slideTimer = window.setInterval(() => {
       setCurrentSlide((previousSlide) =>
@@ -113,9 +131,6 @@ export default function Main() {
     );
   };
 
-  /**
-   * 로그인한 회원의 이름 또는 상호명을 조회합니다.
-   */
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -129,7 +144,7 @@ export default function Main() {
           setDisplayName(profileName);
         }
       } catch {
-        // 프로필 조회 실패 시 로그인할 때 저장한 값을 사용합니다.
+        // 실패 시 localStorage 값을 사용합니다.
       }
     };
 
@@ -137,179 +152,615 @@ export default function Main() {
   }, []);
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#e8dcc8]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1360px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
-        <section className="bg-gradient-to-br from-white via-emerald-50 to-green-100 rounded-3xl p-8 lg:p-10 border border-emerald-200 shadow-md grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
-          <div className="lg:col-span-3 space-y-5">
-            <div className="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-sm font-black tracking-tight">
-              농자재 홍보 통합 서비스
-            </div>
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          sm:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-12
+        "
+      >
+        {/* NEW HERO: AI PROMPT SHOWCASE */}
+        <section
+          className="
+            relative
+            overflow-hidden
+            bg-[#143b2c]
+            rounded-[42px_10px_42px_10px]
+            p-8
+            sm:p-12
+            lg:p-14
+            text-white
+            shadow-[0_24px_70px_rgba(40,48,42,0.14)]
+          "
+        >
+          {/* Background Decorative Patterns */}
+          <div
+            className="
+              absolute
+              -left-20
+              -top-28
+              w-[320px]
+              h-[320px]
+              border
+              border-white/10
+              rounded-full
+              pointer-events-none
+            "
+          />
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight tracking-tight">
-              내 농자재 홍보,
-              <br />
+          <div
+            className="
+              absolute
+              left-16
+              -top-10
+              w-[190px]
+              h-[190px]
+              border
+              border-white/10
+              rounded-full
+              pointer-events-none
+            "
+          />
 
-              <span className="text-emerald-700">
-                이제 쉽고 빠르게 하세요!
-              </span>
-            </h1>
-
-            <p className="text-gray-700 text-lg font-bold pt-2 tracking-tight">
-              고객 관리부터 상품 등록, AI 홍보 이미지
-              생성과 MMS 발송까지 한 번에 해결해
-              드립니다.
-            </p>
+          {/* 🌟 우측 상단 빈 공간에 배치한 새로운 장식 문양 */}
+          <div
+            className="
+              absolute
+              -right-16
+              -top-16
+              w-[280px]
+              h-[280px]
+              border
+              border-white/[0.08]
+              rounded-full
+              pointer-events-none
+              flex
+              items-center
+              justify-center
+            "
+          >
+            <div
+              className="
+                w-[180px]
+                h-[180px]
+                border
+                border-white/[0.06]
+                rounded-full
+              "
+            />
           </div>
 
-          <div className="lg:col-span-2">
-            <div className="relative max-w-[390px] mx-auto overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-50 shadow-inner group">
-              <div className="relative aspect-square">
-                {PROMOTION_SLIDES.map(
-                  (promotion, index) => (
-                    <img
-                      key={promotion.src}
-                      src={promotion.src}
-                      alt={promotion.alt}
-                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
-                        index === currentSlide
-                          ? 'opacity-100 scale-100'
-                          : 'opacity-0 scale-[1.02] pointer-events-none'
-                      }`}
-                    />
-                  )
-                )}
-
-                <button
-                  type="button"
-                  onClick={showPreviousSlide}
-                  aria-label="이전 홍보물"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left: Header Info & Image Showcase */}
+            <div className="lg:col-span-5 flex flex-col h-full">
+              <div className="mb-8">
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                    text-[#c6d9bf]
+                    text-[13px]
+                    font-medium
+                    tracking-[0.12em]
+                    mb-4
+                  "
                 >
-                  ‹
-                </button>
+                  <span className="w-8 h-[1px] bg-[#c6d9bf]/60" />
 
-                <button
-                  type="button"
-                  onClick={showNextSlide}
-                  aria-label="다음 홍보물"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                  AI PROMPT SHOWCASE
+                </div>
+
+                <p
+                  className="
+                    text-white/70
+                    text-[16px]
+                    font-medium
+                    mb-3
+                  "
                 >
-                  ›
-                </button>
+                  안녕하세요, {displayName}님
+                </p>
 
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-black/40 px-3 py-2">
+                <h1
+                  className="
+                    text-[34px]
+                    sm:text-[42px]
+                    font-bold
+                    leading-[1.3]
+                    tracking-[-0.03em]
+                  "
+                >
+                  이런 홍보 문구와 이미지, <br />
+                  <span className="text-[#b8e1aa]">클릭 한 번으로 만들어보세요</span>
+                </h1>
+              </div>
+
+              <div
+                className="
+                  relative
+                  w-full
+                  max-w-[400px]
+                  mx-auto
+                  lg:mx-0
+                  overflow-hidden
+                  rounded-[32px_8px_32px_8px]
+                  border
+                  border-white/15
+                  shadow-[0_24px_50px_rgba(0,0,0,0.30)]
+                  group
+                  bg-[#0e271d]
+                "
+              >
+                <div className="relative aspect-square">
                   {PROMOTION_SLIDES.map(
                     (promotion, index) => (
-                      <button
-                        key={`${promotion.src}-dot`}
-                        type="button"
-                        onClick={() =>
-                          setCurrentSlide(index)
-                        }
-                        aria-label={`${index + 1}번째 홍보물 보기`}
-                        className={`h-2.5 rounded-full transition-all ${
-                          index === currentSlide
-                            ? 'w-7 bg-emerald-400'
-                            : 'w-2.5 bg-white/80 hover:bg-white'
-                        }`}
+                      <img
+                        key={promotion.src}
+                        src={promotion.src}
+                        alt={promotion.alt}
+                        className={`
+                          absolute
+                          inset-0
+                          w-full
+                          h-full
+                          object-cover
+                          transition-all
+                          duration-700
+                          ${
+                            index === currentSlide
+                              ? 'opacity-100 scale-100'
+                              : 'opacity-0 scale-[1.02] pointer-events-none'
+                          }
+                        `}
                       />
                     )
                   )}
+
+                  <button
+                    type="button"
+                    onClick={showPreviousSlide}
+                    aria-label="이전 홍보물"
+                    className="
+                      absolute
+                      left-3
+                      top-1/2
+                      -translate-y-1/2
+                      w-10
+                      h-10
+                      rounded-full
+                      bg-black/45
+                      hover:bg-black/65
+                      text-white
+                      text-2xl
+                      flex
+                      items-center
+                      justify-center
+                      opacity-0
+                      group-hover:opacity-100
+                      transition
+                    "
+                  >
+                    ‹
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={showNextSlide}
+                    aria-label="다음 홍보물"
+                    className="
+                      absolute
+                      right-3
+                      top-1/2
+                      -translate-y-1/2
+                      w-10
+                      h-10
+                      rounded-full
+                      bg-black/45
+                      hover:bg-black/65
+                      text-white
+                      text-2xl
+                      flex
+                      items-center
+                      justify-center
+                      opacity-0
+                      group-hover:opacity-100
+                      transition
+                    "
+                  >
+                    ›
+                  </button>
+
+                  <div
+                    className="
+                      absolute
+                      bottom-4
+                      left-1/2
+                      -translate-x-1/2
+                      flex
+                      items-center
+                      gap-2
+                      rounded-full
+                      bg-black/35
+                      px-3
+                      py-2
+                      backdrop-blur
+                    "
+                  >
+                    {PROMOTION_SLIDES.map(
+                      (promotion, index) => (
+                        <button
+                          key={`${promotion.src}-dot`}
+                          type="button"
+                          onClick={() =>
+                            setCurrentSlide(index)
+                          }
+                          aria-label={`${index + 1}번째 홍보물 보기`}
+                          className={`
+                            h-2
+                            rounded-full
+                            transition-all
+                            ${
+                              index === currentSlide
+                                ? 'w-7 bg-[#b8e1aa]'
+                                : 'w-2 bg-white/70 hover:bg-white'
+                            }
+                          `}
+                        />
+                      )
+                    )}
+                  </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Right: Suggested Prompts & Action Button */}
+            <div className="lg:col-span-7 flex flex-col h-full justify-end">
+              <p
+                className="
+                  text-white/80
+                  text-[16px]
+                  sm:text-[17px]
+                  mb-6
+                  leading-relaxed
+                "
+              >
+                FarMMS가 추천하는 검증된 프롬프트로 고품질 농자재 홍보 이미지를 간편하게 생성할 수 있습니다.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {PROMPT_SUGGESTIONS.map((item, idx) => (
+                  <div
+                    key={item.title}
+                    onClick={() => setCurrentSlide(idx % PROMOTION_SLIDES.length)}
+                    className={`
+                      p-5
+                      rounded-2xl
+                      border
+                      transition
+                      cursor-pointer
+                      flex
+                      flex-col
+                      justify-between
+                      min-h-[140px]
+                      ${
+                        currentSlide === (idx % PROMOTION_SLIDES.length)
+                          ? 'bg-white/10 border-[#b8e1aa]'
+                          : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06]'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[12px] font-semibold text-[#b8e1aa] px-2.5 py-0.5 rounded-full bg-[#b8e1aa]/10">
+                        {item.tag}
+                      </span>
+                      <span className="text-[11px] text-white/50">예시 {idx + 1}</span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-[16px] font-bold text-white mb-1.5">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-[13px] text-white/70 line-clamp-2 leading-relaxed">
+                        "{item.prompt}"
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <Link
+                  to="/createimage"
+                  className="
+                    group
+                    h-[54px]
+                    px-8
+                    bg-[#e2c98e]
+                    text-[#17372a]
+                    rounded-[20px_6px_20px_6px]
+                    flex
+                    items-center
+                    gap-6
+                    font-bold
+                    text-[16px]
+                    hover:bg-[#ead6a6]
+                    transition
+                    shadow-[0_10px_25px_rgba(0,0,0,0.2)]
+                  "
+                >
+                  무료로 이미지 생성 시작하기!
+
+                  <span
+                    className="
+                      w-7
+                      h-7
+                      rounded-full
+                      bg-[#17372a]
+                      text-white
+                      flex
+                      items-center
+                      justify-center
+                      group-hover:translate-x-1
+                      transition-transform
+                    "
+                  >
+                    →
+                  </span>
+                </Link>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-          <ServiceCard
-            number="1"
-            title="연락처 관리"
-            description="홍보 문자를 보낼 고객과 그룹을 등록하고 지역과 재배작물로 관리하세요."
-            path="/contact"
-          />
-
-          <ServiceCard
-            number="2"
-            title="상품 관리"
-            description="홍보할 농자재 상품 정보와 AI 생성에 참고할 상품 이미지를 등록하세요."
-            path="/product"
-          />
-
-          <ServiceCard
-            number="3"
-            title="이미지 만들기"
-            description="고객과 상품을 선택하면 AI가 맞춤형 농자재 홍보 이미지를 제작합니다."
-            path="/createimage"
-          />
-
-          <ServiceCard
-            number="4"
-            title="MMS 발송"
-            description="제작한 홍보 이미지와 문구를 선택한 고객들에게 한 번에 전달하세요."
-            path="/sendmms"
-          />
-        </section>
-
-        <section className="bg-white rounded-3xl p-8 lg:p-10 border border-gray-200 shadow-md space-y-7">
-          <div>
+        {/* Quick Menu */}
+        <section>
+          <div
+            className="
+              flex
+              flex-col
+              sm:flex-row
+              sm:items-end
+              sm:justify-between
+              gap-4
+              mb-7
+            "
+          >
             <div>
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                서비스 이용 현황
-              </h2>
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  text-[#64756b]
+                  text-[13px]
+                  font-medium
+                  tracking-[0.12em]
+                  mb-3
+                "
+              >
+                <span className="w-7 h-[1px] bg-[#64756b]/60" />
 
-              <p className="text-gray-600 font-bold text-sm mt-1">
-                <span className="text-emerald-700 font-black">
-                  {displayName}님
-                </span>
-                의 실제 이용 데이터입니다.
-              </p>
+                QUICK MENU
+              </div>
+
+              <h2
+                className="
+                  text-[30px]
+                  sm:text-[34px]
+                  font-bold
+                  tracking-[-0.03em]
+                "
+              >
+                자주 사용하는 기능
+              </h2>
             </div>
 
+            <p
+              className="
+                text-[#59685f]
+                text-[17px]
+                font-normal
+              "
+            >
+              필요한 기능으로 바로 이동하세요.
+            </p>
+          </div>
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              sm:grid-cols-2
+              xl:grid-cols-4
+              gap-5
+            "
+          >
+            <ServiceCard
+              number="01"
+              title="연락처 관리"
+              description="홍보 문자를 보낼 고객과 그룹을 등록하고 지역과 재배작물로 관리하세요."
+              path="/contact"
+            />
+
+            <ServiceCard
+              number="02"
+              title="상품 관리"
+              description="홍보할 농자재 상품 정보와 AI 생성에 참고할 상품 이미지를 등록하세요."
+              path="/product"
+            />
+
+            <ServiceCard
+              number="03"
+              title="이미지 만들기"
+              description="고객과 상품을 선택하면 AI가 맞춤형 농자재 홍보 이미지를 제작합니다."
+              path="/createimage"
+            />
+
+            <ServiceCard
+              number="04"
+              title="MMS 발송"
+              description="제작한 홍보 이미지와 문구를 선택한 고객들에게 한 번에 전달하세요."
+              path="/sendmms"
+            />
+          </div>
+        </section>
+
+        {/* Stats */}
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/12
+            rounded-[38px_10px_38px_10px]
+            p-8
+            lg:p-10
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+          "
+        >
+          <div className="mb-8">
+            <div
+              className="
+                flex
+                items-center
+                gap-3
+                text-[#64756b]
+                text-[13px]
+                font-medium
+                tracking-[0.12em]
+                mb-3
+              "
+            >
+              <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+              ACTIVITY
+            </div>
+
+            <h2
+              className="
+                text-[28px]
+                sm:text-[32px]
+                font-bold
+                tracking-[-0.03em]
+              "
+            >
+              서비스 이용 현황
+            </h2>
+
+            <p
+              className="
+                text-[#5e6d64]
+                text-[17px]
+                mt-2
+              "
+            >
+              <span className="text-[#17372a] font-semibold">
+                {displayName}님
+              </span>
+
+              의 실제 이용 데이터입니다.
+            </p>
           </div>
 
           {isLoading && (
-            <div className="py-10 text-center text-gray-500 font-bold">
+            <div
+              className="
+                py-12
+                text-center
+                text-[#5f6e65]
+                text-[17px]
+                font-normal
+              "
+            >
               이용 현황을 불러오는 중입니다.
             </div>
           )}
 
           {errorMessage && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <div
+              className="
+                bg-[#f8e3dd]
+                border-l-[3px]
+                border-[#b45a47]
+                px-4
+                py-3.5
+                text-[16px]
+                font-medium
+                text-[#873c2e]
+                rounded-[4px_14px_4px_14px]
+              "
+            >
               {errorMessage}
             </div>
           )}
 
           {!isLoading && !errorMessage && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div
+              className="
+                grid
+                grid-cols-2
+                lg:grid-cols-4
+                border-y
+                border-[#17372a]/14
+              "
+            >
               <DashboardCard
                 label="등록 고객"
                 value={dashboard.contactCount}
                 unit="명"
-                color="gray"
+                number="01"
               />
 
               <DashboardCard
                 label="등록 상품"
                 value={dashboard.productCount}
                 unit="개"
-                color="gray"
+                number="02"
               />
 
               <DashboardCard
                 label="생성 이미지"
                 value={dashboard.imageCount}
                 unit="개"
-                color="gray"
+                number="03"
               />
 
               <DashboardCard
                 label="전체 MMS"
                 value={dashboard.mmsTotalCount}
                 unit="건"
-                color="gray"
+                number="04"
               />
             </div>
           )}
@@ -317,21 +768,59 @@ export default function Main() {
           {!isLoading &&
             !errorMessage &&
             dashboard.mmsTotalCount === 0 && (
-              <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div
+                className="
+                  mt-8
+                  bg-[#e8d4a8]
+                  p-5
+                  sm:p-6
+                  rounded-[20px_6px_20px_6px]
+                  flex
+                  flex-col
+                  sm:flex-row
+                  sm:items-center
+                  sm:justify-between
+                  gap-5
+                "
+              >
                 <div>
-                  <p className="font-black text-amber-900">
+                  <p
+                    className="
+                      text-[#17372a]
+                      text-[17px]
+                      font-semibold
+                    "
+                  >
                     아직 MMS 발송 내역이 없습니다.
                   </p>
 
-                  <p className="text-sm text-amber-800 font-bold mt-1">
-                    고객과 홍보 이미지를 선택해 첫
-                    MMS를 발송해보세요.
+                  <p
+                    className="
+                      text-[#59665e]
+                      text-[16px]
+                      mt-1
+                      leading-relaxed
+                    "
+                  >
+                    고객과 홍보 이미지를 선택해 첫 MMS를 발송해보세요.
                   </p>
                 </div>
 
                 <Link
                   to="/sendmms"
-                  className="px-5 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-sm font-black text-center whitespace-nowrap"
+                  className="
+                    shrink-0
+                    px-5
+                    py-3
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    text-white
+                    rounded-[16px_5px_16px_5px]
+                    text-[15px]
+                    font-semibold
+                    text-center
+                    transition
+                  "
                 >
                   MMS 발송하기
                 </Link>
@@ -339,37 +828,117 @@ export default function Main() {
             )}
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <GuideCard
-            title="고객 정보를 먼저 등록하세요"
-            description="고객의 지역과 재배작물을 등록하면 MMS 발송 대상을 정확하게 검색할 수 있습니다."
-            path="/contact"
-            linkText="연락처 관리"
-          />
+        {/* Guide - Moved back to the bottom */}
+        <section>
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-4
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
 
-          <GuideCard
-            title="상품 참고 이미지를 활용하세요"
-            description="상품의 실제 포장 이미지를 등록하면 향후 실제 AI 연결 시 더 정확한 홍보 이미지를 만들 수 있습니다."
-            path="/product"
-            linkText="상품 관리"
-          />
+            GUIDE
+          </div>
 
-          <GuideCard
-            title="발송 결과를 확인하세요"
-            description="고객별 성공과 실패 여부, 발송 시각과 사용한 이미지를 발송 내역에서 확인할 수 있습니다."
-            path="/checkmms"
-            linkText="발송 내역"
-          />
+          <h2
+            className="
+              text-[28px]
+              sm:text-[32px]
+              font-bold
+              tracking-[-0.03em]
+              mb-7
+            "
+          >
+            FarMMS 활용 팁
+          </h2>
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              lg:grid-cols-3
+              gap-5
+            "
+          >
+            <GuideCard
+              number="01"
+              title="고객 정보를 먼저 등록하세요"
+              description="고객의 지역과 재배작물을 등록하면 MMS 발송 대상을 정확하게 검색할 수 있습니다."
+              path="/contact"
+              linkText="연락처 관리"
+            />
+
+            <GuideCard
+              number="02"
+              title="상품 참고 이미지를 활용하세요"
+              description="상품의 실제 포장 이미지를 등록하면 향후 실제 AI 연결 시 더 정확한 홍보 이미지를 만들 수 있습니다."
+              path="/product"
+              linkText="상품 관리"
+            />
+
+            <GuideCard
+              number="03"
+              title="발송 결과를 확인하세요"
+              description="고객별 성공과 실패 여부, 발송 시각과 사용한 이미지를 발송 내역에서 확인할 수 있습니다."
+              path="/checkmms"
+              linkText="발송 내역"
+            />
+          </div>
         </section>
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 px-6 sm:px-10 text-center text-gray-600 text-xs mt-12 shadow-sm">
-        <div className="max-w-[1360px] mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
-          <p className="font-black text-gray-800 text-sm">
-            FarMMS - 농자재 홍보 MMS 발송 시스템
-          </p>
+      <footer className="mt-14 bg-[#0f3023] text-white">
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            py-9
+            flex
+            flex-col
+            md:flex-row
+            md:items-center
+            md:justify-between
+            gap-4
+          "
+        >
+          <div>
+            <p
+              className="
+                text-[20px]
+                font-bold
+                tracking-[-0.03em]
+              "
+            >
+              FarMMS
+            </p>
 
-          <p className="font-bold">
+            <p
+              className="
+                text-white/60
+                text-[14px]
+                mt-1
+              "
+            >
+              농자재 홍보 MMS 발송 시스템
+            </p>
+          </div>
+
+          <p
+            className="
+              text-white/50
+              text-[13px]
+              font-normal
+            "
+          >
             © 2026 FarMMS. All rights reserved.
           </p>
         </div>
@@ -377,6 +946,7 @@ export default function Main() {
     </div>
   );
 }
+
 
 function ServiceCard({
   number,
@@ -388,27 +958,135 @@ function ServiceCard({
     <Link
       to={path}
       aria-label={`${title} 페이지로 이동`}
-      className="group bg-white hover:bg-emerald-700 rounded-3xl border border-gray-200 hover:border-emerald-700 p-7 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-64 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+      className="
+        group
+        relative
+        min-h-[220px]
+        bg-[#f8f0e2]
+        border
+        border-[#17372a]/12
+        p-7
+        rounded-none
+        flex
+        flex-col
+        justify-between
+        overflow-hidden
+        shadow-[0_14px_35px_rgba(40,48,42,0.07)]
+        hover:bg-[#17372a]
+        hover:border-[#17372a]
+        hover:-translate-y-1
+        hover:shadow-[0_22px_45px_rgba(23,55,42,0.16)]
+        transition-all
+        duration-300
+      "
     >
-      <div>
-        <div className="w-10 h-10 rounded-2xl bg-emerald-50 group-hover:bg-white border border-emerald-200 group-hover:border-white text-emerald-700 flex items-center justify-center font-black transition-colors duration-300">
-          {number}
+      <div
+        className="
+          absolute
+          -right-10
+          -top-10
+          w-[120px]
+          h-[120px]
+          rounded-none
+          border
+          border-[#17372a]/7
+          group-hover:border-white/10
+        "
+      />
+
+      <div className="relative z-10">
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+            text-[#69786f]
+            group-hover:text-white/60
+            text-[13px]
+            font-medium
+            tracking-[0.1em]
+            transition
+          "
+        >
+          <span>
+            {number}
+          </span>
+
+          <span
+            className="
+              w-8
+              h-[1px]
+              bg-[#69786f]/45
+              group-hover:bg-white/20
+              transition
+            "
+          />
         </div>
 
-        <h2 className="text-xl font-black text-gray-900 group-hover:text-white mt-5 transition-colors duration-300">
+        <h2
+          className="
+            text-[21px]
+            font-semibold
+            text-[#17372a]
+            group-hover:text-white
+            mt-4
+            tracking-[-0.02em]
+            transition
+          "
+        >
           {title}
         </h2>
 
-        <p className="text-gray-700 group-hover:text-emerald-50 text-sm font-bold leading-relaxed mt-3 transition-colors duration-300">
+        <p
+          className="
+            text-[#59675f]
+            group-hover:text-white/78
+            text-[15px]
+            sm:text-[16px]
+            font-normal
+            leading-[1.7]
+            mt-2
+            transition
+          "
+        >
           {description}
         </p>
       </div>
 
       <div
-        className="text-emerald-700 group-hover:text-white font-black text-base hover:underline flex items-center gap-2 pt-5 transition-colors duration-300"
+        className="
+          relative
+          z-10
+          flex
+          items-center
+          justify-between
+          mt-6
+          text-[#17372a]
+          group-hover:text-white
+          text-[14px]
+          font-semibold
+          transition
+        "
       >
-        <span>바로가기</span>
-        <span className="group-hover:translate-x-1 transition-transform duration-300">
+        <span>
+          바로가기
+        </span>
+
+        <span
+          className="
+            w-7
+            h-7
+            rounded-none
+            border
+            border-[#17372a]/15
+            group-hover:border-white/20
+            flex
+            items-center
+            justify-center
+            group-hover:translate-x-1
+            transition
+          "
+        >
           →
         </span>
       </div>
@@ -416,40 +1094,69 @@ function ServiceCard({
   );
 }
 
+
 function DashboardCard({
   label,
   value,
   unit,
-  color,
+  number,
 }) {
-  const colorClasses = {
-    gray: {
-      card: 'bg-slate-50 border-gray-200',
-      label: 'text-gray-500',
-      value: 'text-gray-900',
-    },
-  };
-
-  const selectedColor =
-    colorClasses[color] ||
-    colorClasses.gray;
-
   return (
     <div
-      className={`rounded-2xl border p-5 text-center ${selectedColor.card}`}
+      className="
+        relative
+        px-5
+        sm:px-7
+        py-7
+        lg:py-9
+        border-b
+        lg:border-b-0
+        lg:border-r
+        border-[#17372a]/12
+        last:border-r-0
+      "
     >
+      <span
+        className="
+          text-[#75837a]
+          text-[12px]
+          font-medium
+        "
+      >
+        {number}
+      </span>
+
       <p
-        className={`text-sm font-bold ${selectedColor.label}`}
+        className="
+          text-[#59675f]
+          text-[16px]
+          font-medium
+          mt-4
+        "
       >
         {label}
       </p>
 
       <p
-        className={`text-3xl font-black mt-2 ${selectedColor.value}`}
+        className="
+          text-[#17372a]
+          text-[36px]
+          sm:text-[40px]
+          font-bold
+          tracking-[-0.03em]
+          mt-2
+        "
       >
         {value ?? 0}
 
-        <span className="text-base ml-1">
+        <span
+          className="
+            text-[16px]
+            ml-1.5
+            text-[#647269]
+            font-medium
+          "
+        >
           {unit}
         </span>
       </p>
@@ -457,27 +1164,88 @@ function DashboardCard({
   );
 }
 
+
 function GuideCard({
+  number,
   title,
   description,
   path,
   linkText,
 }) {
   return (
-    <article className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="font-black text-gray-900">
-        {title}
-      </h2>
+    <article
+      className="
+        group
+        bg-transparent
+        border-t
+        border-[#17372a]/30
+        pt-6
+        min-h-[230px]
+        flex
+        flex-col
+        justify-between
+      "
+    >
+      <div>
+        <span
+          className="
+            text-[#6d7c72]
+            text-[13px]
+            font-medium
+          "
+        >
+          {number}
+        </span>
 
-      <p className="text-sm text-gray-600 font-bold leading-relaxed mt-2">
-        {description}
-      </p>
+        <h2
+          className="
+            text-[#17372a]
+            text-[21px]
+            font-semibold
+            tracking-[-0.02em]
+            mt-5
+          "
+        >
+          {title}
+        </h2>
+
+        <p
+          className="
+            text-[#59675f]
+            text-[16px]
+            sm:text-[17px]
+            font-normal
+            leading-[1.8]
+            mt-3
+          "
+        >
+          {description}
+        </p>
+      </div>
 
       <Link
         to={path}
-        className="inline-block mt-4 text-sm font-black text-emerald-700 hover:underline"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          mt-6
+          text-[#17372a]
+          text-[15px]
+          font-semibold
+          group
+        "
       >
-        {linkText} →
+        {linkText}
+
+        <span
+          className="
+            group-hover:translate-x-1
+            transition-transform
+          "
+        >
+          →
+        </span>
       </Link>
     </article>
   );

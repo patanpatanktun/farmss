@@ -376,25 +376,107 @@ export default function Setting() {
   };
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[900px] mx-auto px-6 py-10 w-full flex-1 space-y-8">
-        <div className="px-2">
-          <h1 className="text-3xl font-black text-gray-900 mb-2">
+      <main
+        className="
+          max-w-[960px]
+          mx-auto
+          px-6
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
+        <div>
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+              text-[#64756b]
+              text-[13px]
+              font-medium
+              tracking-[0.12em]
+              mb-3
+            "
+          >
+            <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+            MY PAGE
+          </div>
+
+          <h1
+            className="
+              text-[32px]
+              sm:text-[38px]
+              font-bold
+              tracking-[-0.03em]
+              text-[#17372a]
+            "
+          >
             마이 페이지
           </h1>
 
-          <p className="text-gray-700 font-bold">
-            계정 정보 관리 및 서비스 환경을 설정할 수
-            있습니다.
+          <p
+            className="
+              text-[#59685f]
+              text-[16px]
+              sm:text-[17px]
+              font-normal
+              mt-2
+            "
+          >
+            계정 정보 관리 및 서비스 환경을 설정할 수 있습니다.
           </p>
         </div>
 
         {/* 가입 정보 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-100 pb-4">
-            <h2 className="text-xl font-black text-gray-900">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            p-8
+            lg:p-10
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            space-y-6
+          "
+        >
+          <div className="flex justify-between items-center border-b border-[#17372a]/20 pb-4">
+            <h2
+              className="
+                text-[24px]
+                font-bold
+                text-[#17372a]
+                tracking-[-0.02em]
+              "
+            >
               가입 정보
             </h2>
 
@@ -405,7 +487,20 @@ export default function Setting() {
                 disabled={
                   isLoading || Boolean(errorMessage)
                 }
-                className="px-5 py-2.5 bg-white border-2 border-gray-200 hover:bg-gray-50 disabled:bg-gray-100 text-gray-800 font-black text-xs rounded-2xl transition"
+                className="
+                  px-4
+                  py-2.5
+                  border
+                  border-[#17372a]/30
+                  text-[#17372a]
+                  hover:bg-[#17372a]/[0.06]
+                  disabled:border-[#17372a]/10
+                  disabled:text-[#17372a]/40
+                  rounded-none
+                  text-[13px]
+                  font-semibold
+                  transition
+                "
               >
                 회원수정
               </button>
@@ -413,19 +508,43 @@ export default function Setting() {
           </div>
 
           {isLoading && (
-            <div className="py-10 text-center text-gray-500 font-bold">
+            <div className="py-10 text-center text-[#748078] text-[15px] font-normal">
               회원정보를 불러오는 중입니다...
             </div>
           )}
 
           {errorMessage && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <div
+              className="
+                bg-[#f8e7e3]
+                border-l-[3px]
+                border-[#b45a47]
+                px-5
+                py-4
+                text-[14px]
+                font-medium
+                text-[#873c2e]
+                rounded-none
+              "
+            >
               {errorMessage}
             </div>
           )}
 
           {successMessage && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+            <div
+              className="
+                bg-[#e8f3ee]
+                border-l-[3px]
+                border-[#17372a]
+                px-5
+                py-4
+                text-[14px]
+                font-medium
+                text-[#17372a]
+                rounded-none
+              "
+            >
               {successMessage}
             </div>
           )}
@@ -482,14 +601,13 @@ export default function Setting() {
               onSubmit={handleVerifyPassword}
               className="max-w-md mx-auto space-y-5 py-5"
             >
-              <div className="text-center">
-                <h3 className="text-lg font-black text-gray-900">
+              <div className="text-center space-y-2">
+                <h3 className="text-[20px] font-bold text-[#17372a]">
                   본인 확인
                 </h3>
 
-                <p className="text-sm text-gray-600 font-bold mt-1">
-                  회원정보 수정을 위해 현재 비밀번호를
-                  입력해주세요.
+                <p className="text-[14px] text-[#59675f] font-normal">
+                  회원정보 수정을 위해 현재 비밀번호를 입력해주세요.
                 </p>
               </div>
 
@@ -504,12 +622,23 @@ export default function Setting() {
                 placeholder="현재 비밀번호를 입력하세요"
               />
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={handleVerifyCancel}
                   disabled={isVerifying}
-                  className="flex-1 py-3 border-2 border-gray-200 rounded-2xl font-black text-sm"
+                  className="
+                    flex-1
+                    h-[50px]
+                    border
+                    border-[#17372a]/25
+                    hover:bg-[#17372a]/[0.05]
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    text-[#536159]
+                    transition
+                  "
                 >
                   취소
                 </button>
@@ -517,7 +646,20 @@ export default function Setting() {
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm"
+                  className="
+                    flex-1
+                    h-[50px]
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    disabled:bg-[#9ca7a0]
+                    disabled:cursor-not-allowed
+                    text-white
+                    font-bold
+                    text-[15px]
+                    rounded-none
+                    transition
+                    shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+                  "
                 >
                   {isVerifying
                     ? '확인 중...'
@@ -558,10 +700,15 @@ export default function Setting() {
                     required
                   />
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <label
                       htmlFor="gender"
-                      className="block text-xs font-black text-gray-600"
+                      className="
+                        block
+                        text-[13px]
+                        font-semibold
+                        text-[#536159]
+                      "
                     >
                       성별
                     </label>
@@ -572,7 +719,20 @@ export default function Setting() {
                       value={editForm.gender}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
+                      className="
+                        w-full
+                        px-4
+                        py-3.5
+                        border
+                        border-[#17372a]/25
+                        rounded-none
+                        font-normal
+                        text-[15px]
+                        text-[#17372a]
+                        bg-[#f7f3eb]
+                        focus:outline-none
+                        focus:border-[#17372a]
+                      "
                     >
                       <option value="">선택</option>
                       <option value="M">남성</option>
@@ -608,12 +768,23 @@ export default function Setting() {
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <div className="flex justify-end gap-3 pt-6 border-t border-[#17372a]/20">
                   <button
                     type="button"
                     onClick={handleEditCancel}
                     disabled={isSaving}
-                    className="px-6 py-3 border-2 border-gray-200 rounded-2xl font-black text-sm"
+                    className="
+                      px-6
+                      h-[50px]
+                      border
+                      border-[#17372a]/25
+                      hover:bg-[#17372a]/[0.05]
+                      rounded-none
+                      font-semibold
+                      text-[15px]
+                      text-[#536159]
+                      transition
+                    "
                   >
                     취소
                   </button>
@@ -621,7 +792,20 @@ export default function Setting() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm"
+                    className="
+                      px-6
+                      h-[50px]
+                      bg-[#17372a]
+                      hover:bg-[#214b39]
+                      disabled:bg-[#9ca7a0]
+                      disabled:cursor-not-allowed
+                      text-white
+                      font-bold
+                      text-[15px]
+                      rounded-none
+                      transition
+                      shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+                    "
                   >
                     {isSaving
                       ? '저장 중...'
@@ -631,24 +815,36 @@ export default function Setting() {
               </form>
 
               {/* 비밀번호 변경 */}
-              <div className="pt-6 border-t border-gray-200">
+              <div className="pt-6 border-t border-[#17372a]/20">
                 {!showPasswordChange && (
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
-                      <p className="font-black text-gray-900">
+                      <p className="font-bold text-[16px] text-[#17372a]">
                         비밀번호 변경
                       </p>
 
-                      <p className="text-xs font-bold text-gray-600">
-                        현재 비밀번호를 확인하고 새로운
-                        비밀번호로 변경합니다.
+                      <p className="text-[13px] font-normal text-[#59675f] mt-0.5">
+                        현재 비밀번호를 확인하고 새로운 비밀번호로 변경합니다.
                       </p>
                     </div>
 
                     <button
                       type="button"
                       onClick={handlePasswordChangeOpen}
-                      className="w-full sm:w-auto px-5 py-3 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black text-sm"
+                      className="
+                        w-full
+                        sm:w-auto
+                        px-5
+                        py-3
+                        border
+                        border-[#17372a]/30
+                        text-[#17372a]
+                        hover:bg-[#17372a]/[0.06]
+                        rounded-none
+                        text-[14px]
+                        font-semibold
+                        transition
+                      "
                     >
                       비밀번호 변경
                     </button>
@@ -658,14 +854,26 @@ export default function Setting() {
                 {showPasswordChange && (
                   <form
                     onSubmit={handlePasswordChange}
-                    className="space-y-5"
+                    className="space-y-5 bg-[#f0e8dc] border border-[#17372a]/20 p-6 rounded-none"
                   >
-                    <h3 className="text-lg font-black text-gray-900">
+                    <h3 className="text-[18px] font-bold text-[#17372a]">
                       비밀번호 변경
                     </h3>
 
                     {passwordError && (
-                      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                      <div
+                        className="
+                          bg-[#f8e7e3]
+                          border-l-[3px]
+                          border-[#b45a47]
+                          px-4
+                          py-3
+                          text-[13px]
+                          font-medium
+                          text-[#873c2e]
+                          rounded-none
+                        "
+                      >
                         {passwordError}
                       </div>
                     )}
@@ -707,14 +915,25 @@ export default function Setting() {
                       placeholder="새 비밀번호 다시 입력"
                     />
 
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-end gap-3 pt-2">
                       <button
                         type="button"
                         onClick={
                           handlePasswordChangeCancel
                         }
                         disabled={isChangingPassword}
-                        className="px-6 py-3 border-2 border-gray-200 rounded-2xl font-black text-sm"
+                        className="
+                          px-6
+                          h-[46px]
+                          border
+                          border-[#17372a]/25
+                          hover:bg-[#17372a]/[0.05]
+                          rounded-none
+                          font-semibold
+                          text-[14px]
+                          text-[#536159]
+                          transition
+                        "
                       >
                         취소
                       </button>
@@ -722,7 +941,19 @@ export default function Setting() {
                       <button
                         type="submit"
                         disabled={isChangingPassword}
-                        className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm"
+                        className="
+                          px-6
+                          h-[46px]
+                          bg-[#17372a]
+                          hover:bg-[#214b39]
+                          disabled:bg-[#9ca7a0]
+                          disabled:cursor-not-allowed
+                          text-white
+                          font-bold
+                          text-[14px]
+                          rounded-none
+                          transition
+                        "
                       >
                         {isChangingPassword
                           ? '변경 중...'
@@ -734,23 +965,43 @@ export default function Setting() {
               </div>
             </div>
           )}
-        </div>
+        </section>
 
         {/* 계정 관리 */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
-          <h2 className="text-xl font-black text-gray-900 border-b border-gray-100 pb-4">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            p-8
+            lg:p-10
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            space-y-6
+          "
+        >
+          <h2
+            className="
+              text-[24px]
+              font-bold
+              text-[#17372a]
+              tracking-[-0.02em]
+              border-b
+              border-[#17372a]/20
+              pb-4
+            "
+          >
             계정 관리
           </h2>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-black text-gray-900">
+              <p className="font-bold text-[16px] text-[#17372a]">
                 로그아웃
               </p>
 
-              <p className="text-xs font-bold text-gray-600">
-                현재 접속 중인 계정에서 안전하게
-                로그아웃합니다.
+              <p className="text-[13px] font-normal text-[#59675f] mt-0.5">
+                현재 접속 중인 계정에서 안전하게 로그아웃합니다.
               </p>
             </div>
 
@@ -773,33 +1024,73 @@ export default function Setting() {
 
                 window.location.replace('/login');
               }}
-              className="w-full sm:w-auto px-6 py-3 border-2 border-gray-200 hover:bg-gray-50 rounded-2xl text-xs font-black transition"
+              className="
+                w-full
+                sm:w-auto
+                px-6
+                py-3
+                border
+                border-[#17372a]/30
+                text-[#17372a]
+                hover:bg-[#17372a]/[0.06]
+                rounded-none
+                text-[14px]
+                font-semibold
+                transition
+              "
             >
               로그아웃하기
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#17372a]/20">
             <div>
-              <p className="font-black text-red-600">
+              <p className="font-bold text-[16px] text-[#b45a47]">
                 회원 탈퇴
               </p>
 
-              <p className="text-xs font-bold text-gray-600">
-                탈퇴 시 모든 주소록, 상품, 이미지 및
-                발송 내역이 영구적으로 삭제됩니다.
+              <p className="text-[13px] font-normal text-[#59675f] mt-0.5">
+                탈퇴 시 모든 주소록, 상품, 이미지 및 발송 내역이 영구적으로 삭제됩니다.
               </p>
             </div>
 
             <DeleteAccountButton />
           </div>
-        </div>
+        </section>
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 text-center text-gray-600 text-xs">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -816,11 +1107,11 @@ function InfoItem({
         wide ? 'md:col-span-2' : ''
       }`}
     >
-      <span className="text-gray-500 font-black text-xs block">
+      <span className="text-[#748078] font-semibold text-[12px] tracking-[0.05em] block">
         {label}
       </span>
 
-      <p className="text-gray-900 font-black text-base">
+      <p className="text-[#17372a] font-bold text-[16px]">
         {value || '-'}
       </p>
     </div>
@@ -839,10 +1130,15 @@ function FormInput({
   max,
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <label
         htmlFor={name}
-        className="block text-xs font-black text-gray-600"
+        className="
+          block
+          text-[13px]
+          font-semibold
+          text-[#536159]
+        "
       >
         {label}
       </label>
@@ -857,7 +1153,22 @@ function FormInput({
         required={required}
         min={min}
         max={max}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700 disabled:bg-gray-100"
+        className="
+          w-full
+          px-4
+          py-3.5
+          text-[15px]
+          font-normal
+          text-[#17372a]
+          border
+          border-[#17372a]/25
+          rounded-none
+          focus:outline-none
+          focus:border-[#17372a]
+          bg-[#f7f3eb]
+          disabled:bg-[#f0e8dc]
+          disabled:text-[#748078]
+        "
       />
     </div>
   );
@@ -872,10 +1183,15 @@ function PasswordInput({
   placeholder,
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <label
         htmlFor={name}
-        className="block text-xs font-black text-gray-600"
+        className="
+          block
+          text-[13px]
+          font-semibold
+          text-[#536159]
+        "
       >
         {label}
       </label>
@@ -889,7 +1205,21 @@ function PasswordInput({
         autoComplete={autoComplete}
         placeholder={placeholder}
         required
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
+        className="
+          w-full
+          px-4
+          py-3.5
+          text-[15px]
+          font-normal
+          text-[#17372a]
+          border
+          border-[#17372a]/25
+          rounded-none
+          focus:outline-none
+          focus:border-[#17372a]
+          bg-[#f7f3eb]
+          placeholder:text-[#8a968e]
+        "
       />
     </div>
   );

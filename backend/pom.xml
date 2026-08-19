@@ -39,6 +39,9 @@
         <!-- 솔라피 공식 Java SDK 버전 -->
         <solapi.version>1.1.0</solapi.version>
     </properties>
+    
+    
+    
 
     <dependencies>
 
@@ -113,6 +116,13 @@
             <version>${solapi.version}</version>
         </dependency>
 
+		<!-- NCP Object Storage (S3 Compatible API) -->
+		<dependency>
+		    <groupId>software.amazon.awssdk</groupId>
+		    <artifactId>s3</artifactId>
+		    <version>2.32.29</version>
+		</dependency>
+
         <!-- 반복 코드 제거를 위한 Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -129,25 +139,41 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
+   <build>
+    <plugins>
 
-            <!-- 실행 가능한 Spring Boot JAR 생성 -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+        <!-- Lombok Annotation Processing -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <release>${java.version}</release>
 
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
 
-        </plugins>
-    </build>
+        <!-- 실행 가능한 Spring Boot JAR 생성 -->
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+
+            <configuration>
+                <excludes>
+                    <exclude>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                    </exclude>
+                </excludes>
+            </configuration>
+        </plugin>
+
+    </plugins>
+</build>
 
 </project>

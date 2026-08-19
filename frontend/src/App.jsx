@@ -10,6 +10,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import Main from './components/Main';
 import Notice from './components/Notice';
+import StartNotice from './components/StartNotice'; // 🌟 StartNotice 임포트 추가
 import Contact from './components/Contact';
 import Product from './components/Product';
 import CreateImage from './components/CreateImage';
@@ -158,13 +159,16 @@ export default function App() {
           element={<Start />}
         />
 
-        {/*
-         * 공지사항은 로그인 여부와 관계없이
-         * 누구나 접근할 수 있습니다.
-         */}
+        {/* 공지사항 페이지 */}
         <Route
           path="/notice"
           element={<Notice />}
+        />
+
+        {/* 🌟 Start 전용 공지사항 페이지 경로 추가 */}
+        <Route
+          path="/StartNotice"
+          element={<StartNotice />}
         />
 
         {/* 비로그인 사용자 페이지 */}

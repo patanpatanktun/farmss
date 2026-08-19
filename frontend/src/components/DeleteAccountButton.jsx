@@ -92,7 +92,20 @@ export default function DeleteAccountButton() {
       <button
         type="button"
         onClick={handleOpen}
-        className="w-full sm:w-auto px-6 py-3 border-2 border-red-200 hover:bg-red-50 text-red-600 rounded-2xl text-xs font-black transition shadow-sm"
+        className="
+          w-full
+          sm:w-auto
+          px-6
+          py-3
+          border
+          border-[#b45a47]/30
+          hover:bg-[#b45a47]/10
+          text-[#b45a47]
+          rounded-none
+          text-[14px]
+          font-semibold
+          transition
+        "
       >
         회원 탈퇴하기
       </button>
@@ -108,28 +121,87 @@ export default function DeleteAccountButton() {
           />
 
           {/* 회원 탈퇴 모달 */}
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl border border-gray-200 shadow-2xl p-8 space-y-6">
+          <div
+            className="
+              relative
+              z-10
+              w-full
+              max-w-md
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              shadow-2xl
+              p-8
+              space-y-6
+            "
+          >
             <div className="text-center space-y-2">
-              <div className="mx-auto w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl font-black">
+              <div
+                className="
+                  mx-auto
+                  w-14
+                  h-14
+                  rounded-none
+                  bg-[#b45a47]/10
+                  text-[#b45a47]
+                  flex
+                  items-center
+                  justify-center
+                  text-2xl
+                  font-bold
+                "
+              >
                 !
               </div>
 
-              <h2 className="text-2xl font-black text-gray-900">
+              <h2
+                className="
+                  text-[22px]
+                  font-bold
+                  text-[#17372a]
+                "
+              >
                 회원 탈퇴
               </h2>
 
-              <p className="text-sm text-gray-600 font-bold leading-relaxed">
+              <p
+                className="
+                  text-[14px]
+                  text-[#59675f]
+                  font-normal
+                  leading-relaxed
+                "
+              >
                 회원 탈퇴 시 등록한 연락처, 그룹, 상품,
                 이미지 및 MMS 발송 내역이 모두 삭제됩니다.
               </p>
 
-              <p className="text-sm text-red-600 font-black">
+              <p
+                className="
+                  text-[14px]
+                  text-[#b45a47]
+                  font-semibold
+                "
+              >
                 삭제된 데이터는 복구할 수 없습니다.
               </p>
             </div>
 
             {errorMessage && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              <div
+                className="
+                  bg-[#f8e7e3]
+                  border-l-[3px]
+                  border-[#b45a47]
+                  px-4
+                  py-3
+                  text-[13px]
+                  font-medium
+                  text-[#873c2e]
+                  rounded-none
+                "
+              >
                 {errorMessage}
               </div>
             )}
@@ -138,10 +210,15 @@ export default function DeleteAccountButton() {
               onSubmit={handleDeleteAccount}
               className="space-y-5"
             >
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label
                   htmlFor="deleteCurrentPassword"
-                  className="block text-xs font-black text-gray-700"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   현재 비밀번호
                 </label>
@@ -159,7 +236,21 @@ export default function DeleteAccountButton() {
                   placeholder="현재 비밀번호를 입력하세요"
                   required
                   autoFocus
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-red-500 transition"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    bg-[#f7f3eb]
+                    placeholder:text-[#8a968e]
+                  "
                 />
               </div>
 
@@ -168,7 +259,19 @@ export default function DeleteAccountButton() {
                   type="button"
                   onClick={handleClose}
                   disabled={isDeleting}
-                  className="flex-1 py-3 border-2 border-gray-200 hover:bg-gray-50 disabled:bg-gray-100 text-gray-700 rounded-2xl font-black text-sm transition"
+                  className="
+                    flex-1
+                    h-[50px]
+                    border
+                    border-[#17372a]/25
+                    hover:bg-[#17372a]/[0.05]
+                    disabled:bg-[#17372a]/10
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    text-[#536159]
+                    transition
+                  "
                 >
                   취소
                 </button>
@@ -176,7 +279,19 @@ export default function DeleteAccountButton() {
                 <button
                   type="submit"
                   disabled={isDeleting}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm transition"
+                  className="
+                    flex-1
+                    h-[50px]
+                    bg-[#b45a47]
+                    hover:bg-[#9c4d3d]
+                    disabled:bg-[#9ca7a0]
+                    disabled:cursor-not-allowed
+                    text-white
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    transition
+                  "
                 >
                   {isDeleting
                     ? '탈퇴 처리 중...'

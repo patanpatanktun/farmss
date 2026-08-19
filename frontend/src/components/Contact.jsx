@@ -445,19 +445,93 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-slate-100 text-gray-900 min-h-screen flex flex-col justify-between font-sans antialiased">
+    <div
+      className="
+        min-h-screen
+        bg-[#eee9df]
+        text-[#17372a]
+        antialiased
+        flex
+        flex-col
+        selection:bg-[#17372a]
+        selection:text-white
+      "
+      style={{
+        fontFamily:
+          '"SUIT Variable", SUIT, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif',
+      }}
+    >
+      <style>
+        {`
+          @import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+        `}
+      </style>
+
       <Header />
 
-      <main className="max-w-[1360px] mx-auto px-6 sm:px-10 py-10 w-full flex-1 space-y-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+      <main
+        className="
+          max-w-[1360px]
+          mx-auto
+          px-6
+          sm:px-10
+          py-10
+          lg:py-12
+          w-full
+          flex-1
+          space-y-10
+        "
+      >
+        <div
+          className="
+            flex
+            flex-col
+            lg:flex-row
+            lg:items-end
+            lg:justify-between
+            gap-5
+          "
+        >
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            <div
+              className="
+                flex
+                items-center
+                gap-3
+                text-[#64756b]
+                text-[13px]
+                font-medium
+                tracking-[0.12em]
+                mb-3
+              "
+            >
+              <span className="w-7 h-[1px] bg-[#64756b]/60" />
+
+              CONTACT MANAGEMENT
+            </div>
+
+            <h1
+              className="
+                text-[32px]
+                sm:text-[38px]
+                font-bold
+                tracking-[-0.03em]
+                text-[#17372a]
+              "
+            >
               연락처 관리
             </h1>
 
-            <p className="text-gray-700 font-bold mt-2">
-              MMS를 발송할 고객과 고객 그룹을
-              관리할 수 있습니다.
+            <p
+              className="
+                text-[#59685f]
+                text-[16px]
+                sm:text-[17px]
+                font-normal
+                mt-2
+              "
+            >
+              MMS를 발송할 고객과 고객 그룹을 관리할 수 있습니다.
             </p>
           </div>
 
@@ -465,7 +539,18 @@ export default function Contact() {
             <button
               type="button"
               onClick={handleGroupCreateOpen}
-              className="px-5 py-3 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black text-sm transition"
+              className="
+                h-[50px]
+                px-6
+                border
+                border-[#17372a]/30
+                text-[#17372a]
+                hover:bg-[#17372a]/[0.06]
+                rounded-none
+                font-semibold
+                text-[15px]
+                transition
+              "
             >
               그룹 추가
             </button>
@@ -473,7 +558,18 @@ export default function Contact() {
             <button
               type="button"
               onClick={handleContactCreateOpen}
-              className="px-5 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-black text-sm transition shadow-sm"
+              className="
+                h-[50px]
+                px-6
+                bg-[#17372a]
+                hover:bg-[#214b39]
+                text-white
+                rounded-none
+                font-semibold
+                text-[15px]
+                transition
+                shadow-[0_10px_25px_rgba(23,55,42,0.15)]
+              "
             >
               고객 추가
             </button>
@@ -481,37 +577,91 @@ export default function Contact() {
         </div>
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div
+            className="
+              bg-[#f8e7e3]
+              border-l-[3px]
+              border-[#b45a47]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#873c2e]
+              rounded-none
+            "
+          >
             {errorMessage}
           </div>
         )}
 
         {successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+          <div
+            className="
+              bg-[#e8f3ee]
+              border-l-[3px]
+              border-[#17372a]
+              px-5
+              py-4
+              text-[14px]
+              font-medium
+              text-[#17372a]
+              rounded-none
+            "
+          >
             {successMessage}
           </div>
         )}
 
         {showContactForm && (
-          <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
-            <div className="border-b border-gray-100 pb-4">
-              <h2 className="text-xl font-black text-gray-900">
+          <section
+            className="
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              p-8
+              lg:p-10
+              shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+              space-y-8
+            "
+          >
+            <div
+              className="
+                border-b
+                border-[#17372a]/20
+                pb-5
+              "
+            >
+              <h2
+                className="
+                  text-[24px]
+                  font-bold
+                  text-[#17372a]
+                  tracking-[-0.02em]
+                "
+              >
                 {contactForm.conNum
                   ? '고객 정보 수정'
                   : '새 고객 등록'}
               </h2>
 
-              <p className="text-sm text-gray-600 font-bold mt-1">
-                여러 지역과 작물은 쉼표로 구분해서
-                입력해주세요.
+              <p
+                className="
+                  text-[14px]
+                  text-[#68766e]
+                  font-normal
+                  mt-1.5
+                "
+              >
+                여러 지역과 작물은 쉼표로 구분해서 입력해주세요.
               </p>
             </div>
 
             <form
               onSubmit={handleContactSubmit}
-              className="space-y-6"
+              className="space-y-7"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormInput
                   label="고객 이름"
                   name="conName"
@@ -522,7 +672,7 @@ export default function Contact() {
                 />
 
                 <FormInput
-                  label="전화번호"
+                  label="휴대폰번호"
                   name="phone"
                   value={contactForm.phone}
                   onChange={handleContactFormChange}
@@ -550,10 +700,15 @@ export default function Contact() {
                   required
                 />
 
-                <div className="space-y-1.5 md:col-span-2">
+                <div className="space-y-2 md:col-span-2">
                   <label
                     htmlFor="groupNum"
-                    className="block text-xs font-black text-gray-700"
+                    className="
+                      block
+                      text-[13px]
+                      font-semibold
+                      text-[#536159]
+                    "
                   >
                     고객 그룹
                   </label>
@@ -563,11 +718,22 @@ export default function Contact() {
                     name="groupNum"
                     value={contactForm.groupNum}
                     onChange={handleContactFormChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700 bg-white"
+                    className="
+                      w-full
+                      px-4
+                      py-3.5
+                      border
+                      border-[#17372a]/25
+                      rounded-none
+                      font-normal
+                      text-[15px]
+                      text-[#17372a]
+                      focus:outline-none
+                      focus:border-[#17372a]
+                      bg-[#f7f3eb]
+                    "
                   >
-                    <option value="">
-                      그룹 없음
-                    </option>
+                    <option value="">그룹 없음</option>
 
                     {groups.map((group) => (
                       <option
@@ -581,7 +747,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -591,7 +757,18 @@ export default function Contact() {
                     );
                   }}
                   disabled={isSavingContact}
-                  className="px-6 py-3 border-2 border-gray-200 hover:bg-gray-50 rounded-2xl font-black text-sm transition"
+                  className="
+                    px-6
+                    h-[50px]
+                    border
+                    border-[#17372a]/25
+                    hover:bg-[#17372a]/[0.05]
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    text-[#536159]
+                    transition
+                  "
                 >
                   취소
                 </button>
@@ -599,13 +776,24 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSavingContact}
-                  className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm transition"
+                  className="
+                    px-7
+                    h-[50px]
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    disabled:bg-[#9ca7a0]
+                    text-white
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    transition
+                  "
                 >
                   {isSavingContact
                     ? '저장 중...'
                     : contactForm.conNum
-                      ? '수정 완료'
-                      : '고객 등록'}
+                    ? '수정 완료'
+                    : '고객 등록'}
                 </button>
               </div>
             </form>
@@ -613,16 +801,42 @@ export default function Contact() {
         )}
 
         {showGroupForm && (
-          <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-6">
-            <h2 className="text-xl font-black text-gray-900 border-b border-gray-100 pb-4">
-              {groupForm.groupNum
-                ? '그룹 정보 수정'
-                : '새 그룹 등록'}
-            </h2>
+          <section
+            className="
+              bg-[#f8f0e2]
+              border
+              border-[#17372a]/25
+              rounded-none
+              p-8
+              lg:p-10
+              shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+              space-y-8
+            "
+          >
+            <div
+              className="
+                border-b
+                border-[#17372a]/20
+                pb-5
+              "
+            >
+              <h2
+                className="
+                  text-[24px]
+                  font-bold
+                  text-[#17372a]
+                  tracking-[-0.02em]
+                "
+              >
+                {groupForm.groupNum
+                  ? '그룹 정보 수정'
+                  : '새 그룹 등록'}
+              </h2>
+            </div>
 
             <form
               onSubmit={handleGroupSubmit}
-              className="space-y-5"
+              className="space-y-6"
             >
               <FormInput
                 label="그룹 이름"
@@ -633,10 +847,15 @@ export default function Contact() {
                 required
               />
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label
                   htmlFor="conDescription"
-                  className="block text-xs font-black text-gray-700"
+                  className="
+                    block
+                    text-[13px]
+                    font-semibold
+                    text-[#536159]
+                  "
                 >
                   그룹 설명
                 </label>
@@ -648,11 +867,25 @@ export default function Contact() {
                   onChange={handleGroupFormChange}
                   rows="3"
                   placeholder="그룹에 대한 설명을 입력하세요."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm resize-none focus:outline-none focus:border-emerald-700"
+                  className="
+                    w-full
+                    px-4
+                    py-3.5
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    font-normal
+                    text-[15px]
+                    text-[#17372a]
+                    resize-none
+                    focus:outline-none
+                    focus:border-[#17372a]
+                    bg-[#f7f3eb]
+                  "
                 />
               </div>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -660,7 +893,18 @@ export default function Contact() {
                     setGroupForm(EMPTY_GROUP_FORM);
                   }}
                   disabled={isSavingGroup}
-                  className="px-6 py-3 border-2 border-gray-200 hover:bg-gray-50 rounded-2xl font-black text-sm"
+                  className="
+                    px-6
+                    h-[50px]
+                    border
+                    border-[#17372a]/25
+                    hover:bg-[#17372a]/[0.05]
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    text-[#536159]
+                    transition
+                  "
                 >
                   취소
                 </button>
@@ -668,37 +912,88 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSavingGroup}
-                  className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm"
+                  className="
+                    px-7
+                    h-[50px]
+                    bg-[#17372a]
+                    hover:bg-[#214b39]
+                    disabled:bg-[#9ca7a0]
+                    text-white
+                    rounded-none
+                    font-semibold
+                    text-[15px]
+                    transition
+                  "
                 >
                   {isSavingGroup
                     ? '저장 중...'
                     : groupForm.groupNum
-                      ? '수정 완료'
-                      : '그룹 등록'}
+                    ? '수정 완료'
+                    : '그룹 등록'}
                 </button>
               </div>
             </form>
           </section>
         )}
 
-        <section className="bg-white rounded-3xl border border-gray-200 p-8 shadow-md space-y-5">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            p-8
+            lg:p-10
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            space-y-6
+          "
+        >
           <div>
-            <h2 className="text-xl font-black text-gray-900">
+            <h2
+              className="
+                text-[24px]
+                font-bold
+                text-[#17372a]
+                tracking-[-0.02em]
+              "
+            >
               고객 그룹
             </h2>
 
-            <p className="text-sm text-gray-600 font-bold mt-1">
-              총 {groups.length}개의 그룹이 등록되어
-              있습니다.
+            <p
+              className="
+                text-[15px]
+                text-[#59675f]
+                font-normal
+                mt-1.5
+              "
+            >
+              총 {groups.length}개의 그룹이 등록되어 있습니다.
             </p>
           </div>
 
           {groups.length === 0 ? (
-            <div className="py-8 text-center text-gray-500 font-bold">
+            <div
+              className="
+                py-10
+                text-center
+                text-[#748078]
+                text-[16px]
+                font-normal
+              "
+            >
               등록된 고객 그룹이 없습니다.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+              className="
+                grid
+                grid-cols-1
+                md:grid-cols-2
+                lg:grid-cols-3
+                gap-5
+              "
+            >
               {groups.map((group) => {
                 const groupContactCount =
                   allContacts.filter(
@@ -710,32 +1005,77 @@ export default function Contact() {
                 return (
                   <div
                     key={group.groupNum}
-                    className="rounded-2xl border border-gray-200 bg-slate-50 p-5 space-y-4"
+                    className="
+                      rounded-none
+                      border
+                      border-[#17372a]/25
+                      bg-[#f0e8dc]
+                      p-6
+                      space-y-4
+                      flex
+                      flex-col
+                      justify-between
+                    "
                   >
-                    <div>
-                      <div className="flex justify-between gap-3">
-                        <h3 className="font-black text-gray-900">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start gap-3">
+                        <h3
+                          className="
+                            text-[18px]
+                            font-bold
+                            text-[#17372a]
+                          "
+                        >
                           {group.groupName}
                         </h3>
 
-                        <span className="text-xs font-black text-emerald-700">
+                        <span
+                          className="
+                            text-[13px]
+                            font-semibold
+                            text-[#17372a]
+                            bg-[#17372a]/10
+                            px-3
+                            py-1
+                            rounded-none
+                          "
+                        >
                           {groupContactCount}명
                         </span>
                       </div>
 
-                      <p className="text-xs text-gray-600 font-bold mt-2 min-h-8">
+                      <p
+                        className="
+                          text-[14px]
+                          text-[#59675f]
+                          font-normal
+                          leading-relaxed
+                          min-h-[42px]
+                        "
+                      >
                         {group.conDescription ||
                           '설명이 없습니다.'}
                       </p>
                     </div>
 
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 pt-2 border-t border-[#17372a]/20">
                       <button
                         type="button"
                         onClick={() =>
                           handleGroupEditOpen(group)
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-xl text-xs font-black hover:bg-white"
+                        className="
+                          px-3.5
+                          py-2
+                          border
+                          border-[#17372a]/25
+                          rounded-none
+                          text-[13px]
+                          font-medium
+                          text-[#17372a]
+                          hover:bg-[#17372a]/[0.05]
+                          transition
+                        "
                       >
                         수정
                       </button>
@@ -745,7 +1085,18 @@ export default function Contact() {
                         onClick={() =>
                           handleGroupDelete(group)
                         }
-                        className="px-3 py-2 border border-red-200 text-red-600 rounded-xl text-xs font-black hover:bg-red-50"
+                        className="
+                          px-3.5
+                          py-2
+                          border
+                          border-[#b45a47]/30
+                          text-[#b45a47]
+                          rounded-none
+                          text-[13px]
+                          font-medium
+                          hover:bg-[#b45a47]/10
+                          transition
+                        "
                       >
                         삭제
                       </button>
@@ -759,16 +1110,38 @@ export default function Contact() {
 
         <form
           onSubmit={handleSearch}
-          className="bg-white rounded-3xl border border-gray-200 p-6 shadow-md"
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            p-8
+            lg:p-10
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            space-y-6
+          "
         >
-          <div className="mb-4">
-            <h2 className="text-lg font-black text-gray-900">
+          <div>
+            <h2
+              className="
+                text-[24px]
+                font-bold
+                text-[#17372a]
+                tracking-[-0.02em]
+              "
+            >
               고객 검색
             </h2>
 
-            <p className="text-xs text-gray-500 font-bold mt-1">
-              재배 지역 또는 작물의 일부 단어만 입력해도
-              해당 고객을 검색할 수 있습니다.
+            <p
+              className="
+                text-[15px]
+                text-[#59675f]
+                font-normal
+                mt-1.5
+              "
+            >
+              재배 지역 또는 작물의 일부 단어만 입력해도 해당 고객을 검색할 수 있습니다.
             </p>
           </div>
 
@@ -780,13 +1153,38 @@ export default function Contact() {
                 setSearchKeyword(event.target.value)
               }
               placeholder="재배 지역 또는 작물 검색 (예: 나주, 배)"
-              className="px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
+              className="
+                w-full
+                px-5
+                py-3.5
+                border
+                border-[#17372a]/25
+                rounded-none
+                font-normal
+                text-[15px]
+                text-[#17372a]
+                focus:outline-none
+                focus:border-[#17372a]
+                bg-[#f7f3eb]
+                placeholder:text-[#8a968e]
+              "
             />
 
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-sm"
+              className="
+                px-7
+                h-[50px]
+                bg-[#17372a]
+                hover:bg-[#214b39]
+                disabled:bg-[#9ca7a0]
+                text-white
+                rounded-none
+                font-semibold
+                text-[15px]
+                transition
+              "
             >
               검색
             </button>
@@ -794,89 +1192,183 @@ export default function Contact() {
             <button
               type="button"
               onClick={handleSearchReset}
-              className="px-6 py-3 border-2 border-gray-200 hover:bg-gray-50 rounded-2xl font-black text-sm"
+              className="
+                px-6
+                h-[50px]
+                border
+                border-[#17372a]/25
+                hover:bg-[#17372a]/[0.05]
+                rounded-none
+                font-semibold
+                text-[15px]
+                text-[#536159]
+                transition
+              "
             >
               초기화
             </button>
           </div>
         </form>
 
-        <section className="bg-white rounded-3xl border border-gray-200 shadow-md overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-black text-gray-900">
+        <section
+          className="
+            bg-[#f8f0e2]
+            border
+            border-[#17372a]/25
+            rounded-none
+            shadow-[0_18px_50px_rgba(40,48,42,0.08)]
+            overflow-hidden
+          "
+        >
+          <div
+            className="
+              p-8
+              lg:p-10
+              border-b
+              border-[#17372a]/20
+            "
+          >
+            <h2
+              className="
+                text-[24px]
+                font-bold
+                text-[#17372a]
+                tracking-[-0.02em]
+              "
+            >
               고객 목록
             </h2>
 
-            <p className="text-sm text-gray-600 font-bold mt-1">
-              현재 {contacts.length}명의 고객이
-              조회되었습니다.
+            <p
+              className="
+                text-[15px]
+                text-[#59675f]
+                font-normal
+                mt-1.5
+              "
+            >
+              현재 {contacts.length}명의 고객이 조회되었습니다.
             </p>
           </div>
 
           {isLoading ? (
-            <div className="py-14 text-center text-gray-500 font-bold">
+            <div
+              className="
+                py-16
+                text-center
+                text-[#748078]
+                text-[16px]
+                font-normal
+              "
+            >
               고객 목록을 불러오는 중입니다.
             </div>
           ) : contacts.length === 0 ? (
-            <div className="py-14 text-center text-gray-500 font-bold">
+            <div
+              className="
+                py-16
+                text-center
+                text-[#748078]
+                text-[16px]
+                font-normal
+              "
+            >
               검색 조건에 해당하는 고객이 없습니다.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b border-gray-200">
-                  <tr className="text-sm text-gray-600 font-black">
-                    <th className="px-6 py-4">
-                      고객명
-                    </th>
-
-                    <th className="px-6 py-4">
-                      전화번호
-                    </th>
-
-                    <th className="px-6 py-4">
-                      재배 지역
-                    </th>
-
-                    <th className="px-6 py-4">
-                      재배작물
-                    </th>
-
-                    <th className="px-6 py-4">
-                      그룹
-                    </th>
-
-                    <th className="px-6 py-4 text-center">
-                      관리
-                    </th>
+              <table className="w-full text-left border-collapse">
+                <thead
+                  className="
+                    bg-[#f0e8dc]
+                    border-b
+                    border-[#17372a]/25
+                  "
+                >
+                  <tr
+                    className="
+                      text-[14px]
+                      text-[#59675f]
+                      font-semibold
+                    "
+                  >
+                    <th className="px-6 py-4.5">고객명</th>
+                    <th className="px-6 py-4.5">전화번호</th>
+                    <th className="px-6 py-4.5">재배 지역</th>
+                    <th className="px-6 py-4.5">재배작물</th>
+                    <th className="px-6 py-4.5">그룹</th>
+                    <th className="px-6 py-4.5 text-center">관리</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[#17372a]/20">
                   {contacts.map((contact) => (
                     <tr
                       key={contact.conNum}
-                      className="hover:bg-slate-50 transition"
+                      className="hover:bg-[#f2ebd9] transition"
                     >
-                      <td className="px-6 py-5 font-black text-gray-900 whitespace-nowrap">
+                      <td
+                        className="
+                          px-6
+                          py-5
+                          font-semibold
+                          text-[#17372a]
+                          whitespace-nowrap
+                        "
+                      >
                         {contact.conName}
                       </td>
 
-                      <td className="px-6 py-5 font-bold text-gray-700 whitespace-nowrap">
-                        {formatPhone(contact.phone)}
+                      <td
+                        className="
+                          px-6
+                          py-5
+                          text-[#59675f]
+                          font-normal
+                          whitespace-nowrap
+                        "
+                      >
+                        {formatMaskedPhone(contact.phone)}
                       </td>
 
-                      <td className="px-6 py-5 font-bold text-gray-700 min-w-48">
+                      <td
+                        className="
+                          px-6
+                          py-5
+                          text-[#59675f]
+                          font-normal
+                          min-w-[190px]
+                        "
+                      >
                         {contact.region || '미등록'}
                       </td>
 
-                      <td className="px-6 py-5 min-w-40">
-                        <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-black">
+                      <td className="px-6 py-5 min-w-[160px]">
+                        <span
+                          className="
+                            inline-block
+                            px-3
+                            py-1
+                            bg-[#17372a]/10
+                            text-[#17372a]
+                            rounded-none
+                            text-[13px]
+                            font-medium
+                          "
+                        >
                           {contact.crop || '미등록'}
                         </span>
                       </td>
 
-                      <td className="px-6 py-5 font-bold text-gray-700 whitespace-nowrap">
+                      <td
+                        className="
+                          px-6
+                          py-5
+                          text-[#59675f]
+                          font-normal
+                          whitespace-nowrap
+                        "
+                      >
                         {contact.groupNum
                           ? groupNameMap.get(
                               Number(
@@ -895,7 +1387,18 @@ export default function Contact() {
                                 contact
                               )
                             }
-                            className="px-3 py-2 border border-gray-300 rounded-xl text-xs font-black hover:bg-white"
+                            className="
+                              px-3.5
+                              py-2
+                              border
+                              border-[#17372a]/25
+                              rounded-none
+                              text-[13px]
+                              font-medium
+                              text-[#17372a]
+                              hover:bg-[#17372a]/[0.05]
+                              transition
+                            "
                           >
                             수정
                           </button>
@@ -907,7 +1410,18 @@ export default function Contact() {
                                 contact
                               )
                             }
-                            className="px-3 py-2 border border-red-200 text-red-600 rounded-xl text-xs font-black hover:bg-red-50"
+                            className="
+                              px-3.5
+                              py-2
+                              border
+                              border-[#b45a47]/30
+                              text-[#b45a47]
+                              rounded-none
+                              text-[13px]
+                              font-medium
+                              hover:bg-[#b45a47]/10
+                              transition
+                            "
                           >
                             삭제
                           </button>
@@ -922,10 +1436,38 @@ export default function Contact() {
         </section>
       </main>
 
-      <footer className="w-full bg-white border-t border-gray-200 py-6 text-center text-gray-600 text-xs mt-12">
-        <p className="font-bold">
-          © 2026 FarMMS. All rights reserved.
-        </p>
+      <footer
+        className="
+          w-full
+          bg-[#10291f]
+          text-white
+          py-8
+          text-center
+          mt-14
+        "
+      >
+        <div
+          className="
+            max-w-[1360px]
+            mx-auto
+            px-6
+            sm:px-10
+            flex
+            flex-col
+            sm:flex-row
+            items-center
+            justify-between
+            gap-3
+          "
+        >
+          <p className="text-[14px] font-bold">
+            FarMMS
+          </p>
+
+          <p className="text-white/50 text-[13px] font-normal">
+            © 2026 FarMMS. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );
@@ -941,10 +1483,15 @@ function FormInput({
   required = false,
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <label
         htmlFor={name}
-        className="block text-xs font-black text-gray-700"
+        className="
+          block
+          text-[13px]
+          font-semibold
+          text-[#536159]
+        "
       >
         {label}
       </label>
@@ -957,11 +1504,25 @@ function FormInput({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl font-bold text-sm focus:outline-none focus:border-emerald-700"
+        className="
+          w-full
+          px-4
+          py-3.5
+          border
+          border-[#17372a]/25
+          rounded-none
+          font-normal
+          text-[15px]
+          text-[#17372a]
+          focus:outline-none
+          focus:border-[#17372a]
+          bg-[#f7f3eb]
+          placeholder:text-[#8a968e]
+        "
       />
 
       {helperText && (
-        <p className="text-xs text-gray-500 font-bold px-1">
+        <p className="text-[12px] text-[#748078] font-normal px-1">
           {helperText}
         </p>
       )}
@@ -969,7 +1530,7 @@ function FormInput({
   );
 }
 
-function formatPhone(phone) {
+function formatMaskedPhone(phone) {
   if (!phone) {
     return '-';
   }
@@ -979,14 +1540,14 @@ function formatPhone(phone) {
   if (numbers.length === 11) {
     return numbers.replace(
       /(\d{3})(\d{4})(\d{4})/,
-      '$1-$2-$3'
+      '$1-****-$3'
     );
   }
 
   if (numbers.length === 10) {
     return numbers.replace(
       /(\d{3})(\d{3})(\d{4})/,
-      '$1-$2-$3'
+      '$1-***-$3'
     );
   }
 
