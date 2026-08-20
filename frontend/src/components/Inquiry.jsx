@@ -505,12 +505,12 @@ export default function Inquiry() {
                         <span
                           className={`
                             inline-block px-2.5 py-1 text-[12px] font-bold
-                            ${inquiry.status === 'COMPLETED' || inquiry.answer
+                            ${inquiry.status === 'ANSWERED' || inquiry.answer
                               ? 'bg-[#17372a] text-white'
                               : 'bg-[#d8cbb5] text-[#17372a]'}
                           `}
                         >
-                          {inquiry.status === 'COMPLETED' || inquiry.answer ? '답변완료' : '검토중'}
+                          {inquiry.status === 'ANSWERED' || inquiry.answer ? '답변완료' : '검토중'}
                         </span>
                       </td>
 
