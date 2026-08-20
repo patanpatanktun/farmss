@@ -76,14 +76,22 @@ public class GeneratedImageService {
 
     /**
      * 로그인한 사용자가 생성한 이미지 목록을 조회합니다.
+     *
+     * 이미지 관리 화면에서는 생성이 완전히 끝난
+     * COMPLETED 이미지만 노출합니다.
+     *
+     * PENDING / PROCESSING 이미지는 CreateImage에서
+     * 생성 진행 상태로만 관리하고,
+     * FAILED 이미지는 이미지 관리 목록에 노출하지 않습니다.
      */
     public List<GeneratedImageResponse> findAll(
             Long userNum
     ) {
 
         return generatedImageRepository
-                .findAllByUserNumOrderByCreateDayDesc(
-                        userNum
+                .findAllByUserNumAndStatusOrderByCreateDayDesc(
+                        userNum,
+                        GeneratedImage.STATUS_COMPLETED
                 )
                 .stream()
                 .map(GeneratedImageResponse::from)

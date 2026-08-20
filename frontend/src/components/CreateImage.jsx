@@ -14,6 +14,10 @@ const PROMPT_EXAMPLES = [
   '믿고 쓰는 농자재라는 신뢰감을 최대한 담아주세요.',
 ];
 
+const ACTIVE_IMAGE_GENERATION_KEY =
+  'farmms.activeImageGenerationId';
+const IMAGE_POLL_INTERVAL = 2500;
+
 export default function CreateImage() {
   const [contacts, setContacts] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -48,6 +52,23 @@ export default function CreateImage() {
 
   const [isGenerating, setIsGenerating] =
     useState(false);
+
+  const [currentImageId, setCurrentImageId] =
+    useState(() => {
+      const savedImageId = localStorage.getItem(
+        ACTIVE_IMAGE_GENERATION_KEY
+      );
+
+      if (!savedImageId) {
+        return null;
+      }
+
+      const parsedImageId = Number(savedImageId);
+
+      return Number.isFinite(parsedImageId)
+        ? parsedImageId
+        : null;
+    });
 
   const [errorMessage, setErrorMessage] =
     useState('');
@@ -122,6 +143,92 @@ export default function CreateImage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  /**
+   * 현재 진행 중인 이미지 생성 작업을 서버에서 조회합니다.
+   *
+   * CreateImage 페이지가 열려 있는 동안 이 API를 반복 호출하여
+   * PENDING / PROCESSING 상태를 화면에 유지하고,
+   * COMPLETED가 되면 생성된 이미지를 이 페이지에서 바로 보여줍니다.
+   */
+  const checkGenerationStatus = useCallback(
+    async (imageId) => {
+      try {
+        const image = await api.get(`/images/${imageId}`);
+
+        if (
+          image.status === 'PENDING' ||
+          image.status === 'PROCESSING'
+        ) {
+          setIsGenerating(true);
+          setGeneratedImage(null);
+          return false;
+        }
+
+        if (image.status === 'COMPLETED') {
+          setGeneratedImage(image);
+          setIsGenerating(false);
+          setCurrentImageId(null);
+          localStorage.removeItem(
+            ACTIVE_IMAGE_GENERATION_KEY
+          );
+          setSuccessMessage(
+            '홍보 이미지가 생성되었습니다.'
+          );
+          return true;
+        }
+
+        if (image.status === 'FAILED') {
+          setGeneratedImage(null);
+          setIsGenerating(false);
+          setCurrentImageId(null);
+          localStorage.removeItem(
+            ACTIVE_IMAGE_GENERATION_KEY
+          );
+          setErrorMessage(
+            image.errorMessage ||
+              '이미지 생성에 실패했습니다.'
+          );
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        // 일시적인 네트워크 오류 때문에 생성 작업 자체를 취소하지 않습니다.
+        console.error(
+          '이미지 생성 상태 조회 실패:',
+          error
+        );
+        return false;
+      }
+    },
+    []
+  );
+
+  /**
+   * 생성 요청 직후와 F5 새로고침 후 모두 동일하게 동작합니다.
+   *
+   * currentImageId가 존재하면 CreateImage에서 계속 생성 중 UI를 보여주고
+   * 2.5초마다 서버 상태를 확인합니다.
+   */
+  useEffect(() => {
+    if (!currentImageId) {
+      return undefined;
+    }
+
+    setIsGenerating(true);
+    setGeneratedImage(null);
+
+    checkGenerationStatus(currentImageId);
+
+    const intervalId = window.setInterval(() => {
+      checkGenerationStatus(currentImageId);
+    }, IMAGE_POLL_INTERVAL);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [currentImageId, checkGenerationStatus]);
 
   /**
    * 현재 선택한 개별 고객입니다.
@@ -246,7 +353,11 @@ export default function CreateImage() {
   };
 
   /**
-   * 홍보 이미지를 생성합니다.
+   * 홍보 이미지 생성을 요청합니다.
+   *
+   * POST /images는 실제 이미지 완성을 기다리지 않고
+   * imageId와 PENDING 상태를 즉시 반환합니다.
+   * 이후 완료 여부는 위 polling 로직이 CreateImage에서 계속 확인합니다.
    */
   const handleGenerateImage = async () => {
     setErrorMessage('');
@@ -297,22 +408,42 @@ export default function CreateImage() {
         payload.groupNum = Number(selectedGroupNum);
       }
 
-      const data = await api.post('/images', payload);
-
-      setGeneratedImage(data);
-
-      setSuccessMessage(
-        '홍보 이미지가 생성되었습니다.'
+      const accepted = await api.post(
+        '/images',
+        payload
       );
+
+      if (!accepted?.imageId) {
+        throw new Error(
+          '이미지 생성 작업 번호를 받지 못했습니다.'
+        );
+      }
+
+      const imageId = Number(accepted.imageId);
+
+      localStorage.setItem(
+        ACTIVE_IMAGE_GENERATION_KEY,
+        String(imageId)
+      );
+
+      setCurrentImageId(imageId);
+      setIsGenerating(true);
+      setGeneratedImage(null);
+      setSuccessMessage('');
     } catch (error) {
+      setIsGenerating(false);
+      setCurrentImageId(null);
+      localStorage.removeItem(
+        ACTIVE_IMAGE_GENERATION_KEY
+      );
+
       setErrorMessage(
         error.message ||
-          '이미지 생성 중 오류가 발생했습니다.'
+          '이미지 생성 요청 중 오류가 발생했습니다.'
       );
-    } finally {
-      setIsGenerating(false);
     }
   };
+
 
   return (
     <div
@@ -1197,6 +1328,10 @@ export default function CreateImage() {
 
                   <p className="mt-2 text-[14px] font-normal text-[#59675f]">
                     잠시만 기다려주세요.
+                  </p>
+
+                  <p className="mt-1 text-[12px] font-normal text-[#748078]">
+                    새로고침해도 생성 작업은 계속 진행됩니다.
                   </p>
                 </div>
               ) : generatedImage ? (

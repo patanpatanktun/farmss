@@ -230,10 +230,15 @@ export default function Product() {
     const { name, value } =
       event.target;
 
-    const nextValue =
-      name === 'companyPhone'
-        ? formatPhoneInput(value)
-        : value;
+    let nextValue = value;
+
+    if (name === 'companyPhone') {
+      nextValue = formatPhoneInput(value);
+    }
+
+    if (name === 'price') {
+      nextValue = String(value).replace(/[^0-9]/g, '');
+    }
 
     setForm((previous) => ({
       ...previous,
@@ -818,11 +823,11 @@ export default function Product() {
                 label="상품 가격"
                 id="price"
                 name="price"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={form.price}
                 onChange={handleFormChange}
                 placeholder="예) 35000"
-                min="0"
               />
 
               <FormInput

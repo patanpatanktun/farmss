@@ -28,6 +28,20 @@ public interface GeneratedImageRepository
     );
 
     /**
+     * 로그인한 회원의 이미지 중
+     * 특정 상태의 이미지만 최신순으로 조회합니다.
+     *
+     * ManageImage에서는 COMPLETED 상태만 조회하여
+     * 생성 중인 PENDING / PROCESSING 이미지가
+     * 깨진 카드 형태로 노출되지 않도록 사용합니다.
+     */
+    List<GeneratedImage>
+    findAllByUserNumAndStatusOrderByCreateDayDesc(
+            Long userNum,
+            String status
+    );
+
+    /**
      * 특정 상품으로 생성한 이미지를 최신순으로 조회합니다.
      */
     List<GeneratedImage>
