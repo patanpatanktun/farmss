@@ -638,24 +638,177 @@ export default function Header() {
             </div>
 
 
-            {/* Notice */}
+            {/* 고객지원 */}
+            <div className="relative group">
+              <button
+                type="button"
+                className={`
+                  flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-3
+                  text-[15px]
+                  font-semibold
+                  transition
+                  ${
+                    isPathActive([
+                      '/notice',
+                      '/inquiry',
+                    ])
+                      ? 'text-[#17372a]'
+                      : 'text-[#66736b] group-hover:text-[#17372a]'
+                  }
+                `}
+              >
+                고객지원
+                <span
+                  className="
+                    text-[10px]
+                    transition-transform
+                    duration-200
+                    group-hover:rotate-180
+                  "
+                >
+                  ▾
+                </span>
+              </button>
+
+              <div
+                className="
+                  absolute
+                  left-0
+                  top-full
+                  pt-3
+                  opacity-0
+                  invisible
+                  translate-y-1
+                  group-hover:opacity-100
+                  group-hover:visible
+                  group-hover:translate-y-0
+                  transition-all
+                  duration-200
+                "
+              >
+                <div
+                  className="
+                    w-[220px]
+                    bg-white
+                    border
+                    border-[#17372a]/25
+                    rounded-none
+                    p-2.5
+                    shadow-[0_20px_50px_rgba(40,48,42,0.14)]
+                  "
+                >
+                  <div className="px-3 pt-2 pb-3">
+                    <p
+                      className="
+                        text-[#8a958e]
+                        text-[10px]
+                        font-medium
+                        tracking-[0.12em]
+                      "
+                    >
+                      SUPPORT
+                    </p>
+                    <p
+                      className="
+                        text-[#17372a]
+                        text-[13px]
+                        font-semibold
+                        mt-1
+                      "
+                    >
+                      공지 및 문의를 확인하세요
+                    </p>
+                  </div>
+
+                  <NavLink
+                    to="/notice"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        공지사항
+                      </p>
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        서비스 주요 안내
+                      </p>
+                    </div>
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/inquiry"
+                    className={dropdownItemClass}
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        문의하기
+                      </p>
+                      <p
+                        className="
+                          text-[11px]
+                          opacity-60
+                          mt-0.5
+                        "
+                      >
+                        운영진 1:1 문의 및 확인
+                      </p>
+                    </div>
+                    <span
+                      className="
+                        opacity-45
+                        group-hover:translate-x-1
+                        transition-transform
+                      "
+                    >
+                      →
+                    </span>
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+
+
+            {/* 🌟 토큰 충전 버튼 (현재 페이지에 머물 때 초록색 배경 고정) */}
             <NavLink
-              to="/notice"
+              to="/usertoken"
               className={({ isActive }) => `
                 relative
                 px-4
-                py-3
-                text-[15px]
-                font-semibold
+                py-2
+                ml-2
+                border
+                border-[#17372a]/30
+                text-[14px]
+                font-bold
                 transition
+                hover:bg-[#17372a]
+                hover:text-white
                 ${
                   isActive
-                    ? 'text-[#17372a]'
-                    : 'text-[#66736b] hover:text-[#17372a]'
+                    ? 'bg-[#17372a] text-white border-[#17372a]'
+                    : 'bg-[#f0e8dc] text-[#17372a]'
                 }
               `}
             >
-              공지사항
+              토큰 충전
             </NavLink>
 
           </nav>
@@ -668,59 +821,50 @@ export default function Header() {
             hidden
             xl:flex
             items-center
-            gap-5
+            gap-6
             shrink-0
           "
         >
           <div
             className="
               flex
-              items-center
-              gap-3
+              flex-col
+              items-end
+              leading-tight
               pr-5
               border-r
               border-[#17372a]/20
             "
           >
-            <div
+            <p
               className="
-                w-9
-                h-9
-                rounded-none
-                bg-[#17372a]
-                text-white
-                flex
-                items-center
-                justify-center
-                text-[13px]
-                font-semibold
+                text-[14px]
+                text-[#17372a]
+                font-bold
               "
             >
-              {userId.charAt(0).toUpperCase()}
-            </div>
+              {userId}님
+            </p>
 
-            <div className="leading-tight">
-              <p
+            <div className="flex items-center gap-1.5 mt-1">
+              <span
                 className="
-                  text-[10px]
-                  text-[#8a958e]
-                  font-normal
-                  mb-1
+                  text-[11px]
+                  text-[#6b7971]
+                  font-medium
                 "
               >
-                로그인 사용자
-              </p>
-
-              <p
+                보유 토큰:
+              </span>
+              <span
                 className="
-                  text-[13px]
+                  text-[14px]
+                  font-bold
                   text-[#17372a]
-                  font-semibold
-                  whitespace-nowrap
                 "
               >
-                {userId}님
-              </p>
+                15개
+              </span>
             </div>
           </div>
 
@@ -863,6 +1007,27 @@ export default function Header() {
             >
               발송 내역
             </NavLink>
+
+            <NavLink
+              to="/notice"
+              className="hover:text-[#17372a]"
+            >
+              공지사항
+            </NavLink>
+
+            <NavLink
+              to="/inquiry"
+              className="hover:text-[#17372a]"
+            >
+              문의하기
+            </NavLink>
+
+            <NavLink
+              to="/usertoken"
+              className="text-[#17372a] font-bold"
+            >
+              토큰 충전
+            </NavLink>
           </nav>
         </div>
 
@@ -884,7 +1049,7 @@ export default function Header() {
               font-semibold
             "
           >
-            {userId}님
+            {userId}님 (보유 토큰: 15개)
           </span>
 
           <div

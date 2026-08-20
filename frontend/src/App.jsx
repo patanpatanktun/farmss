@@ -9,8 +9,12 @@ import Start from './components/Start';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Main from './components/Main';
+import Chatbot from './components/Chatbot';
 import Notice from './components/Notice';
-import StartNotice from './components/StartNotice'; // 🌟 StartNotice 임포트 추가
+import StartNotice from './components/StartNotice'; // StartNotice 임포트
+import TokenPricing from './components/Token'; // 대소문자 변경된 Token.jsx 임포트
+import UserToken from './components/UserToken'; // 🌟 회원용 토큰 충전 페이지 임포트 추가
+import Inquiry from './components/Inquiry'; // 문의하기(Inquiry.jsx) 임포트 추가
 import Contact from './components/Contact';
 import Product from './components/Product';
 import CreateImage from './components/CreateImage';
@@ -123,7 +127,12 @@ function ProtectedRoute({
     );
   }
 
-  return children;
+  return (
+    <>
+      {children}
+      <Chatbot />
+    </>
+  );
 }
 
 /**
@@ -165,10 +174,16 @@ export default function App() {
           element={<Notice />}
         />
 
-        {/* 🌟 Start 전용 공지사항 페이지 경로 추가 */}
+        {/* Start 전용 공지사항 페이지 경로 */}
         <Route
           path="/StartNotice"
           element={<StartNotice />}
+        />
+
+        {/* 요금 안내 페이지 경로 */}
+        <Route
+          path="/pricing"
+          element={<TokenPricing />}
         />
 
         {/* 비로그인 사용자 페이지 */}
@@ -250,6 +265,26 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CheckMms />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🌟 회원용 토큰 충전 페이지 경로 추가 (로그인 필수) */}
+        <Route
+          path="/usertoken"
+          element={
+            <ProtectedRoute>
+              <UserToken />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 문의하기 페이지 경로 (로그인 필수) */}
+        <Route
+          path="/inquiry"
+          element={
+            <ProtectedRoute>
+              <Inquiry />
             </ProtectedRoute>
           }
         />
