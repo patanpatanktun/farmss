@@ -1,0 +1,517 @@
+/* =========================================================
+   FarMMS Chatbot
+   ========================================================= */
+
+/* 챗봇 전체 */
+.farmms-chatbot {
+  position: fixed;
+  right: 28px;
+  bottom: 150px;
+
+  width: 350px;
+  height: 520px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.12),
+    0 3px 10px rgba(0, 0, 0, 0.06);
+
+  overflow: hidden;
+
+  z-index: 9999;
+
+  animation: farmms-chatbot-open 0.2s ease-out;
+}
+
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.farmms-chatbot-header {
+  height: 58px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  background: #0f9d4f;
+  color: #ffffff;
+}
+
+.farmms-chatbot-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.farmms-chatbot-title-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+
+  font-size: 17px;
+}
+
+.farmms-chatbot-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.farmms-chatbot-header-button {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 400;
+
+  cursor: pointer;
+
+  border-radius: 6px;
+
+  transition: background 0.15s ease;
+}
+
+.farmms-chatbot-header-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* =========================================================
+   Message Area
+   ========================================================= */
+
+.farmms-chatbot-messages {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 18px 14px;
+
+  overflow-y: auto;
+
+  background: #f8faf9;
+
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.farmms-chatbot-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.farmms-chatbot-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.farmms-chatbot-messages::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+
+/* 메시지 한 줄 */
+.farmms-chatbot-message-row {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+}
+
+.farmms-chatbot-message-row.user {
+  justify-content: flex-end;
+}
+
+
+/* 봇 아이콘 */
+.farmms-chatbot-bot-icon {
+  width: 30px;
+  height: 30px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #e8f7ed;
+  border: 1px solid #cdebd7;
+
+  border-radius: 50%;
+
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   Message Bubble
+   ========================================================= */
+
+.farmms-chatbot-message {
+  max-width: 245px;
+
+  padding: 11px 13px;
+
+  border-radius: 12px;
+
+  font-size: 13px;
+  line-height: 1.55;
+
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+
+/* 봇 메시지 */
+.farmms-chatbot-message.bot {
+  background: #ffffff;
+
+  border: 1px solid #e6e9e7;
+
+  color: #333333;
+
+  border-top-left-radius: 4px;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+
+/* 사용자 메시지 */
+.farmms-chatbot-message.user {
+  background: #0f9d4f;
+
+  color: #ffffff;
+
+  border-top-right-radius: 4px;
+}
+
+
+/* 메시지 텍스트 */
+.farmms-chatbot-message-text {
+  white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   Action Button
+   ========================================================= */
+
+.farmms-chatbot-action-button {
+  width: 100%;
+
+  margin-top: 11px;
+
+  padding: 9px 10px;
+
+  background: #ffffff;
+
+  border: 1px solid #16a05a;
+
+  border-radius: 7px;
+
+  color: #0f9d4f;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.farmms-chatbot-action-button:hover {
+  background: #0f9d4f;
+  color: #ffffff;
+
+  transform: translateY(-1px);
+}
+
+.farmms-chatbot-action-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   Loading
+   ========================================================= */
+
+.farmms-chatbot-loading {
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+
+  height: 18px;
+}
+
+.farmms-chatbot-loading span {
+  width: 5px;
+  height: 5px;
+
+  background: #8b9490;
+
+  border-radius: 50%;
+
+  animation: farmms-chatbot-loading 1.2s infinite ease-in-out;
+}
+
+.farmms-chatbot-loading span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.farmms-chatbot-loading span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.farmms-chatbot-loading span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+
+/* =========================================================
+   Input Area
+   ========================================================= */
+
+.farmms-chatbot-input-area {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 11px 12px;
+
+  background: #ffffff;
+
+  border-top: 1px solid #e9ecea;
+}
+
+.farmms-chatbot-input-area input {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid #dfe5e1;
+  border-radius: 19px;
+
+  outline: none;
+
+  background: #f8faf9;
+
+  color: #333333;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.farmms-chatbot-input-area input::placeholder {
+  color: #9ca3af;
+}
+
+.farmms-chatbot-input-area input:focus {
+  border-color: #0f9d4f;
+  background: #ffffff;
+}
+
+
+/* 전송 버튼 */
+.farmms-chatbot-send-button {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #0f9d4f;
+  color: #ffffff;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.farmms-chatbot-send-button:hover:not(:disabled) {
+  background: #0b8642;
+
+  transform: scale(1.04);
+}
+
+.farmms-chatbot-send-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.farmms-chatbot-send-button:disabled {
+  background: #cfd8d3;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   Floating Button
+   ========================================================= */
+
+.farmms-chatbot-floating-button {
+  position: fixed;
+
+  right: 28px;
+  bottom: 80px;
+
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+
+  background: #0f9d4f;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+
+  cursor: pointer;
+
+  z-index: 9999;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.farmms-chatbot-floating-button span {
+  font-size: 25px;
+
+  line-height: 1;
+}
+
+.farmms-chatbot-floating-button:hover {
+  transform: scale(1.07);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.farmms-chatbot-floating-button:active {
+  transform: scale(0.96);
+}
+
+
+/* =========================================================
+   Animation
+   ========================================================= */
+
+@keyframes farmms-chatbot-open {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes farmms-chatbot-loading {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .farmms-chatbot {
+    left: 12px;
+    right: 12px;
+    bottom: 82px;
+
+    width: auto;
+    height: min(520px, calc(100vh - 110px));
+
+    border-radius: 16px;
+  }
+
+  .farmms-chatbot-floating-button {
+    left: 18px;
+    bottom: 18px;
+
+    width: 54px;
+    height: 54px;
+  }
+}
