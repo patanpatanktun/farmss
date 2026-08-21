@@ -39,9 +39,9 @@ public class ProductImageStorageService {
     private final String bucketName;
 
     public ProductImageStorageService(
-            @Value("${NCP_ACCESS_KEY}") String accessKey,
-            @Value("${NCP_SECRET_KEY}") String secretKey,
-            @Value("${NCP_BUCKET_NAME}") String bucketName
+            @Value("${ncp.access-key}") String accessKey,
+            @Value("${ncp.secret-key}") String secretKey,
+            @Value("${ncp.bucket}") String bucketName
     ) {
         this.bucketName = bucketName;
 

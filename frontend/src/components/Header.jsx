@@ -9,13 +9,15 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userId =
-    localStorage.getItem('userId') || '회원';
+  const userId = localStorage.getItem('userId') || '회원';
+  // localStorage에서 실시간 토큰 값을 가져옵니다.
+  const userTokens = localStorage.getItem('userTokens') || '15';
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userNum');
     localStorage.removeItem('userId');
+    localStorage.removeItem('userTokens'); // 로그아웃 시 토큰 정보도 삭제
 
     navigate('/login', {
       replace: true,
@@ -786,7 +788,7 @@ export default function Header() {
             </div>
 
 
-            {/* 🌟 토큰 충전 버튼 (현재 페이지에 머물 때 초록색 배경 고정) */}
+            {/* 🌟 토큰 충전 버튼 */}
             <NavLink
               to="/usertoken"
               className={({ isActive }) => `
@@ -863,7 +865,7 @@ export default function Header() {
                   text-[#17372a]
                 "
               >
-                15개
+                {userTokens}개
               </span>
             </div>
           </div>
@@ -1049,7 +1051,7 @@ export default function Header() {
               font-semibold
             "
           >
-            {userId}님 (보유 토큰: 15개)
+            {userId}님 (보유 토큰: {userTokens}개)
           </span>
 
           <div

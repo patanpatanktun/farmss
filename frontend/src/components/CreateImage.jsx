@@ -354,10 +354,7 @@ export default function CreateImage() {
 
   /**
    * 홍보 이미지 생성을 요청합니다.
-   *
-   * POST /images는 실제 이미지 완성을 기다리지 않고
-   * imageId와 PENDING 상태를 즉시 반환합니다.
-   * 이후 완료 여부는 위 polling 로직이 CreateImage에서 계속 확인합니다.
+   * (2토큰 차감 및 잔액 검사, 확인창 추가)
    */
   const handleGenerateImage = async () => {
     setErrorMessage('');
@@ -382,6 +379,34 @@ export default function CreateImage() {
       setErrorMessage(
         '이미지를 만들 상품을 선택해주세요.'
       );
+      return;
+    }
+
+    // 🌟 토큰 검사 (1500 기준)
+    const requiredTokens = 2;
+    const currentTokens = parseInt(
+      localStorage.getItem('userTokens') || '1500',
+      10
+    );
+
+    if (currentTokens < requiredTokens) {
+      const moveCharge = window.confirm(
+        `보유 토큰이 부족합니다. (현재 보유: ${currentTokens}개 / 필요 토큰: ${requiredTokens}개)\n\n토큰 충전 페이지로 이동하시겠습니까?`
+      );
+      if (moveCharge) {
+        window.location.href = '/charge';
+      }
+      return;
+    }
+
+    // 🌟 확인창 추가
+    const confirmed = window.confirm(
+      `AI 홍보 이미지를 생성하시겠습니까?\n\n` +
+      `[안내] 차감될 토큰: ${requiredTokens}개\n` +
+      `생성된 이미지는 '이미지 관리'에서 확인할 수 있습니다.`
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -419,6 +444,11 @@ export default function CreateImage() {
         );
       }
 
+      // 🌟 토큰 차감 반영 및 헤더 실시간 갱신 트리거
+      const updatedTokens = currentTokens - requiredTokens;
+      localStorage.setItem('userTokens', updatedTokens);
+      window.dispatchEvent(new Event('storage'));
+
       const imageId = Number(accepted.imageId);
 
       localStorage.setItem(
@@ -429,8 +459,21 @@ export default function CreateImage() {
       setCurrentImageId(imageId);
       setIsGenerating(true);
       setGeneratedImage(null);
-      setSuccessMessage('');
+      setSuccessMessage('이미지 생성이 시작되었습니다.');
     } catch (error) {
+      // 🌟 서버 백엔드 에러 메시지 감지 및 토큰 부족 시 충전 페이지 이동 안내 처리 추가
+      const errorMsg = error.message || '';
+      if (errorMsg.includes('토큰') || errorMsg.includes('부족')) {
+        const moveCharge = window.confirm(
+          `${errorMsg}\n\n토큰 충전 페이지로 이동하시겠습니까?`
+        );
+        if (moveCharge) {
+          window.location.href = '/charge';
+        }
+        setIsGenerating(false);
+        return;
+      }
+
       setIsGenerating(false);
       setCurrentImageId(null);
       localStorage.removeItem(
@@ -438,7 +481,7 @@ export default function CreateImage() {
       );
 
       setErrorMessage(
-        error.message ||
+        errorMsg ||
           '이미지 생성 요청 중 오류가 발생했습니다.'
       );
     }
@@ -1200,6 +1243,13 @@ export default function CreateImage() {
                   </span>
                 </div>
 
+                {/* 🌟 토큰 차감 안내 문구 추가 */}
+                <div className="bg-[#f0e8dc] border border-[#17372a]/20 p-4 text-center">
+                  <p className="text-[14px] text-[#17372a] font-medium">
+                    💡 AI 홍보 이미지 생성 시 <strong className="text-emerald-800 font-bold">2개</strong>의 토큰이 차감됩니다.
+                  </p>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleGenerateImage}
@@ -1226,7 +1276,7 @@ export default function CreateImage() {
                 >
                   {isGenerating
                     ? 'AI 이미지 생성 중...'
-                    : 'AI 이미지 생성하기'}
+                    : 'AI 이미지 생성하기 (2토큰 차감)'}
                 </button>
               </section>
             </div>
