@@ -510,13 +510,14 @@ export default function SendMms() {
     setSuccessMessage('');
     setSendResult(EMPTY_RESULT);
 
-    const validationMessage =
-      validateSendForm();
+    const validationMessage = validateSendForm();
 
     if (validationMessage) {
       setErrorMessage(validationMessage);
       return;
     }
+
+    const requiredTokens = selectedContactNums.length * 3;
 
     const sendTypeMessage = reserve
       ? `예약 시간: ${formatReserveDate(reserveDate)}\n\n예약 발송으로 접수됩니다.`
@@ -524,6 +525,7 @@ export default function SendMms() {
 
     const confirmed = window.confirm(
       `선택한 ${selectedContactNums.length}명에게 MMS를 발송하시겠습니까?\n\n` +
+        `[안내] 차감 예상 토큰: ${requiredTokens}개 (1인당 3토큰)\n` +
         `발신번호: ${formatPhone(senderNumber)}\n\n` +
         sendTypeMessage
     );
@@ -535,49 +537,47 @@ export default function SendMms() {
     setIsSending(true);
 
     try {
-      const data = await api.post(
-        '/mms/send',
-        {
-          fromNumber:
-            senderNumber.replace(
-              /[^0-9]/g,
-              ''
-            ),
-          content: content.trim(),
-          imageId: Number(
-            selectedImageId
-          ),
-          contactNums:
-            selectedContactNums,
-          reserve,
-          reserveDate: reserve
-            ? new Date(reserveDate).toISOString()
-            : null,
-        }
-      );
+      const data = await api.post('/mms/send', {
+        fromNumber: senderNumber.replace(/[^0-9]/g, ''),
+        content: content.trim(),
+        imageId: Number(selectedImageId),
+        contactNums: selectedContactNums,
+        reserve,
+        reserveDate: reserve ? new Date(reserveDate).toISOString() : null,
+      });
 
       setSendResult({
-        totalCount:
-          data?.totalCount ?? 0,
-        successCount:
-          data?.successCount ?? 0,
-        failCount:
-          data?.failCount ?? 0,
-        status:
-          data?.status || '',
-        message:
-          data?.message ||
-          'MMS 발송 처리가 완료되었습니다.',
+        totalCount: data?.totalCount ?? 0,
+        successCount: data?.successCount ?? 0,
+        failCount: data?.failCount ?? 0,
+        status: data?.status || '',
+        message: data?.message || 'MMS 발송 처리가 완료되었습니다.',
       });
 
       setSuccessMessage(
-        data?.message ||
-          'MMS 발송 처리가 완료되었습니다.'
+        (data?.message || 'MMS 발송 처리가 완료되었습니다.') +
+          ` (토큰 ${requiredTokens}개가 차감되었습니다.)`
       );
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
+      // 🌟 토큰 부족 에러 감지 및 충전 페이지 안내
+      const errorMsg = error.message || '';
+      if (errorMsg.includes('토큰') || errorMsg.includes('부족')) {
+        const moveCharge = window.confirm(
+          `${errorMsg}\n\n토큰 충전 페이지로 이동하시겠습니까?`
+        );
+        if (moveCharge) {
+          window.location.href = '/charge';
+        }
+        setIsSending(false);
+        return;
+      }
+
       setErrorMessage(
-        error.message ||
-          'MMS 발송 중 오류가 발생했습니다.'
+        errorMsg || 'MMS 발송 중 오류가 발생했습니다.'
       );
     } finally {
       setIsSending(false);
@@ -1082,7 +1082,7 @@ export default function SendMms() {
                       mt-1.5
                     "
                   >
-                    이미지 관리에서 생성한 홍보 이미지를 선택해주세요.
+                    이미지 관리에서 생성한 홍보 이미지를 선택해주세요. (이미지 생성 시 2토큰 차감)
                   </p>
                 </div>
 
@@ -1646,6 +1646,14 @@ export default function SendMms() {
                       : '즉시 발송'
                   }
                 />
+              </div>
+
+              {/* 🌟 토큰 차감 안내 알림 박스 (발송하기 버튼 바로 위) */}
+              <div className="bg-[#f0e8dc] border border-[#17372a]/20 p-4 text-center">
+                <p className="text-[14px] text-[#17372a] font-medium">
+                  💡 선택하신 수신자 <strong className="text-emerald-800 font-bold">{selectedContactNums.length}명</strong>에게 발송 시, 
+                  총 <strong className="text-emerald-800 font-bold">{selectedContactNums.length * 3}개</strong>의 토큰이 차감됩니다. <span className="text-[12px] text-[#6b7971]">(1인당 3토큰 차감)</span>
+                </p>
               </div>
 
               <button

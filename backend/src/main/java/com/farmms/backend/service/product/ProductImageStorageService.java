@@ -105,12 +105,6 @@ public class ProductImageStorageService {
                             .bucket(bucketName)
                             .key(objectKey)
                             .contentType(contentType)
-
-                            /*
-                             * Object Storage에 저장된 이미지를
-                             * 브라우저가 인증 없이 읽을 수 있도록
-                             * 공개 읽기 권한을 적용합니다.
-                             */
                             .acl(
                                     ObjectCannedACL.PUBLIC_READ
                             )

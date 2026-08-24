@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import Header from './Header'; // 공통 헤더 임포트
 
 export default function UserToken() {
-  // 예시용 보유 토큰 상태
-  const [tokenCount, setTokenCount] = useState(15);
+  // localStorage에서 보유 토큰을 가져오고, 없으면 15로 초기화
+  const [tokenCount, setTokenCount] = useState(() => {
+    return parseInt(localStorage.getItem('userTokens') || '15', 10);
+  });
 
   // 30개, 100개, 300개, 600개 패키지 목록 (1토큰 = 50원 기준)
   const tokenPackages = [
@@ -42,8 +44,15 @@ export default function UserToken() {
     // 1. 결제 완료 팝업 띄우기
     alert(`[결제 완료]\n${pkg.title} (${pkg.tokens}개) 결제가 완료되었습니다!`);
 
-    // 2. 보유 토큰 개수 즉시 증가 시키기
-    setTokenCount((prev) => prev + pkg.tokens);
+    // 2. 보유 토큰 개수 계산
+    const newTotal = tokenCount + pkg.tokens;
+
+    // 3. 로컬 스토리지 업데이트
+    localStorage.setItem('userTokens', newTotal);
+
+    // 4. 상태 변경 및 헤더 연동을 위한 새로고침
+    setTokenCount(newTotal);
+    window.location.reload();
   };
 
   return (
