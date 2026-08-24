@@ -68,6 +68,9 @@ public class ContactService {
 
     /**
      * 로그인한 사용자의 전체 고객을 조회합니다.
+     *
+     * 목록에서는 개인정보 보호를 위해
+     * 전화번호를 마스킹해서 반환합니다.
      */
     public List<ContactResponse> findAll(
             Long userNum
@@ -77,7 +80,7 @@ public class ContactService {
                         userNum
                 )
                 .stream()
-                .map(ContactResponse::from)
+                .map(ContactResponse::fromMasked)
                 .toList();
     }
 
@@ -138,6 +141,9 @@ public class ContactService {
 
     /**
      * 로그인한 사용자의 고객 한 명을 조회합니다.
+     *
+     * 상세 조회에서는 수정 등에 사용할 수 있도록
+     * 원본 전화번호를 반환합니다.
      */
     public ContactResponse findOne(
             Long userNum,
@@ -181,6 +187,9 @@ public class ContactService {
 
     /**
      * 지역과 재배작물 조건으로 고객을 검색합니다.
+     *
+     * 검색 결과도 목록이므로
+     * 전화번호를 마스킹해서 반환합니다.
      */
     public List<ContactResponse> search(
             Long userNum,
@@ -204,7 +213,7 @@ public class ContactService {
                         searchCrop
                 )
                 .stream()
-                .map(ContactResponse::from)
+                .map(ContactResponse::fromMasked)
                 .toList();
     }
 
@@ -237,7 +246,9 @@ public class ContactService {
     /**
      * 작물값의 공백을 정리합니다.
      */
-    private String normalizeCrop(String crop) {
+    private String normalizeCrop(
+            String crop
+    ) {
         if (crop == null || crop.isBlank()) {
             return null;
         }

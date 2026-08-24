@@ -1,9 +1,13 @@
 package com.farmms.backend.controller;
 
+import java.nio.file.Path;
 import java.util.List;
 
-import com.farmms.backend.dto.image.ImageGenerateAcceptedResponse;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,11 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.farmms.backend.dto.image.GeneratedImageResponse;
 import com.farmms.backend.dto.image.ImageDownloadResponse;
+import com.farmms.backend.dto.image.ImageGenerateAcceptedResponse;
 import com.farmms.backend.dto.image.ImageGenerateRequest;
 import com.farmms.backend.dto.image.ImageRegenerateRequest;
 import com.farmms.backend.dto.image.ImageRegenerateResponse;
 import com.farmms.backend.service.image.GeneratedImageService;
+import com.farmms.backend.service.image.GeneratedImageStorageService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +41,9 @@ public class GeneratedImageController {
 
     private final GeneratedImageService
             generatedImageService;
+
+    private final GeneratedImageStorageService
+            generatedImageStorageService;
 
     /**
      * 로그인한 사용자가 소유한
@@ -72,6 +82,71 @@ public class GeneratedImageController {
     }
 
     /**
+     * 로그인한 사용자가 소유한
+     * 생성 이미지 파일을 반환합니다.
+     *
+     * /uploads/generated/** 직접 접근은 차단하고
+     * 반드시 이 API를 통해서만 이미지를 조회합니다.
+     */
+    @GetMapping("/{imageId}/file")
+    public ResponseEntity<Resource> findImageFile(
+            @AuthenticationPrincipal Long userNum,
+            @PathVariable Long imageId
+    ) {
+
+        /*
+         * 먼저 로그인한 사용자가
+         * 해당 이미지의 소유자인지 확인합니다.
+         */
+        GeneratedImageResponse image =
+                generatedImageService.findOne(
+                        userNum,
+                        imageId
+                );
+
+        /*
+         * 아직 이미지 생성이 완료되지 않았거나
+         * 이미지 주소가 존재하지 않는 경우입니다.
+         */
+        if (
+                image.imageUrl() == null
+                ||
+                image.imageUrl().isBlank()
+        ) {
+            throw new EntityNotFoundException(
+                    "생성된 이미지 파일을 찾을 수 없습니다."
+            );
+        }
+
+        /*
+         * DB에 저장된 이미지 URL을
+         * 실제 서버 파일 경로로 변환합니다.
+         */
+        Path imagePath =
+                generatedImageStorageService
+                        .resolveStoredImagePath(
+                                image.imageUrl()
+                        );
+
+        Resource resource =
+                new FileSystemResource(
+                        imagePath
+                );
+
+        /*
+         * 개인정보 및 이미지 캐시 노출을 줄이기 위해
+         * 브라우저 캐시는 저장하지 않도록 설정합니다.
+         */
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .cacheControl(
+                        CacheControl.noStore()
+                )
+                .body(resource);
+    }
+
+    /**
      * 새로운 AI 홍보 이미지 생성 요청을 접수합니다.
      *
      * 실제 OpenAI 이미지 생성은
@@ -101,21 +176,6 @@ public class GeneratedImageController {
      * 기존 생성 이미지를 기반으로
      * 사용자가 입력한 수정 요청을 반영하여
      * 새로운 이미지를 재생성합니다.
-     *
-     * 예:
-     *
-     * 기존 이미지:
-     * 판매가격 35,000원
-     *
-     * 수정 요청:
-     * "35,000원을 25,000원으로 변경해주세요."
-     *
-     * 결과:
-     * 기존 디자인을 최대한 유지하면서
-     * 판매가격이 25,000원으로 변경된
-     * 새로운 이미지가 생성됩니다.
-     *
-     * 기존 이미지는 삭제하거나 덮어쓰지 않습니다.
      */
     @PostMapping("/regenerate")
     public ResponseEntity<ImageRegenerateResponse> regenerate(
@@ -129,10 +189,6 @@ public class GeneratedImageController {
                         request
                 );
 
-        /*
-         * 재생성을 통해 새로운 이미지가 생성되므로
-         * HTTP 201 CREATED를 반환합니다.
-         */
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);

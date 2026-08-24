@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.farmms.backend.service.image.GeneratedImageStorageService;
+import com.farmms.backend.service.product.ProductImageStorageService;
 
 /**
  * OpenAI 이미지 생성 API를 사용하는 실제 구현체입니다.
@@ -27,8 +28,8 @@ import com.farmms.backend.service.image.GeneratedImageStorageService;
  * 참고 이미지가 없으면 images/generations API를 사용하고,
  * 참고 이미지가 있으면 images/edits API를 사용합니다.
  *
- * 상품 참고 이미지는 NCP Object Storage URL(https://...)에서도
- * 직접 다운로드하여 OpenAI에 multipart 파일로 전달할 수 있습니다.
+ * 상품 참고 이미지는 NCP Object Storage에서 서버 권한으로 읽어
+ * OpenAI에 multipart 파일로 전달할 수 있습니다.
  */
 @Component
 @ConditionalOnProperty(
@@ -53,6 +54,9 @@ public class OpenAiImageGenerationGateway
 
     private final GeneratedImageStorageService
             generatedImageStorageService;
+
+    private final ProductImageStorageService
+            productImageStorageService;
 
     private final HttpClient httpClient;
 
@@ -86,7 +90,10 @@ public class OpenAiImageGenerationGateway
             ObjectMapper objectMapper,
 
             GeneratedImageStorageService
-                    generatedImageStorageService
+                    generatedImageStorageService,
+
+            ProductImageStorageService
+                    productImageStorageService
     ) {
         if (
                 apiKey == null ||
@@ -116,6 +123,9 @@ public class OpenAiImageGenerationGateway
 
         this.generatedImageStorageService =
                 generatedImageStorageService;
+
+        this.productImageStorageService =
+                productImageStorageService;
 
         this.httpClient =
                 HttpClient.newBuilder()
@@ -226,7 +236,7 @@ public class OpenAiImageGenerationGateway
      *
      * 참고 이미지는 다음 형식을 모두 지원합니다.
      *
-     * 1. NCP Object Storage 등의 외부 HTTP/HTTPS URL
+     * 1. NCP Object Storage 상품 참고 이미지
      * 2. 기존 AI 생성 이미지 /uploads/generated/...
      * 3. 과거 로컬 상품 이미지 /uploads/products/...
      */
@@ -499,7 +509,7 @@ public class OpenAiImageGenerationGateway
      * multipart 요청에 참고 이미지 파일을 추가합니다.
      *
      * Path가 아니라 byte[]를 사용하므로
-     * NCP Object Storage의 외부 URL 이미지도 바로 전달할 수 있습니다.
+     * NCP Object Storage에서 서버 권한으로 읽은 이미지도 전달할 수 있습니다.
      */
     private void writeFilePart(
             ByteArrayOutputStream output,
@@ -540,7 +550,8 @@ public class OpenAiImageGenerationGateway
     }
 
     /**
-     * 참고 이미지 URL의 종류에 따라 실제 이미지 데이터를 확보합니다.
+     * 참고 이미지 URL 종류에 따라
+     * 실제 이미지 데이터를 확보합니다.
      */
     private ReferenceImageData resolveReferenceImageData(
             String referenceImageUrl
@@ -561,14 +572,44 @@ public class OpenAiImageGenerationGateway
                         .replace("\\", "/");
 
         /*
-         * NCP Object Storage를 포함한 외부 HTTP/HTTPS URL
+         * NCP Object Storage의 상품 참고 이미지
+         *
+         * 일반 HTTP 요청으로 가져오지 않고,
+         * 서버의 NCP Access Key / Secret Key를 이용해서
+         * Private Object Storage에서 직접 읽습니다.
+         */
+        if (
+                productImageStorageService
+                        .isManagedImageUrl(
+                                normalizedUrl
+                        )
+        ) {
+
+            ProductImageStorageService.ProductImageData image =
+                    productImageStorageService.read(
+                            normalizedUrl
+                    );
+
+            return new ReferenceImageData(
+                    image.bytes(),
+                    image.fileName(),
+                    image.contentType()
+            );
+        }
+
+        /*
+         * 서버가 관리하지 않는 임의의 외부 URL은
+         * 보안상 참고 이미지로 허용하지 않습니다.
+         *
+         * 사용자가 임의 URL을 넣어 서버가 다른 주소로
+         * 요청을 보내는 SSRF 위험을 차단합니다.
          */
         if (
                 normalizedUrl.startsWith("http://") ||
                 normalizedUrl.startsWith("https://")
         ) {
-            return downloadExternalReferenceImage(
-                    normalizedUrl
+            throw new IllegalArgumentException(
+                    "허용되지 않은 외부 참고 이미지 주소입니다."
             );
         }
 
@@ -604,114 +645,6 @@ public class OpenAiImageGenerationGateway
                 resolveProductReferenceImagePath(
                         normalizedUrl
                 )
-        );
-    }
-
-    /**
-     * NCP Object Storage 등의 외부 URL에서
-     * 참고 이미지를 다운로드합니다.
-     */
-    private ReferenceImageData downloadExternalReferenceImage(
-            String imageUrl
-    ) {
-
-        URI imageUri;
-
-        try {
-            imageUri =
-                    URI.create(imageUrl);
-
-        } catch (Exception error) {
-            throw new IllegalArgumentException(
-                    "상품 참고 이미지 URL이 올바르지 않습니다.",
-                    error
-            );
-        }
-
-        HttpRequest request =
-                HttpRequest.newBuilder()
-                        .uri(imageUri)
-                        .timeout(
-                                Duration.ofSeconds(60)
-                        )
-                        .GET()
-                        .build();
-
-        HttpResponse<byte[]> response;
-
-        try {
-            response =
-                    httpClient.send(
-                            request,
-                            HttpResponse.BodyHandlers
-                                    .ofByteArray()
-                    );
-
-        } catch (InterruptedException error) {
-            Thread.currentThread().interrupt();
-
-            throw new IllegalStateException(
-                    "상품 참고 이미지 다운로드가 중단되었습니다.",
-                    error
-            );
-
-        } catch (IOException error) {
-            throw new IllegalStateException(
-                    "상품 참고 이미지를 다운로드할 수 없습니다.",
-                    error
-            );
-        }
-
-        if (
-                response.statusCode() < 200 ||
-                response.statusCode() >= 300
-        ) {
-            throw new IllegalStateException(
-                    "상품 참고 이미지를 다운로드할 수 없습니다. "
-                    + "(HTTP "
-                    + response.statusCode()
-                    + ")"
-            );
-        }
-
-        byte[] imageBytes =
-                response.body();
-
-        if (
-                imageBytes == null ||
-                imageBytes.length == 0
-        ) {
-            throw new IllegalStateException(
-                    "다운로드한 상품 참고 이미지가 비어 있습니다."
-            );
-        }
-
-        String fileName =
-                extractFileNameFromUrl(
-                        imageUri
-                );
-
-        String contentType =
-                response.headers()
-                        .firstValue(
-                                "Content-Type"
-                        )
-                        .map(value ->
-                                value.split(";")[0].trim()
-                        )
-                        .filter(value ->
-                                value.startsWith("image/")
-                        )
-                        .orElseGet(() ->
-                                determineContentTypeFromFileName(
-                                        fileName
-                                )
-                        );
-
-        return new ReferenceImageData(
-                imageBytes,
-                fileName,
-                contentType
         );
     }
 
@@ -862,41 +795,6 @@ public class OpenAiImageGenerationGateway
         }
 
         return MediaType.IMAGE_PNG_VALUE;
-    }
-
-    /**
-     * 외부 URL에서 파일명을 추출합니다.
-     */
-    private String extractFileNameFromUrl(
-            URI uri
-    ) {
-
-        String path =
-                uri.getPath();
-
-        if (
-                path == null ||
-                path.isBlank() ||
-                path.endsWith("/")
-        ) {
-            return "reference-image.png";
-        }
-
-        int lastSlash =
-                path.lastIndexOf('/');
-
-        String fileName =
-                lastSlash >= 0
-                        ? path.substring(
-                                lastSlash + 1
-                        )
-                        : path;
-
-        if (fileName.isBlank()) {
-            return "reference-image.png";
-        }
-
-        return fileName;
     }
 
     /**
