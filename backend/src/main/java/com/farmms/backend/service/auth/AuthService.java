@@ -99,7 +99,8 @@ public class AuthService {
         String accessToken =
                 jwtTokenProvider.createAccessToken(
                         user.getUserNum(),
-                        user.getUserId()
+                        user.getUserId(),
+                        user.getRole()
                 );
 
         return new LoginResponse(

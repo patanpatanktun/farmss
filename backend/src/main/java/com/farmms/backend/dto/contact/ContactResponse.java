@@ -1,12 +1,10 @@
 package com.farmms.backend.dto.contact;
 
 import com.farmms.backend.domain.contact.Contact;
+import com.farmms.backend.util.PhoneMaskingUtil;
 
 import lombok.Getter;
 
-/**
- * 고객 연락처 정보를 반환하는 응답 데이터입니다.
- */
 @Getter
 public class ContactResponse {
 
@@ -34,7 +32,8 @@ public class ContactResponse {
     }
 
     /**
-     * Contact Entity를 응답 DTO로 변환합니다.
+     * 고객 상세조회용
+     * 전화번호 원본을 반환합니다.
      */
     public static ContactResponse from(
             Contact contact
@@ -44,6 +43,25 @@ public class ContactResponse {
                 contact.getGroupNum(),
                 contact.getConName(),
                 contact.getPhone(),
+                contact.getRegion(),
+                contact.getCrop()
+        );
+    }
+
+    /**
+     * 고객 목록조회용
+     * 전화번호를 마스킹해서 반환합니다.
+     */
+    public static ContactResponse fromMasked(
+            Contact contact
+    ) {
+        return new ContactResponse(
+                contact.getConNum(),
+                contact.getGroupNum(),
+                contact.getConName(),
+                PhoneMaskingUtil.mask(
+                        contact.getPhone()
+                ),
                 contact.getRegion(),
                 contact.getCrop()
         );

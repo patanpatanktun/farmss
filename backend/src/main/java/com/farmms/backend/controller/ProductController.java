@@ -3,6 +3,7 @@ package com.farmms.backend.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import com.farmms.backend.service.image.GeneratedImageStorageService;
 import com.farmms.backend.service.product.ProductImageStorageService;
 import com.farmms.backend.service.product.ProductService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -101,6 +103,69 @@ public class ProductController {
                 );
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 로그인한 회원이 소유한 상품의
+     * 참고 이미지 파일을 조회합니다.
+     *
+     * NCP Object Storage는 Private 상태이므로
+     * 사용자가 Object Storage URL에 직접 접근하지 않고
+     * 백엔드가 서버 권한으로 읽은 이미지를 반환합니다.
+     */
+    @GetMapping("/{proNum}/reference-image/file")
+    public ResponseEntity<byte[]> findReferenceImageFile(
+            @AuthenticationPrincipal Long userNum,
+            @PathVariable Long proNum
+    ) {
+
+        /*
+         * 먼저 상품 소유권을 확인합니다.
+         *
+         * 다른 사용자의 상품 번호를 전달하면
+         * ProductService에서 상품을 찾을 수 없도록 처리됩니다.
+         */
+        ProductResponse product =
+                productService.findOne(
+                        userNum,
+                        proNum
+                );
+
+        String referenceImageUrl =
+                product.referenceImageUrl();
+
+        if (
+                referenceImageUrl == null ||
+                referenceImageUrl.isBlank()
+        ) {
+            throw new EntityNotFoundException(
+                    "상품 참고 이미지를 찾을 수 없습니다."
+            );
+        }
+
+        /*
+         * NCP Object Storage의 Private 이미지를
+         * 서버의 Access Key / Secret Key 권한으로 읽습니다.
+         */
+        ProductImageStorageService.ProductImageData image =
+                productImageStorageService.read(
+                        referenceImageUrl
+                );
+
+        MediaType contentType =
+                MediaType.parseMediaType(
+                        image.contentType()
+                );
+
+        return ResponseEntity
+                .ok()
+                .contentType(contentType)
+                .cacheControl(
+                        CacheControl.noStore()
+                )
+                .body(
+                        image.bytes()
+                );
     }
 
     /**

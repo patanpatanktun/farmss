@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.farmms.backend.security.jwt.JwtAuthenticationFilter;
 import com.farmms.backend.security.jwt.JwtTokenProvider;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -39,6 +40,7 @@ public class SecurityConfig {
                 );
 
         http
+
                 /*
                  * REST API에서 JWT를 사용하므로
                  * CSRF를 비활성화합니다.
@@ -71,8 +73,34 @@ public class SecurityConfig {
                         )
                 )
 
+                /*
+                 * 인증 실패와 권한 부족을 구분합니다.
+                 *
+                 * 인증 실패:
+                 * JWT 없음 / 잘못된 JWT -> 401
+                 *
+                 * 권한 부족:
+                 * 인증은 됐지만 권한이 없음 -> 403
+                 */
+                .exceptionHandling(exception ->
+                        exception
+                                .authenticationEntryPoint(
+                                        (request, response, authException) ->
+                                                response.sendError(
+                                                        HttpServletResponse.SC_UNAUTHORIZED
+                                                )
+                                )
+                                .accessDeniedHandler(
+                                        (request, response, accessDeniedException) ->
+                                                response.sendError(
+                                                        HttpServletResponse.SC_FORBIDDEN
+                                                )
+                                )
+                )
+
                 .authorizeHttpRequests(auth ->
                         auth
+
                                 /*
                                  * 정적 프론트엔드 파일은
                                  * 로그인 없이 접근할 수 있습니다.
@@ -92,15 +120,14 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 상품 참고 이미지와 생성 이미지는
-                                 * 화면 및 MMS에서 표시할 수 있도록
-                                 * 로그인 없이 접근을 허용합니다.
+                                 * 업로드 파일은 URL을 통한
+                                 * 직접 접근을 차단합니다.
                                  */
                                 .requestMatchers(
                                         "/uploads/products/**",
                                         "/uploads/generated/**"
                                 )
-                                .permitAll()
+                                .denyAll()
 
                                 /*
                                  * 회원가입 및 로그인은
@@ -113,11 +140,7 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 정부 지원사업 공지사항의
-                                 * 조회 요청만 공개합니다.
-                                 *
-                                 * GET /api/notices
-                                 * GET /api/notices/{noticeId}
+                                 * 공지사항 조회는 공개합니다.
                                  */
                                 .requestMatchers(
                                         HttpMethod.GET,
@@ -125,6 +148,37 @@ public class SecurityConfig {
                                         "/api/notices/**"
                                 )
                                 .permitAll()
+
+                                /*
+                                 * 공지사항 등록은
+                                 * ADMIN만 가능합니다.
+                                 */
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/notices",
+                                        "/api/notices/**"
+                                )
+                                .hasRole("ADMIN")
+
+                                /*
+                                 * 공지사항 수정은
+                                 * ADMIN만 가능합니다.
+                                 */
+                                .requestMatchers(
+                                        HttpMethod.PATCH,
+                                        "/api/notices/**"
+                                )
+                                .hasRole("ADMIN")
+
+                                /*
+                                 * 공지사항 삭제는
+                                 * ADMIN만 가능합니다.
+                                 */
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/api/notices/**"
+                                )
+                                .hasRole("ADMIN")
 
                                 /*
                                  * Spring 기본 오류 경로입니다.
@@ -135,9 +189,8 @@ public class SecurityConfig {
                                 .permitAll()
 
                                 /*
-                                 * 연락처, 상품, 이미지,
-                                 * MMS 및 회원정보 API는
-                                 * 유효한 JWT가 있어야 합니다.
+                                 * 그 외 API는
+                                 * 유효한 JWT가 필요합니다.
                                  */
                                 .anyRequest()
                                 .authenticated()
