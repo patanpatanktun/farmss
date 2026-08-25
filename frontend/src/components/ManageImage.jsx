@@ -804,7 +804,7 @@ export default function ManageImage() {
                         {downloadingImageId ===
                         image.imageId
                           ? '준비 중'
-                          : '저장'}
+                          : '다운로드'}
                       </button>
 
                       <button
